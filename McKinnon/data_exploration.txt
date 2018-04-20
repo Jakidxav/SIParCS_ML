@@ -1,0 +1,25 @@
+## Number of files:
+
+ddvento@cheyenne3 /glade/p/work/ddvento/ML/McKinnon_data $ ls -l ghcnd/ghcnd_all | head
+total 35297792
+-rwxr-xr-x 1 ddvento consult   13230 Apr 19 12:23 ACW00011604.dly
+-rwxr-xr-x 1 ddvento consult  117180 Apr 19 12:34 ACW00011647.dly
+-rw-r----- 1 ddvento consult  577530 Apr 19 12:18 AE000041196.dly
+ddvento@cheyenne3 /glade/p/work/ddvento/ML/McKinnon_data $ ls -l ghcnd/ghcnd_all | tail
+-rwxr-xr-x 1 ddvento consult  250560 Apr 19 12:33 ZI000067865.dly
+-rwxr-xr-x 1 ddvento consult  358830 Apr 19 12:29 ZI000067867.dly
+-rwxr-xr-x 1 ddvento consult  356400 Apr 19 12:36 ZI000067889.dly
+-rwxr-xr-x 1 ddvento consult   77760 Apr 19 12:21 ZI000067964.dly
+ddvento@cheyenne3 /glade/p/work/ddvento/ML/McKinnon_data $ ls -l ghcnd/ghcnd_all | wc -l
+106284
+ddvento@cheyenne3 /glade/p/work/ddvento/ML/McKinnon_data $ wc -l ghcnd/ghcnd-stations.txt 
+106283 ghcnd/ghcnd-stations.txt
+
+SUMMARY: there are 106283 files (stations)
+
+---
+
+## Invalid vs Valid data 
+
+SUMMARY: 
+
