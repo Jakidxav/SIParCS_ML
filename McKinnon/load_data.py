@@ -49,11 +49,10 @@ def station_data (directory, stn_id, start_year = 1982, end_year = 2015, start_d
             line = 'Data for '+ stn_id + ' is avialble for : ' \
                     + str(stn_data['YYYY'].min()) +' '\
                     + str(stn_data['YYYY'].max())
-            print (line)
 
             ##processing based on year and days
 
             yrs_data = stn_data[(stn_data['YYYY']>=start_year) & (stn_data['YYYY']<=end_year)]
             stn_data__selected_time = yrs_data[(yrs_data['jday']>=start_doy) & (yrs_data['jday']<=end_doy)]
             
-            return stn_data__selected_time
+            return stn_data__selected_time, line
