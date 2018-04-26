@@ -4,6 +4,24 @@ import datetime
 import pandas as pd
 import datetime as dt
 
+def all_sst_data(directory, lead_time=10, lat_lims = [20.,50.], lon_lims = [145.,230.],
+                            start_year = 1982, end_year = 2015, start_doy = 175, end_doy = 234, debug = False):
+  sst_list = []
+
+  for yr in range(start_year, end_year+1):
+    if debug:
+      print ('------------------------------------------------------------------')
+      print ("Processing SST data for Year : " + str(yr))
+        
+    sst_name = "sst.day.anom."+str(yr)+".nc"
+    sst_year = process_sst_data (directory, yr, start_doy, end_doy, \
+                      lead_time, lat_lims, lon_lims)
+        
+    sst_list.append(sst_year)
+
+  return sst_list
+
+
 def process_sst_data (sst_dir, yr, start_doy, end_doy, lead_time, lat_lims, lon_lims):
             '''
             * This functions import global daily sst data
