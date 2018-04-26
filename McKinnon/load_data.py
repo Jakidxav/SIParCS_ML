@@ -79,3 +79,23 @@ def station_anomaly (stn_data, var):
             means = stn_data.groupby(['MM','DD'])[var].transform('mean')
             stn_data[var_anom] = stn_data[var] - means
             return stn_data
+
+def find_hot_days (stn_data, cut_off):
+            '''
+            * Find the hot days (or extreme events) based on a cut off value.
+            * Store this flag ('HOT') as a column in the stn_data.
+            ----------
+            Parameters:
+                stn_data ---
+                cut_off --- cut off value for the extreme events
+            -------
+            Returns:
+                stn_data --- 
+            
+            -------
+            Example:
+                find_hot_days (stn_data, cut_off)
+                
+            '''
+            stn_data['HOT'] = np.where(stn_data['TMAX_ANOM']>= cut_off,1,0)
+            return stn_data

@@ -37,5 +37,12 @@ def test_station_anomaly():
 
 def test_hot_days():
   data_with_anomaly = make_fake_data()
-  #load_data.find_hot_days
-  assert False
+  data_with_hot = load_data.find_hot_days(data_with_anomaly, 3.0)
+  tmax_in_1980 = data_with_anomaly[data_with_anomaly['YYYY'] == 1980]['HOT']
+  assert tmax_in_1980[0] == 0                                                        # hot year, but not day
+  assert tmax_in_1980[5] == 1                                                        # hot year, hot day
+  assert tmax_in_1980[7] == 1                                                        # hot year, hot day
+  tmax_in_1981 = data_with_anomaly[data_with_anomaly['YYYY'] == 1981]['HOT']
+  assert (tmax_in_1981 == 0).all()                                                   # average
+  tmax_in_1982 = data_with_anomaly[data_with_anomaly['YYYY'] == 1982]['HOT']
+  assert (tmax_in_1982 == 0).all()                                                   # cold
