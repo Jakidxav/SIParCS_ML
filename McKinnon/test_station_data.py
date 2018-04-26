@@ -12,6 +12,16 @@ def make_fake_data():
   print (data_with_anomaly)
   return data_with_anomaly
 
+def test_load_many_stations():
+  stn_list = []
+  for line in open("10-stn-list.txt"):
+    stn_list.append(line.strip())
+  assert len(stn_list) > 1
+
+  all_stations = load_station_data.all_stations_data("../McKinnon_data/ghcnd/ghcnd_all_csv", stn_list)
+  assert len(all_stations) == len(stn_list)
+  assert all_stations[-1].shape[0] > 100
+
 def test_load_station():
    data, info = load_station_data.station_data("../McKinnon_data/ghcnd/ghcnd_all_csv", "USC00145063")
    

@@ -5,6 +5,24 @@ import datetime
 import pandas as pd
 import datetime as dt
 
+def all_stations_data (directory, stn_list, cut_off= 6.5, start_year = 1982, end_year = 2015, start_doy = 175, end_doy = 234, debug = False):
+  ghcnd_list = [] 
+  for counter, stn_id in enumerate(stn_list):
+    if debug:
+        print ('------------------------------------------------------------------')
+        line = "Processing file number " + str(counter) +'\n'+ \
+                        "station ID : " +stn_id
+        print (line)
+                
+    stn_data, progress = station_data(directory, stn_id, start_year, end_year, start_doy, end_doy)
+
+    stn_data = station_anomaly(stn_data, 'TMAX')
+    stn_data = find_hot_days (stn_data, cut_off)
+    ghcnd_list.append(stn_data)
+
+  return ghcnd_list
+                
+
 def station_data (directory, stn_id, start_year = 1982, end_year = 2015, start_doy = 175, end_doy = 234):
             '''
                 * Opens the csv file for the GHCND station as data frame
