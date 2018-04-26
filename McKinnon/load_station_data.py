@@ -5,7 +5,7 @@ import datetime
 import pandas as pd
 import datetime as dt
 
-def station_data (directory, stn_id, start_year = 1982, end_year = 2015, start_doy = 175, end_doy = 225):
+def station_data (directory, stn_id, start_year = 1982, end_year = 2015, start_doy = 175, end_doy = 234):
             '''
                 * Opens the csv file for the GHCND station as data frame
                 * Add a pd.datetime column to the df
