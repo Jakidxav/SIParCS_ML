@@ -2,6 +2,16 @@ import load_data
 import pandas as pd
 import itertools
 
+def make_fake_data():
+  my_dates = [[1980, 1981, 1982], [7, 8], [1,2,3,4]]
+  stn_data = pd.DataFrame(list(itertools.product(*my_dates)), columns = ["YYYY", "MM", "DD"])
+  stuff = [10, 11, 12, 13, 14, 15, 16, 17]
+  stn_data['TMAX'] = [i * 1.2 for i in stuff] + stuff + [i * .8 for i in stuff]
+  print (stn_data)
+  data_with_anomaly = load_data.station_anomaly (pd.DataFrame(stn_data), "TMAX")
+  print (data_with_anomaly)
+  return data_with_anomaly
+
 def test_load_station():
    data, info = load_data.station_data("../McKinnon_data/ghcnd/ghcnd_all_csv", "USC00145063")
    
@@ -15,13 +25,7 @@ def test_load_station():
    assert 200 in data['jday'].values
 
 def test_station_anomaly():
-  my_dates = [[1980, 1981, 1982], [7, 8], [1,2,3,4]]
-  stn_data = pd.DataFrame(list(itertools.product(*my_dates)), columns = ["YYYY", "MM", "DD"])
-  stuff = [10, 11, 12, 13, 14, 15, 16, 17]
-  stn_data['TMAX'] = [i * 1.2 for i in stuff] + stuff + [i * .8 for i in stuff]
-  print (stn_data)
-  data_with_anomaly = load_data.station_anomaly (pd.DataFrame(stn_data), "TMAX")
-  print (data_with_anomaly)
+  data_with_anomaly = make_fake_data()
   tmax_in_1981 = data_with_anomaly[data_with_anomaly['YYYY'] == 1981]['TMAX_ANOM'] 
   print (tmax_in_1981)
   assert (tmax_in_1981 == 0).all()
@@ -30,3 +34,8 @@ def test_station_anomaly():
   assert tmax_in_1980[0] == 2
   tmax_in_1982 = data_with_anomaly[data_with_anomaly['YYYY'] == 1982]['TMAX_ANOM'] 
   assert tmax_in_1982[24 - 3] == - 15 * .2                                           # 24 elements, -3 is the third to last and its value is 15
+
+def test_hot_days():
+  data_with_anomaly = make_fake_data()
+  #load_data.find_hot_days
+  assert False
