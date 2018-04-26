@@ -1,9 +1,4 @@
-import subprocess
 import os
-import glob
-import sys
-import re
-import csv
 import netCDF4 as nc
 import numpy as np
 import datetime
