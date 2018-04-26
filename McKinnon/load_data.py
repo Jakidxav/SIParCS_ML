@@ -56,3 +56,26 @@ def station_data (directory, stn_id, start_year = 1982, end_year = 2015, start_d
             stn_data__selected_time = yrs_data[(yrs_data['jday']>=start_doy) & (yrs_data['jday']<=end_doy)]
             
             return stn_data__selected_time, line
+
+def station_anomaly (stn_data, var):
+            '''
+            calc_stn_anom :
+                *Calculates the anomalies of selected var for the station.
+            ----------
+            Parameters:
+                stn_data ---
+                var --- Name of the varibale to calculate anomalies on :
+                        e.g. TMAX, TMIN, PRCP
+            -------
+            Returns:
+                stn_data --- 
+            
+            -------
+            Example:
+                calc_stn_anom (stn_data, 'TMAX')
+                
+            '''
+            var_anom = var + "_ANOM"
+            means = stn_data.groupby(['MM','DD'])[var].transform('mean')
+            stn_data[var_anom] = stn_data[var] - means
+            return stn_data
