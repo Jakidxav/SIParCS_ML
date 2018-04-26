@@ -1,4 +1,4 @@
-import load_data
+import load_station_data
 import pandas as pd
 import itertools
 
@@ -8,12 +8,12 @@ def make_fake_data():
   stuff = [10, 11, 12, 13, 14, 15, 16, 17]
   stn_data['TMAX'] = [i * 1.2 for i in stuff] + stuff + [i * .8 for i in stuff]
   print (stn_data)
-  data_with_anomaly = load_data.station_anomaly (pd.DataFrame(stn_data), "TMAX")
+  data_with_anomaly = load_station_data.station_anomaly (pd.DataFrame(stn_data), "TMAX")
   print (data_with_anomaly)
   return data_with_anomaly
 
 def test_load_station():
-   data, info = load_data.station_data("../McKinnon_data/ghcnd/ghcnd_all_csv", "USC00145063")
+   data, info = load_station_data.station_data("../McKinnon_data/ghcnd/ghcnd_all_csv", "USC00145063")
    
    assert 1982 in data['YYYY'].values
    assert 1999 in data['YYYY'].values
@@ -37,7 +37,7 @@ def test_station_anomaly():
 
 def test_hot_days():
   data_with_anomaly = make_fake_data()
-  data_with_hot = load_data.find_hot_days(data_with_anomaly, 3.0)
+  data_with_hot = load_station_data.find_hot_days(data_with_anomaly, 3.0)
   tmax_in_1980 = data_with_anomaly[data_with_anomaly['YYYY'] == 1980]['HOT']
   assert tmax_in_1980[0] == 0                                                        # hot year, but not day
   assert tmax_in_1980[5] == 1                                                        # hot year, hot day
