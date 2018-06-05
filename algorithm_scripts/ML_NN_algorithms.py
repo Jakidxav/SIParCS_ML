@@ -64,32 +64,94 @@ def calculateAUROC(fp, tp):
 #dense nn
     # most of this should be from Negin. just need to focus on optimizing
 def dnn():
+    '''
+    implements a dense neural network
+
+    Arguments:
+        neuronLayer : array containing the number of neurons perlayer excluding input layer
+        remaining tuning parameters
+        iterations : number of iterations to train the model
+
+    Returns:
+        denseModel : a trained keras dense network
+    '''
     print("dense neural network")
 
 #cnn
     # start with 3x convlayer and poolLayer repeats.
     #activation functions to start with:
 def cnn():
+    '''
+    implements a convolutional neural network
+
+    Arguments:
+        neuronLayer : array containing the number of neurons perlayer excluding input layer
+        remaining tuning parameters
+        iterations : number of iterations to train the model
+
+    Returns:
+        convModel : a trained keras convolutional network
+    '''
     print("convoultional neural network")
 
 # rnn
     # do stuff. look at what might be a good starting point
 def rnn():
+    '''
+    implements a recurrent neural network
+
+    Arguments:
+        neuronLayer : array containing the number of neurons perlayer excluding input layer
+        remaining tuning parameters
+        iterations : number of iterations to train the model
+
+    Returns:
+        recurrentModel : a trained keras recurrent network
+    '''
     print("recurrent neural network")
 
 #RBFN
     #do stuff, look at what might be a good starting point
 def rbfn():
+    '''
+    implements a radial bayes neural network
+
+    Arguments:
+        neuronLayer : array containing the number of neurons perlayer excluding input layer
+        remaining tuning parameters
+        iterations : number of iterations to train the model
+
+    Returns:
+        rbfModel : a trained keras RBF network
+    '''
     print("radial bayes neural network")
 
 #siamese nn
     # DO NOT ATTEMPT UNTIL LAST. can use example from https://gist.github.com/mmmikael/0a3d4fae965bdbec1f9d
 def snn():
+    '''
+    implements a siamese neural network
+
+    Arguments:
+        neuronLayer : array containing the number of neurons perlayer excluding input layer
+        remaining tuning parameters
+        iterations : number of iterations to train the model
+
+    Returns:
+        siameseModel : a trained keras siamese network
+    '''
     print("siamese neural network")
-    
+
 #main stuff
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
     print("you are in main.")
 
+    #for all dataset directories & all data in each:
+        #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
+        #run AUROC calculation on each trained models
+
+        #run dev sets and AUROC calculation
+
+        #run test sets.
     print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.5,.6,.7,.8,.85,.85,.9,1.0]))
