@@ -11,7 +11,7 @@ this script will take the premade datasets and run them through the various ML N
 and return ROC scores; can use the binary_accuaracy method in keras as a starting pointself.
 This script will also include optimizers so that we can get the best
 scores possible.
-
+ 
 NEED TO FIGURE OUT HOW TO DO THE FOLLOWING IN KERAS EFFECIENTLY
 algorithms to include:
     dense nn - already created by Negin so will just need to try optimizing
