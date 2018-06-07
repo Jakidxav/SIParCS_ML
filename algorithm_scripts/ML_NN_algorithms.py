@@ -22,10 +22,11 @@ algorithms to include:
 will need each algorithm method to take in certain parameters to make optimizing easier.
     keras optimizers are specifically for things like momentum, learning rate, epislon, etc etc
     thus, we will have to manually (or write a method to) change number on neurons and/or layers (and # in each layer)
-    will probably want to automate this. EACH NN METHOD SHOULD TAKE IN # NEURONS
+    will probably want to automate this. 
+    EACH NN METHOD SHOULD TAKE IN # NEURONS
     AS AN ARRAY WHERE EACH INDEX IS A NONINPUT LAYER, EACH RELEVANT TUNING PARAMETER. should use a for loops when setting up
     layers to go through number of neurons and layers. should make each method as versitile as possible s.t. network optimization
-    can be easily optimized.
+    can be easily optimized. can also add in the hidden activation and output activation if needed.
 
 benefits of embedding layers? need to use?
 
@@ -79,7 +80,7 @@ def brier_skill_score_keras(obs, preds):
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, iterations, train_data, train_label):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label):
     '''
     implements a dense neural network
 
@@ -96,25 +97,30 @@ def dnn(neuronLayer, iterations, train_data, train_label):
     print("dense neural network")
     #initilaize model with Sequential()
     denseModel = Sequential()
-
+    #AveragePooling2D(poolesize = (32,32)) negin used this as the first layer. should we try it too?
     denseModel.add(Dense(neuronLayer[0], train_data.shape, activation = 'relu'))
 
     for i in range(1,len(neuronLayer)):
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
         denseModel.add(Dense(neuronLayer[i], activation = 'relu'))
-        denseModel.add(Dropout(0.5))
+        denseModel.add(Dropout(drop))
 
-        if(i == (len(neuronLayer) - 1):
+        if(i == (len(neuronLayer) - 1): #this is the output layer; # neurons should be equal to 1
             denseModel.add(Dense(neuronLayer[i], activation = 'sigmoid'))
 
     #define optimizer
-    opt_dense = SGD(lr=0.0001, momentum=0.99, decay=1e-4, nesterov=True)
+    opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     #compile
     denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras])
-    #.fit(self, x=None, y=None, batch_size=None, epochs=1, verbose=1, callbacks=None, validation_split=0.0, validation_data=None, shuffle=True, class_weight=None, sample_weight=None, initial_epoch=0, steps_per_epoch=None, validation_steps=None)
-    #.evaluate(self, x=None, y=None, batch_size=None, verbose=1, sample_weight=None, steps=None)
-    #look at performance; requires a predict,
+
+    #dense_hist = denseModel.fit(norm_train_x_2, train_y, batch_size=256, epochs=150, verbose=2,validation_data=(norm_test_x_2, test_y))
+    #predict
+    #denseModel.predict(norm_test_x)
+
+    #evaluate
+    #score = dense_model.evaluate(norm_test_x_2, test_y, verbose=1)
+    #print(score)
 
     return denseModel
 
@@ -198,7 +204,9 @@ if __name__ == "__main__":
 
     #for all dataset directories & all data in each:
         #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
-        #dnn([],)
+
+        #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label) #these are all negins values right now.
+
         #run AUROC calculation on each trained models
 
         #run dev sets and AUROC calculation
