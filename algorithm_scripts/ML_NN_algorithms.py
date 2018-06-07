@@ -104,7 +104,8 @@ def dnn(neuronLayer, iterations, train_data, train_label):
         denseModel.add(Dense(neuronLayer[i], activation = 'relu'))
         denseModel.add(Dropout(0.5))
 
-    denseModel.add(Dense(1, activation = 'sigmoid'))
+        if(i == (len(neuronLayer) - 1):
+            denseModel.add(Dense(neuronLayer[i], activation = 'sigmoid'))
 
     #define optimizer
     opt_dense = SGD(lr=0.0001, momentum=0.99, decay=1e-4, nesterov=True)
