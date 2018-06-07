@@ -29,9 +29,11 @@ will need each algorithm method to take in certain parameters to make optimizing
     can be easily optimized. can also add in the hidden activation and output activation if needed.
 
 need to write out all info regarding metrics and paramters to a file. should include the original picture with corresponding label,
-    and ROC, bss graphs. will need to name file so that these parameters are easily tracked. 
+    and ROC, bss graphs. will need to name file so that these parameters are easily tracked.
 
-benefits of embedding layers? need to use?
+    will also need to save models once they are fully trained/work (hopefully)
+
+need to change train_data.shape to use slicing..... Karen is not good at slicing
 
 datasets:
     should be set up with various lead prediction times. ex: 10, 30, 45, 60 days in advance
@@ -50,6 +52,7 @@ from keras.optimizers import SGD, Adam
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
 import sklearn.metrics
+import _pickle as cPickle
 
 
 #ROC calculations. will need to use this V datasets on all algorithms
@@ -109,16 +112,19 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     print("dense neural network")
     #initilaize model with Sequential()
     denseModel = Sequential()
+    #add first layers
     denseModel.add(AveragePooling2D(poolesize = (32,32))(train_data.shape)) # negin used this as the first layer. need to double check syntax
-    denseModel.add(Dense(neuronLayer[0], activation = 'relu'))
+    denseModel.add(Flatten())
 
-    for i in range(1,len(neuronLayer)):
+    for layer in neuronLayer:
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
-        denseModel.add(Dense(neuronLayer[i], activation = 'relu'))
         denseModel.add(Dropout(drop))
+        denseModel.add(Dense(neuronLayer[layer], activation = 'relu'))
 
-        if(i == (len(neuronLayer) - 1): #this is the output layer; # neurons should be equal to 1
-            denseModel.add(Dense(neuronLayer[i], activation = 'sigmoid'))
+        #this is the output layer; # neurons should be equal to 1
+        if(layer == (len(neuronLayer) - 1)):
+            denseModel.add(Dropout(drop))
+            denseModel.add(Dense(neuronLayer[layer], activation = 'sigmoid'))
 
     #define optimizer
     opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
@@ -139,23 +145,49 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
 #cnn
     # start with 3x convlayer and poolLayer repeats.
-    #activation functions to start with: relu or LeakyReLU
-def cnn():
+    #activation functions to start with: relu or LeakyReLU;CHECK ON OPTIMIZERS FOR CNN
+def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label):
     '''
     implements a convolutional neural network
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
-        remaining tuning parameters
+        kernel : size of conv kernel
+        pool : pool_size amount
+        strideC : length of conv stride
+        strideP : length of pool stride
+        learnRate : learning rate
         iterations : number of iterations to train the model
-        train_data : data to train on
-        train_label : labels of training data
+        train_data : data to train on (numpy array)
+        train_label : labels of training data (numpy array)
 
     Returns:
         convModel : a trained keras convolutional network
+
+    Example:
+        cnn([32,64, 1000, 1], 5, 2, 1, 1, 0.01, 1000, train_data, train_label)
     '''
     print("convoultional neural network")
 
+    #initilaize model with Sequential
+    convModel = Sequential()
+
+    #add first conv and pooling layers
+    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel, kernel), strides=(strideC, strideC),activation='relu', input_shape=train_data.shape))
+    convModel.add(MaxPooling2D(pool_size=(pool, pool), strides=(strideP, strideP)))
+
+    for layer in range(1, len(neuronLayer) - 3):
+        convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel,kernel), activation='relu'))
+        convModel.add(MaxPooling2D(pool_size=(pool, pool), strides=(strideP, strideP)))
+
+    convModel.add(Flatten())
+    convModel.add(Dense(neuronLayer[len(neuronLayer) - 2], activation='relu'))
+    convModel.add(Dense(neuronLayer[len(neuronLayer) - 1], activation='softmax'))
+
+    convModel.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.SGD(lr=learnRate),metrics=[brier_skill_score_keras])
+    convModel.fit(train_data, train_label,batch_size=batch_size,epochs=epochs,verbose=1,validation_data=(test_data, test_label))
+
+    return convModel
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
 def rnn():
