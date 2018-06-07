@@ -22,11 +22,14 @@ algorithms to include:
 will need each algorithm method to take in certain parameters to make optimizing easier.
     keras optimizers are specifically for things like momentum, learning rate, epislon, etc etc
     thus, we will have to manually (or write a method to) change number on neurons and/or layers (and # in each layer)
-    will probably want to automate this. 
+    will probably want to automate this.
     EACH NN METHOD SHOULD TAKE IN # NEURONS
     AS AN ARRAY WHERE EACH INDEX IS A NONINPUT LAYER, EACH RELEVANT TUNING PARAMETER. should use a for loops when setting up
     layers to go through number of neurons and layers. should make each method as versitile as possible s.t. network optimization
     can be easily optimized. can also add in the hidden activation and output activation if needed.
+
+need to write out all info regarding metrics and paramters to a file. should include the original picture with corresponding label,
+    and ROC, bss graphs. will need to name file so that these parameters are easily tracked. 
 
 benefits of embedding layers? need to use?
 
@@ -80,25 +83,34 @@ def brier_skill_score_keras(obs, preds):
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, test_data, test_label):
     '''
     implements a dense neural network
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
-        remaining tuning parameters
+        drop : % of neurons to drop. must be 0 < & < 1
+        learnRate : learning rate. should be a float
+        momentum : momentum. should be float
+        decay : decay. also float
+        boolNest : boolean representing if nesterov is used for optimizing
         iterations : number of iterations to train the model
         train_data : numpy array data to train on
         train_label : numpy array labels of training data
+        test_data : numpy array of test data
+        test_label : numpy array of test labels
 
     Returns:
         denseModel : a trained keras dense network
+
+    Example :
+        dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label)
     '''
     print("dense neural network")
     #initilaize model with Sequential()
     denseModel = Sequential()
-    #AveragePooling2D(poolesize = (32,32)) negin used this as the first layer. should we try it too?
-    denseModel.add(Dense(neuronLayer[0], train_data.shape, activation = 'relu'))
+    denseModel.add(AveragePooling2D(poolesize = (32,32))(train_data.shape)) # negin used this as the first layer. need to double check syntax
+    denseModel.add(Dense(neuronLayer[0], activation = 'relu'))
 
     for i in range(1,len(neuronLayer)):
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
@@ -114,12 +126,13 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     #compile
     denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras])
 
-    #dense_hist = denseModel.fit(norm_train_x_2, train_y, batch_size=256, epochs=150, verbose=2,validation_data=(norm_test_x_2, test_y))
+    #dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=150, verbose=2,validation_data=(test_data, test_label))
+    #might need to move these outside of training method. then would also need to move test sets outside of this method....
     #predict
-    #denseModel.predict(norm_test_x)
+    #denseModel.predict(test_data)
 
     #evaluate
-    #score = dense_model.evaluate(norm_test_x_2, test_y, verbose=1)
+    #score = dense_model.evaluate(test_data, test_label, verbose=1)
     #print(score)
 
     return denseModel
@@ -202,7 +215,7 @@ def snn():
 if __name__ == "__main__":
     print("you are in main.")
 
-    #for all dataset directories & all data in each:
+    #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
         #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
 
         #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label) #these are all negins values right now.
