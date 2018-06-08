@@ -52,7 +52,9 @@ from keras.optimizers import SGD, Adam
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
 import sklearn.metrics
-import _pickle as cPickle
+import pickle
+import os
+import datetime
 
 
 #ROC calculations. will need to use this V datasets on all algorithms
@@ -128,6 +130,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     #define optimizer
     opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+    denseModel.summary()
 
     #compile
     denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras])
@@ -246,17 +249,51 @@ def snn():
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
     print("you are in main.")
+    X_train_filename = 'X_train_scratch.txt'
+
+    #start setting up the name for the output file
+    date = datetime.datetime.now().strftime("%y%m%d_")
+    print(date)
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
+    #can change this directory once run location on cheyenne is selected
+    '''
+    for folder in os.listdir('/glade/work/joshuadr/IPython'):
+
+        #get lead time to save to output file name
+        lead,extra = folder.split("_")
+        outputPrefix = date + lead + "_"
+        print(outputPrefix)
+
+        #extract the data from all the necessary files for the given lead time
+        # need to change
+        with open(folder + "/X_train/X_train.txt", 'rb') as file:
+            train_data = pickle.load(file)
+
+        with open(folder + "/X_dev/X_dev.txt", 'rb') as file:
+            dev_data = pickle.load(file)
+
+        with open(folder + "/X_val/X_val.txt", 'rb') as file:
+            test_data = pickle.load(file)
+
+        with open(folder + "/Y_train/Y_train.txt", 'rb') as file:
+            train_label = pickle.load(file)
+
+        with open(folder + "/Y_dev/Y_dev.txt", 'rb') as file:
+            dev_label = pickle.load(file)
+
+        with open(folder + "/Y_val/Y_val.txt", 'rb') as file:
+            test_label = pickle.load(file)
+
         #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
 
-        #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label) #these are all negins values right now.
-
-        #run AUROC calculation on each trained models
-
-        #run dev sets and AUROC calculation
+        #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label,dev_data, dev_label) #these are all negins values right now.
+        #cnn()
+        #rnn()
+        #rbfn()
+        #snn()
 
         #run test sets.
             # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
-
-    print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.5,.6,.7,.8,.85,.85,.9,1.0]))
+    '''
+    print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.9,.9,.9,.9,.85,.85,.9,1.0]))
