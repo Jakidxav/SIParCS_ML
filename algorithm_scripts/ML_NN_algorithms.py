@@ -88,7 +88,7 @@ def brier_skill_score_keras(obs, preds):
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, test_data, test_label):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label):
     '''
     implements a dense neural network
 
@@ -135,8 +135,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     #compile
     denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras])
 
-    #dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=150, verbose=2,validation_data=(test_data, test_label))
-    #might need to move these outside of training method. then would also need to move test sets outside of this method....
+    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
     #predict
     #denseModel.predict(test_data)
 
@@ -148,8 +147,9 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
 #cnn
     # start with 3x convlayer and poolLayer repeats.
-    #activation functions to start with: relu or LeakyReLU;CHECK ON OPTIMIZERS FOR CNN
-def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label):
+    #WILL NEED TO CHANGE THE KERNEL, POOL, STRIDE PARAMS TO BE LISTS SO THAT ALEXNETS/OTHER NETS
+    #WITH VARYING STRIDES ETC CAN BE IMPLEMENTED
+def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label, dev_data, dev_label):
     '''
     implements a convolutional neural network
 
@@ -168,7 +168,8 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
         convModel : a trained keras convolutional network
 
     Example:
-        cnn([32,64, 1000, 1], 5, 2, 1, 1, 0.01, 1000, train_data, train_label)
+        cnn([32,64, 1000, 1], 5, 2, 1, 1, 0.01, 1000, train_data, train_label, dev_data, dev_label)
+        lenet would be: cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label)
     '''
     print("convoultional neural network")
 
@@ -201,13 +202,39 @@ def rnn():
         neuronLayer : array containing the number of neurons perlayer excluding input layer
         remaining tuning parameters
         iterations : number of iterations to train the model
+        boolLSTM : boolean representing to use LSTM net or simple RNN
         train_data : data to train on
         train_label : labels of training data
+        dev_data : data for dev set/validation
+        dev_label : labels for the dev set
 
     Returns:
         recurrentModel : a trained keras recurrent network
     '''
     print("recurrent neural network")
+
+    #set up model with sequential
+    #use a timeDistributed(conv2D) followed by timeDistributed(maxpooling2d) followed by timeDistributed(flatten())
+    # the above scheme should allow for the images to be processed similarly to a movie prediction.
+    #EMBEDDING LAYER? LOOK into
+
+    # use if statement to determine if the user wants to use LSTM or RNN
+
+    #if LSTM then set up the LSTM network
+
+    # for layers in neuronLayer
+        #add LSTM layer
+        #if using Dropout
+            #add dropout layer
+
+    #add a time distrubeted layer with dense
+    #add final activationlayer
+
+    #else set up the rnn
+        #
+
+    #compile the model
+    # 
 
 #RBFN
     #do stuff, look at what might be a good starting point
@@ -287,8 +314,8 @@ if __name__ == "__main__":
 
         #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
 
-        #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label,dev_data, dev_label) #these are all negins values right now.
-        #cnn()
+        #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label) #these are all negins values right now.
+        #cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label) # these are the lenet values
         #rnn()
         #rbfn()
         #snn()
