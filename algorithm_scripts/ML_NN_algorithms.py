@@ -47,6 +47,7 @@ import keras.backend as K
 from keras.models import Model, save_model, load_model
 from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU
 from keras.layers import Dropout, BatchNormalization
+from keras.metrics import binary_accuaracy
 from keras.regularizers import l2
 from keras.optimizers import SGD, Adam
 from IPython.display import SVG
@@ -56,6 +57,8 @@ import pickle
 import os
 import datetime
 
+#path for data output. each file should contain all used params after training and metrics
+outputDir = "/glade/work/joshuadr/IPython/data"
 
 #ROC calculations. will need to use this V datasets on all algorithms
 def calculateAUROC(fp, tp):
@@ -85,12 +88,11 @@ def brier_skill_score_keras(obs, preds):
     climo = K.mean((obs - K.mean(obs)) ** 2)
     return 1.0 - brier_score_keras(obs, preds) / climo
 
-
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
-    implements a dense neural network
+    implements a dense neural network. also outputs info to a file.
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
@@ -109,39 +111,73 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
         denseModel : a trained keras dense network
 
     Example :
-        dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label)
+        dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label, dev_data, dev_label, outputDL)
     '''
     print("dense neural network")
+    #set final output name/location.
+    outputFile = outputDL + "dnn"
+    print(outputFile)
+    #create and fill file with parameters and network info
+    file = open(outputFile + '.txt', "w+")
+    file.write("neuronLayer ", neuronLayer)
+    file.write("drop ", drop)
+    file.write("learnRate ", learnRate)
+    file.write("momentum ", momentum)
+    file.write("decay ", decay)
+    file.write("boolNest ", boolNest)
+    file.write("iterations ", iterations)
+
     #initilaize model with Sequential()
     denseModel = Sequential()
     #add first layers
-    denseModel.add(AveragePooling2D(poolesize = (32,32))(train_data.shape)) # negin used this as the first layer. need to double check syntax
+    denseModel.add(AveragePooling2D(poolesize = (32,32))(train_data.shape[1:])) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
     for layer in neuronLayer:
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
         denseModel.add(Dropout(drop))
-        denseModel.add(Dense(neuronLayer[layer], activation = 'relu'))
+        denseModel.add(Dense(neuronLayer[layer])
+        denseModel.add(Activation('relu'))
 
         #this is the output layer; # neurons should be equal to 1
         if(layer == (len(neuronLayer) - 1)):
             denseModel.add(Dropout(drop))
-            denseModel.add(Dense(neuronLayer[layer], activation = 'sigmoid'))
+            denseModel.add(Dense(neuronLayer[layer])
+            denseModel.add(Activation('sigmoid'))
 
     #define optimizer
     opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
     denseModel.summary()
 
     #compile
-    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras])
+    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras, binary_accuracy])
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
-    #predict
-    #denseModel.predict(test_data)
+    #plot info
+    #bss plot
+    plt.plot((dense_histdense_his.epoch, dense_hist.history["val_brier_skill_score_keras"], label="validation")
+    plt.plot(dense_hist.epoch, dense_hist.history["brier_skill_score_keras"], label="train")
+    plt.xticks(dense_hist.epoch)
+    #plt.ylim(-1, 1)
+    plt.legend()
+    plt.ylabel("Brier Skill Score")
+    plt.xlabel("Epoch")
+    plt.title("Dense Net Training History")
+    plt.savefig(outputFile + '_bss.png')
+    plt.clear()
 
-    #evaluate
-    #score = dense_model.evaluate(test_data, test_label, verbose=1)
-    #print(score)
+    #roc plot
+    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
+    plt.plot((dense_histdense_his.epoch, dense_hist.history["val_binary_accuracy"], label="validation")
+    plt.plot(dense_hist.epoch, dense_hist.history["binary_accuracy"], label="train")
+    plt.xticks(dense_hist.epoch)
+    #plt.ylim(-1, 1)
+    plt.legend()
+    plt.ylabel("accuracy")
+    plt.xlabel("Epoch")
+    plt.title("Dense Net Training History")
+    plt.savefig(outputFile + '_roc.png')
+    plt.clear()
 
     return denseModel
 
@@ -155,10 +191,10 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
-        kernel : size of conv kernel
-        pool : pool_size amount
-        strideC : length of conv stride
-        strideP : length of pool stride
+        kernel : array of size of conv kernel
+        pool : array of pool_size amount
+        strideC : array of lengths of conv stride
+        strideP : array of lengths of pool stride
         learnRate : learning rate
         iterations : number of iterations to train the model
         train_data : data to train on (numpy array)
@@ -170,8 +206,11 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     Example:
         cnn([32,64, 1000, 1], 5, 2, 1, 1, 0.01, 1000, train_data, train_label, dev_data, dev_label)
         lenet would be: cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label)
+        alexnet: https://gist.github.com/JBed/c2fb3ce8ed299f197eff
     '''
     print("convoultional neural network")
+    #make sure all lists are the same length s.t. the for loops for setting up dont break
+    assert (len(kernel) == len(pool) == len(strideC) == len(strideP))
 
     #initilaize model with Sequential
     convModel = Sequential()
@@ -234,7 +273,7 @@ def rnn():
         #
 
     #compile the model
-    # 
+    #
 
 #RBFN
     #do stuff, look at what might be a good starting point
@@ -289,8 +328,9 @@ if __name__ == "__main__":
 
         #get lead time to save to output file name
         lead,extra = folder.split("_")
-        outputPrefix = date + lead + "_"
-        print(outputPrefix)
+        outputDL = date + lead + "_"
+        print(outputDL)
+        outputFile = outputDir + outputDL
 
         #extract the data from all the necessary files for the given lead time
         # need to change
@@ -313,14 +353,15 @@ if __name__ == "__main__":
             test_label = pickle.load(file)
 
         #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
+        #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
-        #dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label) #these are all negins values right now.
-        #cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label) # these are the lenet values
-        #rnn()
-        #rbfn()
-        #snn()
+        denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
+        #convNN = cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label) # these are the lenet values
+        #recurrNN = rnn()
+        #radialBayesNN = rbfn()
+        #siameseNN = snn()
 
         #run test sets.
-            # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
+        # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
     '''
-    print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.9,.9,.9,.9,.85,.85,.9,1.0]))
+    #print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.9,.9,.9,.9,.85,.85,.9,1.0]))
