@@ -147,12 +147,12 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     for layer in neuronLayer:
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
         denseModel.add(Dropout(drop))
-        denseModel.add(Dense(neuronLayer[layer], activation = 'relu'))
+        denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'relu'))
 
         #this is the output layer; # neurons should be equal to 1
         if(layer == (len(neuronLayer) - 1)):
             denseModel.add(Dropout(drop))
-            denseModel.add(Dense(neuronLayer[layer], activation = 'sigmoid'))
+            denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
 
     #define optimizer
     opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
