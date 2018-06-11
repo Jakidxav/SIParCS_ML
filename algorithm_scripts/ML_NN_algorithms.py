@@ -345,7 +345,7 @@ if __name__ == "__main__":
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
     #can change this directory once run location on cheyenne is selected
 
-    for folder in os.listdir('../IPython/'):
+    for folder in os.listdir('../../IPython/'):
 
         #get lead time to save to output file name
         lead,extra = folder.split("_")
