@@ -187,18 +187,18 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     plt.title("Dense Net Training History")
     plt.savefig(outputFile + '_accuracy.png')
     plt.clear()
-    
+
     #roc plot
     plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot(dense_hist.history["val_FP"], dense_hist.history["val_TP"], label="validation")
-    plt.plot(dense_hist.history["FP"], dense_hist.history["TP"], label="train")
+    plt.plot(dense_hist.history["val_FP"], dense_hist.history["val_TP"], label='validation area = {:.3f})'.format(auc_keras))
+    plt.plot(dense_hist.history["FP"], dense_hist.history["TP"], label='train area = {:.3f}'.format(auc_keras))
     plt.xticks(dense_hist.epoch)
     #plt.ylim(-1, 1)
     plt.legend()
-    plt.ylabel("accuracy")
+    plt.ylabel("ROC")
     plt.xlabel("Epoch")
     plt.title("Dense Net Training History")
-    plt.savefig(outputFile + '_accuracy.png')
+    plt.savefig(outputFile + '_roc.png')
     plt.clear()
     return denseModel
 
