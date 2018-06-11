@@ -47,7 +47,7 @@ import keras.backend as K
 from keras.models import Model, save_model, load_model
 from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU
 from keras.layers import Dropout, BatchNormalization
-from keras.metrics import binary_accuaracy
+from keras.metrics import binary_accuracy
 from keras.regularizers import l2
 from keras.optimizers import SGD, Adam
 from IPython.display import SVG
@@ -61,25 +61,35 @@ import datetime
 outputDir = "/glade/work/joshuadr/IPython/data"
 
 #ROC calculations. will need to use this V datasets on all algorithms
-def calculateAUROC(fp, tp):
-    auroc = 0
+def rocValues(obs, pred):
     '''
     implements an AUROC calculation. also graphs the ROC curve
 
     Arguments:
-        tp : array containing true positives for each run
-        fp : array containing false positives for each run
-        tp and fp should be the same length! values must be 0< & <1
+        obs : array containing actual labels
+        pred : array containing predicted labels
 
     Returns:
-        auroc : double value
+        TP, FP, TN, FN
     '''
-    plt.plot(fp, tp, "b")
-    plt.plot([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0],[.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], "r--") # this is the .5 line, just for reference
-    plt.savefig('test.png') # will need to change naming scheme/setup once algorithms and various datasets are implemented.
-    #will have to modify name based off of set, algorithm, and hyperparameters. will also need to change save location
-    return sklearn.metrics.auc(fp, tp, reorder = False)
 
+    TP, FP, TN, FN = 0
+
+    for i in range(len(pred)):
+        if obs[i] == pred[i] == 1:
+            TP += 1
+        if pred[i] == 1 and pred[i] != obs[i]:
+            FP += 1
+        if pred[i] == 0 and pred[i] != obs[i]:
+            FN += 1
+        if obs[i] == pred[i] == 0:
+            TN += 1
+
+    return TP, FP, TN, FN
+def TP(obs, pred):
+    return K.metrics.true_positives(obs, pred)
+def FP(obs, pred):
+    return K.metrics.false_positives(obs, pred)
 #brier score and brier skill score. both methods written by Negin
 def brier_score_keras(obs, preds):
     return K.mean((preds - obs) ** 2)
@@ -106,6 +116,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
         train_label : numpy array labels of training data
         test_data : numpy array of test data
         test_label : numpy array of test labels
+        outputDL : path for data output
 
     Returns:
         denseModel : a trained keras dense network
@@ -136,26 +147,24 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     for layer in neuronLayer:
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
         denseModel.add(Dropout(drop))
-        denseModel.add(Dense(neuronLayer[layer])
-        denseModel.add(Activation('relu'))
+        denseModel.add(Dense(neuronLayer[layer], activation = 'relu'))
 
         #this is the output layer; # neurons should be equal to 1
         if(layer == (len(neuronLayer) - 1)):
             denseModel.add(Dropout(drop))
-            denseModel.add(Dense(neuronLayer[layer])
-            denseModel.add(Activation('sigmoid'))
+            denseModel.add(Dense(neuronLayer[layer], activation = 'sigmoid'))
 
     #define optimizer
     opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
     denseModel.summary()
 
     #compile
-    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras, binary_accuracy])
+    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras, binary_accuracy, TP, FP])
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
     #plot info
     #bss plot
-    plt.plot((dense_histdense_his.epoch, dense_hist.history["val_brier_skill_score_keras"], label="validation")
+    plt.plot(dense_hist.epoch, dense_hist.history["val_brier_skill_score_keras"], label="validation")
     plt.plot(dense_hist.epoch, dense_hist.history["brier_skill_score_keras"], label="train")
     plt.xticks(dense_hist.epoch)
     #plt.ylim(-1, 1)
@@ -166,9 +175,9 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     plt.savefig(outputFile + '_bss.png')
     plt.clear()
 
-    #roc plot
+    #accuracy plot
     plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot((dense_histdense_his.epoch, dense_hist.history["val_binary_accuracy"], label="validation")
+    plt.plot(dense_hist.epoch, dense_hist.history["val_binary_accuracy"], label="validation")
     plt.plot(dense_hist.epoch, dense_hist.history["binary_accuracy"], label="train")
     plt.xticks(dense_hist.epoch)
     #plt.ylim(-1, 1)
@@ -176,9 +185,21 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     plt.ylabel("accuracy")
     plt.xlabel("Epoch")
     plt.title("Dense Net Training History")
-    plt.savefig(outputFile + '_roc.png')
+    plt.savefig(outputFile + '_accuracy.png')
     plt.clear()
-
+    
+    #roc plot
+    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
+    plt.plot(dense_hist.history["val_FP"], dense_hist.history["val_TP"], label="validation")
+    plt.plot(dense_hist.history["FP"], dense_hist.history["TP"], label="train")
+    plt.xticks(dense_hist.epoch)
+    #plt.ylim(-1, 1)
+    plt.legend()
+    plt.ylabel("accuracy")
+    plt.xlabel("Epoch")
+    plt.title("Dense Net Training History")
+    plt.savefig(outputFile + '_accuracy.png')
+    plt.clear()
     return denseModel
 
 #cnn
