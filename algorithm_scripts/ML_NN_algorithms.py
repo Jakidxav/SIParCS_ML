@@ -52,7 +52,7 @@ from keras.regularizers import l2
 from keras.optimizers import SGD, Adam
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
-import sklearn.metrics
+import sklearn.metrics as skm
 import pickle
 import os
 import datetime
@@ -190,14 +190,14 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     #roc plot
     plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot(dense_hist.history["val_FP"], dense_hist.history["val_TP"], label='validation area = {:.3f})'.format(auc_keras))
-    plt.plot(dense_hist.history["FP"], dense_hist.history["TP"], label='train area = {:.3f}'.format(auc_keras))
-    plt.xticks(dense_hist.epoch)
+    plt.plot(dense_hist.history["val_FP"], dense_hist.history["val_TP"], label='validation area = {:.3f})'.format(skm.auc(dense_hist.history["val_FP"],dense_hist.history["val_TP"])))
+    plt.plot(dense_hist.history["FP"], dense_hist.history["TP"], label='train area = {:.3f}'.format(skm.auc(dense_hist.history["FP"],dense_hist.history["TP"])))
+    #plt.xticks(dense_hist.epoch)
     #plt.ylim(-1, 1)
     plt.legend()
-    plt.ylabel("ROC")
-    plt.xlabel("Epoch")
-    plt.title("Dense Net Training History")
+    plt.ylabel("True positive")
+    plt.xlabel("False positives")
+    plt.title("Dense Net ROC")
     plt.savefig(outputFile + '_roc.png')
     plt.clear()
     return denseModel
