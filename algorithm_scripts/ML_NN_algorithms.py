@@ -58,7 +58,7 @@ import os
 import datetime
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "/glade/work/joshuadr/IPython/data"
+outputDir = "../IPython/data/"
 
 #ROC calculations. will need to use this V datasets on all algorithms
 def rocValues(obs, pred):
@@ -344,8 +344,8 @@ if __name__ == "__main__":
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
     #can change this directory once run location on cheyenne is selected
-    '''
-    for folder in os.listdir('/glade/work/joshuadr/IPython'):
+
+    for folder in os.listdir('../IPython/'):
 
         #get lead time to save to output file name
         lead,extra = folder.split("_")
@@ -376,7 +376,7 @@ if __name__ == "__main__":
         #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
         #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
-        denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
+        #denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
         #convNN = cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label) # these are the lenet values
         #recurrNN = rnn()
         #radialBayesNN = rbfn()
@@ -384,5 +384,5 @@ if __name__ == "__main__":
 
         #run test sets.
         # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
-    '''
+
     #print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.9,.9,.9,.9,.85,.85,.9,1.0]))
