@@ -45,7 +45,7 @@ import numpy as np
 from keras.models import Sequential
 import keras.backend as K
 from keras.models import Model, save_model, load_model
-from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU
+from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU, TimeDistributed
 from keras.layers import Dropout, BatchNormalization
 from keras.metrics import binary_accuracy
 from keras.regularizers import l2
@@ -220,9 +220,9 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     # start with 3x convlayer and poolLayer repeats.
     #WILL NEED TO CHANGE THE KERNEL, POOL, STRIDE PARAMS TO BE LISTS SO THAT ALEXNETS/OTHER NETS
     #WITH VARYING STRIDES ETC CAN BE IMPLEMENTED
-def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label, dev_data, dev_label):
+def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
-    implements a convolutional neural network
+    implements a convolutional neural network and creates files with parameters and plots
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
@@ -234,16 +234,29 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
         iterations : number of iterations to train the model
         train_data : data to train on (numpy array)
         train_label : labels of training data (numpy array)
+        outputDL : path for data output
 
     Returns:
         convModel : a trained keras convolutional network
 
     Example:
-        cnn([32,64, 1000, 1], 5, 2, 1, 1, 0.01, 1000, train_data, train_label, dev_data, dev_label)
-        lenet would be: cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label)
+        cnn([32,64, 1000, 1], [5,5], [2,2], [1,1], [1,1], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
+        lenet would be: cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
         alexnet: https://gist.github.com/JBed/c2fb3ce8ed299f197eff
     '''
     print("convoultional neural network")
+
+    outputFile = outputDL + "cnn"
+    print(outputFile)
+    #create and fill file with parameters and network info
+    file = open(outputFile + '.txt', "w+")
+    file.write("neuronLayer ", neuronLayer)
+    file.write("kernel ", kernel)
+    file.write("learnRate ", learnRate)
+    file.write("pool ", pool)
+    file.write("strideC ", strideC)
+    file.write("strideP ", strideP)
+    file.write("iterations ", iterations)
     #make sure all lists are the same length s.t. the for loops for setting up dont break
     assert (len(kernel) == len(pool) == len(strideC) == len(strideP))
 
@@ -251,46 +264,69 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     convModel = Sequential()
 
     #add first conv and pooling layers
-    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel, kernel), strides=(strideC, strideC),activation='relu', input_shape=train_data.shape))
-    convModel.add(MaxPooling2D(pool_size=(pool, pool), strides=(strideP, strideP)))
+    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides=(strideC[0], strideC[0]),activation='relu', input_shape=train_data.shape[1:]))
+    convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0])))
 
     for layer in range(1, len(neuronLayer) - 3):
-        convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel,kernel), activation='relu'))
-        convModel.add(MaxPooling2D(pool_size=(pool, pool), strides=(strideP, strideP)))
+        convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), activation='relu'))
+        convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer])))
 
     convModel.add(Flatten())
     convModel.add(Dense(neuronLayer[len(neuronLayer) - 2], activation='relu'))
     convModel.add(Dense(neuronLayer[len(neuronLayer) - 1], activation='softmax'))
 
-    convModel.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.SGD(lr=learnRate),metrics=[brier_skill_score_keras])
-    convModel.fit(train_data, train_label,batch_size=batch_size,epochs=epochs,verbose=1,validation_data=(test_data, test_label))
+    convModel.summary()
+
+    convModel.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy, TP, FP])
+    conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
+
+    #plot stuff
+    makePlots(conv_hist, outputFile)
 
     return convModel
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn():
+def rnn(neuronLayer, dropout, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
-    implements a recurrent neural network
+    implements a recurrent neural network and creates files with parameters and plots
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
-        remaining tuning parameters
+        kernel :
+        pool :
+        strideC :
+        strideP :
+        dropout : % of neurons to dropout. set to 0 if not using dropout
         iterations : number of iterations to train the model
         boolLSTM : boolean representing to use LSTM net or simple RNN
         train_data : data to train on
         train_label : labels of training data
         dev_data : data for dev set/validation
         dev_label : labels for the dev set
+        outputDL : path for data output
 
     Returns:
-        recurrentModel : a trained keras recurrent network
+        recurModel : a trained keras recurrent network
     '''
     print("recurrent neural network")
+    outputFile = outputDL + "rnn"
+    print(outputFile)
+    #create and fill file with parameters and network info
+    file = open(outputFile + '.txt', "w+")
+    file.write("neuronLayer ", neuronLayer)
+    file.write("stuff")
+    file.write("boolLSTM ", boolLSTM)
+    file.write("iterations ", iterations)
 
     #set up model with sequential
+    recurModel = Sequential()
     #use a timeDistributed(conv2D) followed by timeDistributed(maxpooling2d) followed by timeDistributed(flatten())
-    # the above scheme should allow for the images to be processed similarly to a movie prediction.
-    #EMBEDDING LAYER? LOOK into
+    recurModel.add(TimeDistributed(Conv2D(neuronLayer[0], kernel_size=(kernel, kernel), strides=(strideC, strideC),activation='relu', input_shape=train_data.shape[1:])))
+    recurModel.add(TimeDistributed(MaxPooling2D(pool_size=(pool, pool), strides=(strideP, strideP))))
+    recurModel.add(TimeDistributed(Flatten()))
+
+    # the above scheme should allow for the images to be processed similar to movie frames.
+    #EMBEDDING LAYER? LOOK into; seems like its only for language processing?
 
     # use if statement to determine if the user wants to use LSTM or RNN
 
@@ -298,7 +334,7 @@ def rnn():
 
     # for layers in neuronLayer
         #add LSTM layer
-        #if using Dropout
+        #if dropout != 0
             #add dropout layer
 
     #add a time distrubeted layer with dense
@@ -306,9 +342,16 @@ def rnn():
 
     #else set up the rnn
         #
+    #recurModel.summary()
 
-    #compile the model
-    #
+    #compile and train the model
+    #recurModel.compile()
+    #recur_hist = convModel.fit()
+
+    #plot stuff
+    #makePlots(recur_hist, outputFile)
+
+    return recurModel
 
 #RBFN
     #do stuff, look at what might be a good starting point
@@ -358,7 +401,7 @@ if __name__ == "__main__":
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
     #can change this directory once run location on cheyenne is selected
-
+    '''
     for folder in os.listdir('../../IPython/'):
 
         #get lead time to save to output file name
@@ -391,12 +434,11 @@ if __name__ == "__main__":
         #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
         #denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
-        #convNN = cnn([20,50,500,2], 5,2,1,2, 0.01, 1000, train_data, train_label, dev_data, dev_label) # these are the lenet values
+        #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
         #recurrNN = rnn()
         #radialBayesNN = rbfn()
         #siameseNN = snn()
 
         #run test sets.
         # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
-
-    #print(calculateAUROC([.1,.2,.3,.4,.5,.6,.7,.8,.9,1.0], [.2,.5,.9,.9,.9,.9,.85,.85,.9,1.0]))
+    '''
