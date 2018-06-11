@@ -98,6 +98,55 @@ def brier_skill_score_keras(obs, preds):
     climo = K.mean((obs - K.mean(obs)) ** 2)
     return 1.0 - brier_score_keras(obs, preds) / climo
 
+def makePlots(model_hist, output):
+    '''
+    this method creates all relevent metric plots.
+
+    Arguments:
+        model_hist : History object created from a model.fit call
+        output : beginning of file name for each plot image output
+    Returns:
+        nothing. should create plot images
+    '''
+    #bss plot
+    plt.plot(model_hist.epoch, model_hist.history["val_brier_skill_score_keras"], label="validation")
+    plt.plot(model_hist.epoch, model_hist.history["brier_skill_score_keras"], label="train")
+    plt.xticks(model_hist.epoch)
+    #plt.ylim(-1, 1)
+    plt.legend()
+    plt.ylabel("Brier Skill Score")
+    plt.xlabel("Epoch")
+    plt.title("Dense Net Training History")
+    plt.savefig(output + '_bss.png')
+    plt.clear()
+
+    #accuracy plot
+    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
+    plt.plot(model_hist.epoch, model_hist.history["val_binary_accuracy"], label="validation")
+    plt.plot(model_hist.epoch, model_hist.history["binary_accuracy"], label="train")
+    plt.xticks(model_hist.epoch)
+    #plt.ylim(-1, 1)
+    plt.legend()
+    plt.ylabel("accuracy")
+    plt.xlabel("Epoch")
+    plt.title("Dense Net Training History")
+    plt.savefig(output + '_accuracy.png')
+    plt.clear()
+
+    #roc plot
+    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
+    plt.plot(model_hist.history["val_FP"], model_hist.history["val_TP"], label='validation area = {:.3f})'.format(skm.auc(model_hist.history["val_FP"],model_hist.history["val_TP"])))
+    plt.plot(model_hist.history["FP"], model_hist.history["TP"], label='train area = {:.3f}'.format(skm.auc(model_hist.history["FP"],model_hist.history["TP"])))
+    #plt.xticks(dense_hist.epoch)
+    #plt.ylim(-1, 1)
+    plt.legend()
+    plt.ylabel("True positive")
+    plt.xlabel("False positives")
+    plt.title("Dense Net ROC")
+    plt.savefig(output + '_roc.png')
+    plt.clear()
+
+
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
 def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label, outputDL):
@@ -163,43 +212,8 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
     #plot info
-    #bss plot
-    plt.plot(dense_hist.epoch, dense_hist.history["val_brier_skill_score_keras"], label="validation")
-    plt.plot(dense_hist.epoch, dense_hist.history["brier_skill_score_keras"], label="train")
-    plt.xticks(dense_hist.epoch)
-    #plt.ylim(-1, 1)
-    plt.legend()
-    plt.ylabel("Brier Skill Score")
-    plt.xlabel("Epoch")
-    plt.title("Dense Net Training History")
-    plt.savefig(outputFile + '_bss.png')
-    plt.clear()
+    makePlots(dense_hist, outputFile)
 
-    #accuracy plot
-    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot(dense_hist.epoch, dense_hist.history["val_binary_accuracy"], label="validation")
-    plt.plot(dense_hist.epoch, dense_hist.history["binary_accuracy"], label="train")
-    plt.xticks(dense_hist.epoch)
-    #plt.ylim(-1, 1)
-    plt.legend()
-    plt.ylabel("accuracy")
-    plt.xlabel("Epoch")
-    plt.title("Dense Net Training History")
-    plt.savefig(outputFile + '_accuracy.png')
-    plt.clear()
-
-    #roc plot
-    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot(dense_hist.history["val_FP"], dense_hist.history["val_TP"], label='validation area = {:.3f})'.format(skm.auc(dense_hist.history["val_FP"],dense_hist.history["val_TP"])))
-    plt.plot(dense_hist.history["FP"], dense_hist.history["TP"], label='train area = {:.3f}'.format(skm.auc(dense_hist.history["FP"],dense_hist.history["TP"])))
-    #plt.xticks(dense_hist.epoch)
-    #plt.ylim(-1, 1)
-    plt.legend()
-    plt.ylabel("True positive")
-    plt.xlabel("False positives")
-    plt.title("Dense Net ROC")
-    plt.savefig(outputFile + '_roc.png')
-    plt.clear()
     return denseModel
 
 #cnn
@@ -373,7 +387,7 @@ if __name__ == "__main__":
         with open(folder + "/Y_val/Y_val.txt", 'rb') as file:
             test_label = pickle.load(file)
 
-        #train all nteworks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
+        #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
         #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
         #denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
