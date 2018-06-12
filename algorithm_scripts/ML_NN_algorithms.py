@@ -403,7 +403,7 @@ if __name__ == "__main__":
     outputFile = ""
 
     #start setting up the name for the output file
-    date = datetime.datetime.now().strftime("%y%m%d_")
+    date = datetime.datetime.now().strftime("%y%m%d-%H_")
     print(date)
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
