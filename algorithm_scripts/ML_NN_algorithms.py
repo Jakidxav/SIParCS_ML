@@ -45,7 +45,7 @@ import numpy as np
 from keras.models import Sequential
 import keras.backend as K
 from keras.models import Model, save_model, load_model
-from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU, TimeDistributed
+from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU, TimeDistributed, LSTM
 from keras.layers import Dropout, BatchNormalization
 from keras.metrics import binary_accuracy
 from keras.regularizers import l2
@@ -171,7 +171,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
         denseModel : a trained keras dense network
 
     Example :
-        dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label, dev_data, dev_label, outputDL)
+        dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label, dev_data, dev_label, outputDL)
     '''
     print("dense neural network")
     #set final output name/location.
@@ -240,7 +240,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
         convModel : a trained keras convolutional network
 
     Example:
-        cnn([32,64, 1000, 1], [5,5], [2,2], [1,1], [1,1], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
+        cnn([32,64, 1000, 2], [5,5], [2,2], [1,1], [1,1], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
         lenet would be: cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
         alexnet: https://gist.github.com/JBed/c2fb3ce8ed299f197eff
     '''
@@ -286,16 +286,16 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     return convModel
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, dropout, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
     Arguments:
         neuronLayer : array containing the number of neurons perlayer excluding input layer
-        kernel :
-        pool :
-        strideC :
-        strideP :
+        kernel : sixe of convolutional kernel
+        pool : size of pool
+        strideC : size of conv stride
+        strideP : size of pooling stride
         dropout : % of neurons to dropout. set to 0 if not using dropout
         iterations : number of iterations to train the model
         boolLSTM : boolean representing to use LSTM net or simple RNN
@@ -307,6 +307,9 @@ def rnn(neuronLayer, dropout, boolLSTM, iterations, train_data, train_label, dev
 
     Returns:
         recurModel : a trained keras recurrent network
+
+    Example:
+        rnn([],)
     '''
     print("recurrent neural network")
     outputFile = outputDL + "rnn"
@@ -314,6 +317,7 @@ def rnn(neuronLayer, dropout, boolLSTM, iterations, train_data, train_label, dev
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
     file.write("neuronLayer ", neuronLayer)
+    file.write("dropout ", drop)
     file.write("stuff")
     file.write("boolLSTM ", boolLSTM)
     file.write("iterations ", iterations)
@@ -329,20 +333,17 @@ def rnn(neuronLayer, dropout, boolLSTM, iterations, train_data, train_label, dev
     #EMBEDDING LAYER? LOOK into; seems like its only for language processing?
 
     # use if statement to determine if the user wants to use LSTM or RNN
+        #if LSTM then set up the LSTM network
+    for layer in range(len(neuronLayer)):
+        if boolLSTM:
+            recurModel.add(LSTM(neuronLayer[layer], return_sequences = True))
+        else:
+            print("RNN?")
+    if drop > 0:
+            recurModel.add(Dropout(drop))
 
-    #if LSTM then set up the LSTM network
-
-    # for layers in neuronLayer
-        #add LSTM layer
-        #if dropout != 0
-            #add dropout layer
-
-    #add a time distrubeted layer with dense
-    #add final activationlayer
-
-    #else set up the rnn
-        #
-    #recurModel.summary()
+    recurModel.add(Dense(2, activation = 'softmax'))
+    recurModel.summary()
 
     #compile and train the model
     #recurModel.compile()
@@ -433,7 +434,7 @@ if __name__ == "__main__":
         #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
         #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
-        #denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
+        #denseNN = dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
         #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
         #recurrNN = rnn()
         #radialBayesNN = rbfn()
