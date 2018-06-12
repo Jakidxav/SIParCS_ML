@@ -58,7 +58,7 @@ import os
 import datetime
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "../IPython/data/"
+outputDir = "./"
 
 #ROC calculations. will need to use this V datasets on all algorithms
 def rocValues(obs, pred):
@@ -176,21 +176,21 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     print("dense neural network")
     #set final output name/location.
     outputFile = outputDL + "dnn"
-    print(outputFile)
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    file.write("neuronLayer ", neuronLayer)
-    file.write("drop ", drop)
-    file.write("learnRate ", learnRate)
-    file.write("momentum ", momentum)
-    file.write("decay ", decay)
-    file.write("boolNest ", boolNest)
-    file.write("iterations ", iterations)
+
+    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
+    file.write("drop " + str(drop) + "\n")
+    file.write("learnRate " + str(learnRate) + "\n")
+    file.write("momentum "+ str(momentum) + "\n")
+    file.write("decay "+ str(decay) + "\n")
+    file.write("boolNest "+ str(boolNest) + "\n")
+    file.write("iterations "+ str(iterations) + "\n")
 
     #initilaize model with Sequential()
     denseModel = Sequential()
     #add first layers
-    denseModel.add(AveragePooling2D(poolesize = (32,32))(train_data.shape[1:])) # negin used this as the first layer. need to double check syntax
+    denseModel.add(AveragePooling2D(pool_size = (32,32))(train_data.shape[1:])) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
     for layer in neuronLayer:
@@ -394,7 +394,13 @@ def snn():
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
     print("you are in main.")
-    X_train_filename = 'X_train_scratch.txt'
+    train_data = None
+    train_label = None
+    dev_data = None
+    dev_label = None
+    test_data = None
+    test_label = None
+    outputFile = ""
 
     #start setting up the name for the output file
     date = datetime.datetime.now().strftime("%y%m%d_")
@@ -402,44 +408,45 @@ if __name__ == "__main__":
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
     #can change this directory once run location on cheyenne is selected
-    '''
-    for folder in os.listdir('../../IPython/'):
 
-        #get lead time to save to output file name
-        lead,extra = folder.split("_")
-        outputDL = date + lead + "_"
-        print(outputDL)
-        outputFile = outputDir + outputDL
+    for folder in os.listdir('.'):
 
         #extract the data from all the necessary files for the given lead time
         # need to change
-        with open(folder + "/X_train/X_train.txt", 'rb') as file:
-            train_data = pickle.load(file)
+        if not '.' in folder:
+            print('folder', folder)
+            #get lead time to save to output file name
+            lead,extra = folder.split("_")
+            outputDL = date + lead + "_"
+            print(outputDL)
+            outputFile = outputDir + outputDL
 
-        with open(folder + "/X_dev/X_dev.txt", 'rb') as file:
-            dev_data = pickle.load(file)
+            for f in os.listdir(folder):
 
-        with open(folder + "/X_val/X_val.txt", 'rb') as file:
-            test_data = pickle.load(file)
+                if not f.startswith('.'):
 
-        with open(folder + "/Y_train/Y_train.txt", 'rb') as file:
-            train_label = pickle.load(file)
+                    with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
+                        if f == 'X_train':
+                            train_data = pickle.load(file)
+                        if f == 'X_dev':
+                            dev_data = pickle.load(file)
+                        if f == 'X_val':
+                            test_data = pickle.load(file)
+                        if f == 'Y_train':
+                            train_label = pickle.load(file)
+                        if f == 'Y_dev':
+                            dev_label = pickle.load(file)
+                        if f == 'Y_val':
+                            test_label = pickle.load(file)
 
-        with open(folder + "/Y_dev/Y_dev.txt", 'rb') as file:
-            dev_label = pickle.load(file)
+    #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
+    #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
-        with open(folder + "/Y_val/Y_val.txt", 'rb') as file:
-            test_label = pickle.load(file)
+    denseNN = dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data, train_label,dev_data, dev_label, outputFile) #these are all negins values right now.
+    #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
+    #recurrNN = rnn()
+    #radialBayesNN = rbfn()
+    #siameseNN = snn()
 
-        #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
-        #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
-
-        #denseNN = dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data, train_label,dev_data, dev_label, outputDL) #these are all negins values right now.
-        #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
-        #recurrNN = rnn()
-        #radialBayesNN = rbfn()
-        #siameseNN = snn()
-
-        #run test sets.
-        # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
-    '''
+    #run test sets.
+    # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
