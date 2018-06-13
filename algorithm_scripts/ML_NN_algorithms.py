@@ -190,7 +190,8 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     #initilaize model with Sequential()
     denseModel = Sequential()
     #add first layers
-    denseModel.add(AveragePooling2D(pool_size = (32,32))(train_data.shape[1:])) # negin used this as the first layer. need to double check syntax
+    #fix the dimesions in pooling layer
+    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data.shape)) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
     for layer in neuronLayer:
@@ -424,10 +425,10 @@ if __name__ == "__main__":
             for f in os.listdir(folder):
 
                 if not f.startswith('.'):
-
+                    #fix the rest of these
                     with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
                         if f == 'X_train':
-                            train_data = pickle.load(file)
+                            train_data = np.array(pickle.load(file))
                         if f == 'X_dev':
                             dev_data = pickle.load(file)
                         if f == 'X_val':
@@ -441,6 +442,10 @@ if __name__ == "__main__":
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
+    #print(train_data[0])
+    np.asarray(train_data)
+    print(train_data[0].shape)
+    print(train_data[15].shape)
 
     denseNN = dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data, train_label,dev_data, dev_label, outputFile) #these are all negins values right now.
     #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
