@@ -191,7 +191,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     denseModel = Sequential()
     #add first layers
     #fix the dimesions in pooling layer
-    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data.shape)) # negin used this as the first layer. need to double check syntax
+    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data.shape[:1])) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
     for layer in neuronLayer:
@@ -445,7 +445,6 @@ if __name__ == "__main__":
     #print(train_data[0])
     np.asarray(train_data)
     print(train_data[0].shape)
-    print(train_data[15].shape)
 
     denseNN = dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data, train_label,dev_data, dev_label, outputFile) #these are all negins values right now.
     #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
