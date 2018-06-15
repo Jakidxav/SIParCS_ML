@@ -53,7 +53,7 @@ from keras.optimizers import SGD, Adam
 from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
 import sklearn.metrics as skm
-import tensorflow as tf
+from tensorflow import metrics as tf
 import pickle
 import os
 import datetime
@@ -88,9 +88,9 @@ def rocValues(obs, pred):
 
     return TP, FP, TN, FN
 def TP(obs, pred):
-    return K.metrics.true_positives(obs, pred)
+    return tf.true_positives(obs, pred)
 def FP(obs, pred):
-    return K.metrics.false_positives(obs, pred)
+    return tf.false_positives(obs, pred)
 #brier score and brier skill score. both methods written by Negin
 def brier_score_keras(obs, preds):
     return K.mean((preds - obs) ** 2)
@@ -189,29 +189,30 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     file.write("iterations "+ str(iterations) + "\n")
 
     #initilaize model with Sequential()
-    print(train_data.shape)
-
+    train_data.reshape(-1,120,340, 1)
+    print(train_data[0].shape)
     denseModel = Sequential()
     #add first layers
-    denseModel.add(AveragePooling2D(pool_size = (2,2), input_shape = (-1, 120, 340, 1))) # negin used this as the first layer. need to double check syntax
+    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data[0].shape)) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
-    for layer in neuronLayer:
-        #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
-        denseModel.add(Dropout(drop))
-        denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'relu'))
-
-        #this is the output layer; # neurons should be equal to 1
+    for layer in range(len(neuronLayer)):
+        print(neuronLayer[layer])
+        #this is the output layer; # neurons should be equal to 2
         if(layer == (len(neuronLayer) - 1)):
             denseModel.add(Dropout(drop))
             denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
+        else:
+            #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
+            denseModel.add(Dropout(drop))
+            denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'relu'))
 
     #define optimizer
     opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
     denseModel.summary()
 
     #compile
-    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras, binary_accuracy, TP, FP])
+    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras, binary_accuracy])
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
     #plot info
@@ -430,7 +431,7 @@ if __name__ == "__main__":
 
                     with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
                         if f == 'X_train':
-                            train_data = np.array(pickle.load(file))
+                            train_data = pickle.load(file)
                         if f == 'X_dev':
                             dev_data = pickle.load(file)
                         if f == 'X_val':
@@ -445,11 +446,11 @@ if __name__ == "__main__":
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     #print(train_data[0])
-    np.asarray(train_data)
+    print("type ", type(train_data))
     print(train_data[0].shape)
-    print(train_data[15].shape)
+    print(train_label.shape)
 
-    denseNN = dnn([16,16,2], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data, train_label,dev_data, dev_label, outputFile) #these are all negins values right now.
+    denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data, train_label,dev_data, dev_label, outputFile) #these are all negins values right now.
     #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
     #recurrNN = rnn()
     #radialBayesNN = rbfn()
