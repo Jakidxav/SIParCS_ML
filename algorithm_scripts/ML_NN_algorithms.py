@@ -45,7 +45,7 @@ import numpy as np
 from keras.models import Sequential
 import keras.backend as K
 from keras.models import Model, save_model, load_model
-from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, Flatten, LeakyReLU, TimeDistributed, LSTM
+from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, MaxPooling2D, Flatten, LeakyReLU, TimeDistributed, LSTM
 from keras.layers import Dropout, BatchNormalization
 from keras.metrics import binary_accuracy
 from keras.regularizers import l2
@@ -256,25 +256,27 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     '''
     print("convoultional neural network")
 
+    #make sure all lists are the same length s.t. the for loops for setting up dont break
+    assert (len(kernel) == len(pool) == len(strideC) == len(strideP))
+
     outputFile = outputDL + "cnn"
     print(outputFile)
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    file.write("neuronLayer ", neuronLayer)
-    file.write("kernel ", kernel)
-    file.write("learnRate ", learnRate)
-    file.write("pool ", pool)
-    file.write("strideC ", strideC)
-    file.write("strideP ", strideP)
-    file.write("iterations ", iterations)
-    #make sure all lists are the same length s.t. the for loops for setting up dont break
-    assert (len(kernel) == len(pool) == len(strideC) == len(strideP))
+    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
+    file.write("kernel ".join(str(x) for x in kernel) + "\n")
+    file.write("learnRate " + str(learnRate) + "\n")
+    file.write("kernel size " + " ".join(str(x) for x in kernel) + "\n")
+    file.write("pool ".join(str(x) for x in pool) + "\n")
+    file.write("strideC ".join(str(x) for x in strideC) + "\n")
+    file.write("strideP ".join(str(x) for x in strideP) + "\n")
+    file.write("iterations " + str(iterations) + "\n")
 
     #initilaize model with Sequential
     convModel = Sequential()
 
     #add first conv and pooling layers
-    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides=(strideC[0], strideC[0]),activation='relu', input_shape=train_data.shape[1:]))
+    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides=(strideC[0], strideC[0]),activation='relu', input_shape=train_data[0].shape))
     convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0])))
 
     for layer in range(1, len(neuronLayer) - 3):
@@ -287,7 +289,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
 
     convModel.summary()
 
-    convModel.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy, TP, FP])
+    convModel.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
     conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
     #plot stuff
@@ -456,8 +458,8 @@ if __name__ == "__main__":
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
-    denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
-    #convNN = cnn([20,50,500,1], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data2, train_label, dev_data2, dev_label, outputDL) # these are the lenet values
+    denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
+    convNN = cnn([20,50,500,1], [5,5], [2,2], [1,1], [2,2], 0.01, 1, train_data2, train_label, dev_data2, dev_label, outputDL) # these are the lenet values
     #recurrNN = rnn()
     #radialBayesNN = rbfn()
     #siameseNN = snn()
