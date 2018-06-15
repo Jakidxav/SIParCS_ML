@@ -74,7 +74,10 @@ def rocValues(obs, pred):
         TP, FP, TN, FN
     '''
 
-    TP, FP, TN, FN = 0
+    TP = 0
+    FP = 0
+    TN = 0
+    FN = 0
 
     for i in range(len(pred)):
         if obs[i] == pred[i] == 1:
@@ -88,9 +91,13 @@ def rocValues(obs, pred):
 
     return TP, FP, TN, FN
 def TP(obs, pred):
-    return tf.true_positives(obs, pred)
+    TP, FP, RN, FN = rocValues(obs, pred)
+    return TP
+    #return tf.true_positives(obs, pred)
 def FP(obs, pred):
-    return tf.false_positives(obs, pred)
+    TP, FP, RN, FN = rocValues(obs, pred)
+    return FP
+    #return tf.false_positives(obs, pred)
 #brier score and brier skill score. both methods written by Negin
 def brier_score_keras(obs, preds):
     return K.mean((preds - obs) ** 2)
@@ -119,10 +126,9 @@ def makePlots(model_hist, output):
     plt.xlabel("Epoch")
     plt.title("Dense Net Training History")
     plt.savefig(output + '_bss.png')
-    plt.clear()
+    plt.cla()
 
     #accuracy plot
-    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
     plt.plot(model_hist.epoch, model_hist.history["val_binary_accuracy"], label="validation")
     plt.plot(model_hist.epoch, model_hist.history["binary_accuracy"], label="train")
     plt.xticks(model_hist.epoch)
@@ -132,8 +138,9 @@ def makePlots(model_hist, output):
     plt.xlabel("Epoch")
     plt.title("Dense Net Training History")
     plt.savefig(output + '_accuracy.png')
-    plt.clear()
+    plt.cla()
 
+    '''
     #roc plot
     plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
     plt.plot(model_hist.history["val_FP"], model_hist.history["val_TP"], label='validation area = {:.3f})'.format(skm.auc(model_hist.history["val_FP"],model_hist.history["val_TP"])))
@@ -145,7 +152,8 @@ def makePlots(model_hist, output):
     plt.xlabel("False positives")
     plt.title("Dense Net ROC")
     plt.savefig(output + '_roc.png')
-    plt.clear()
+    plt.cla()
+    '''
 
 
 #dense nn
@@ -189,8 +197,6 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     file.write("iterations "+ str(iterations) + "\n")
 
     #initilaize model with Sequential()
-    train_data.reshape(-1,120,340, 1)
-    print(train_data[0].shape)
     denseModel = Sequential()
     #add first layers
     denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data[0].shape)) # negin used this as the first layer. need to double check syntax
@@ -443,15 +449,15 @@ if __name__ == "__main__":
                         if f == 'Y_val':
                             test_label = pickle.load(file)
 
+    #reshape all data files.
+    train_data2 = train_data.reshape(-1,120,340, 1)
+    dev_data2 = dev_data.reshape(-1,120,340,1)
+    test_data2 = test_data.reshape(-1,120,340,1)
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
-    #print(train_data[0])
-    print("type ", type(train_data))
-    print(train_data[0].shape)
-    print(train_label.shape)
 
-    denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data, train_label,dev_data, dev_label, outputFile) #these are all negins values right now.
-    #convNN = cnn([20,50,500,2], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL) # these are the lenet values
+    denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 150,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
+    #convNN = cnn([20,50,500,1], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data2, train_label, dev_data2, dev_label, outputDL) # these are the lenet values
     #recurrNN = rnn()
     #radialBayesNN = rbfn()
     #siameseNN = snn()
