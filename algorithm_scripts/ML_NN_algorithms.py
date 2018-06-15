@@ -190,9 +190,10 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     #initilaize model with Sequential()
     print(train_data.shape)
+
     denseModel = Sequential()
     #add first layers
-    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data.shape[:3])) # negin used this as the first layer. need to double check syntax
+    denseModel.add(AveragePooling2D(pool_size = (2,2), input_shape = (-1, 120, 340, 1))) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
     for layer in neuronLayer:
