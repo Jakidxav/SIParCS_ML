@@ -48,6 +48,7 @@ from keras.models import Model, save_model, load_model
 from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, MaxPooling2D, Flatten, LeakyReLU, TimeDistributed, LSTM
 from keras.layers import Dropout, BatchNormalization
 from keras.metrics import binary_accuracy
+from keras.losses import categorical_crossentropy, binary_crossentropy
 from keras.regularizers import l2
 from keras.optimizers import SGD, Adam
 from IPython.display import SVG
@@ -104,7 +105,7 @@ def brier_score_keras(obs, preds):
 
 def brier_skill_score_keras(obs, preds):
     climo = K.mean((obs - K.mean(obs)) ** 2)
-    return 1.0 - brier_score_keras(obs, preds) / climo
+    return 1.0 - brier_score_keras(obs, preds) / (climo + 1e-10)
 
 def makePlots(model_hist, output):
     '''
@@ -218,7 +219,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     denseModel.summary()
 
     #compile
-    denseModel.compile(opt_dense, "mse", metrics=[brier_skill_score_keras, binary_accuracy])
+    denseModel.compile(opt_dense, binary_crossentropy, metrics=[brier_skill_score_keras, binary_accuracy])
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
     #plot info
@@ -227,9 +228,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     return denseModel
 
 #cnn
-    # start with 3x convlayer and poolLayer repeats.
-    #WILL NEED TO CHANGE THE KERNEL, POOL, STRIDE PARAMS TO BE LISTS SO THAT ALEXNETS/OTHER NETS
-    #WITH VARYING STRIDES ETC CAN BE IMPLEMENTED
+    # start with lenet
 def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a convolutional neural network and creates files with parameters and plots
@@ -276,12 +275,14 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     convModel = Sequential()
 
     #add first conv and pooling layers
-    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides=(strideC[0], strideC[0]),activation='relu', input_shape=train_data[0].shape))
-    convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0])))
+    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
+    convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0]),padding = "valid"))
 
-    for layer in range(1, len(neuronLayer) - 3):
-        convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), activation='relu'))
-        convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer])))
+    for layer in range(1, len(neuronLayer) - 2):
+        print(layer, strideP[layer])
+
+        convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), strides = strideC[layer], padding = 'same', activation='relu'))
+        convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer]), padding = "valid"))
 
     convModel.add(Flatten())
     convModel.add(Dense(neuronLayer[len(neuronLayer) - 2], activation='relu'))
@@ -289,7 +290,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
 
     convModel.summary()
 
-    convModel.compile(loss=keras.losses.categorical_crossentropy,optimizer=keras.optimizers.SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
+    convModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
     conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
     #plot stuff
@@ -455,11 +456,27 @@ if __name__ == "__main__":
     train_data2 = train_data.reshape(-1,120,340, 1)
     dev_data2 = dev_data.reshape(-1,120,340,1)
     test_data2 = test_data.reshape(-1,120,340,1)
+
+    #hyperparameters and paramters
+    dropout = 0.5
+    learningRate = 0.0001
+    epochs = 150
+    strideC = [5,5]
+    strideP = [2,2]
+    kernel = [5, 5]
+    pool = [2,2]
+    boolNest = True
+    momentum = 0.99
+    decay = 1e-4
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
-    denseNN = dnn([16,16,1], 0.5, 0.0001, 0.99, 1e-4, True, 1,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
-    convNN = cnn([20,50,500,1], [5,5], [2,2], [1,1], [2,2], 0.01, 1, train_data2, train_label, dev_data2, dev_label, outputDL) # these are the lenet values
+    #dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label, outputDL)
+    denseNN = dnn([16,16,1], dropout, learningRate, momentum, decay, boolNest, epochs,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
+
+    #cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label, dev_data, dev_label, outputDL)
+    convNN = cnn([20,50,500,1], kernel, pool, strideC, strideP, 0.01, epochs, train_data2, train_label, dev_data2, dev_label, outputDL) # these are the lenet values
+
     #recurrNN = rnn()
     #radialBayesNN = rbfn()
     #siameseNN = snn()
