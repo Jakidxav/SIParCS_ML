@@ -62,43 +62,6 @@ import datetime
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./"
 
-#ROC calculations. will need to use this V datasets on all algorithms
-def rocValues(obs, pred):
-    '''
-    implements an AUROC calculation. also graphs the ROC curve
-
-    Arguments:
-        obs : array containing actual labels
-        pred : array containing predicted labels
-
-    Returns:
-        TP, FP, TN, FN
-    '''
-
-    TP = 0
-    FP = 0
-    TN = 0
-    FN = 0
-
-    for i in range(len(pred)):
-        if obs[i] == pred[i] == 1:
-            TP += 1
-        if pred[i] == 1 and pred[i] != obs[i]:
-            FP += 1
-        if pred[i] == 0 and pred[i] != obs[i]:
-            FN += 1
-        if obs[i] == pred[i] == 0:
-            TN += 1
-
-    return TP, FP, TN, FN
-def TP(obs, pred):
-    TP, FP, RN, FN = rocValues(obs, pred)
-    return TP
-    #return tf.true_positives(obs, pred)
-def FP(obs, pred):
-    TP, FP, RN, FN = rocValues(obs, pred)
-    return FP
-    #return tf.false_positives(obs, pred)
 #brier score and brier skill score. both methods written by Negin
 def brier_score_keras(obs, preds):
     return K.mean((preds - obs) ** 2)
@@ -155,7 +118,6 @@ def makePlots(model_hist, output):
     plt.savefig(output + '_roc.png')
     plt.cla()
     '''
-
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
@@ -222,6 +184,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
     denseModel.compile(opt_dense, binary_crossentropy, metrics=[brier_skill_score_keras, binary_accuracy])
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
+    print(dense_hist.history)
     #plot info
     makePlots(dense_hist, outputFile)
 
@@ -263,12 +226,12 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
     file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
-    file.write("kernel ".join(str(x) for x in kernel) + "\n")
+    file.write("kernel " + " ".join(str(x) for x in kernel) + "\n")
     file.write("learnRate " + str(learnRate) + "\n")
     file.write("kernel size " + " ".join(str(x) for x in kernel) + "\n")
-    file.write("pool ".join(str(x) for x in pool) + "\n")
-    file.write("strideC ".join(str(x) for x in strideC) + "\n")
-    file.write("strideP ".join(str(x) for x in strideP) + "\n")
+    file.write("pool " + " ".join(str(x) for x in pool) + "\n")
+    file.write("strideC " + " ".join(str(x) for x in strideC) + "\n")
+    file.write("strideP " + " ".join(str(x) for x in strideP) + "\n")
     file.write("iterations " + str(iterations) + "\n")
 
     #initilaize model with Sequential
@@ -299,7 +262,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     return convModel
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
@@ -329,25 +292,27 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, boolLSTM, iterations,
     print(outputFile)
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    file.write("neuronLayer ", neuronLayer)
-    file.write("dropout ", drop)
-    file.write("stuff")
-    file.write("boolLSTM ", boolLSTM)
-    file.write("iterations ", iterations)
+    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
+    file.write("kernel " + " ".join(str(x) for x in kernel) + "\n")
+    file.write("learnRate " + str(learnRate) + "\n")
+    file.write("kernel size " + " ".join(str(x) for x in kernel) + "\n")
+    file.write("pool " + " ".join(str(x) for x in pool) + "\n")
+    file.write("strideC " + " ".join(str(x) for x in strideC) + "\n")
+    file.write("strideP " + " ".join(str(x) for x in strideP) + "\n")
+    file.write("iterations " + str(iterations) + "\n")
+    file.write("boolLSTM "+ str(boolLSTM) + "\n")
 
     #set up model with sequential
     recurModel = Sequential()
-    #use a timeDistributed(conv2D) followed by timeDistributed(maxpooling2d) followed by timeDistributed(flatten())
-    recurModel.add(TimeDistributed(Conv2D(neuronLayer[0], kernel_size=(kernel, kernel), strides=(strideC, strideC),activation='relu', input_shape=train_data.shape[1:])))
-    recurModel.add(TimeDistributed(MaxPooling2D(pool_size=(pool, pool), strides=(strideP, strideP))))
+    print(train_data.shape)
+    #create a cnn
+    #should allow for the images to be processed similar to movie frames.
+    recurModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
+    recurModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0]),padding = "valid"))
     recurModel.add(TimeDistributed(Flatten()))
 
-    # the above scheme should allow for the images to be processed similar to movie frames.
-    #EMBEDDING LAYER? LOOK into; seems like its only for language processing?
-
-    # use if statement to determine if the user wants to use LSTM or RNN
-        #if LSTM then set up the LSTM network
-    for layer in range(len(neuronLayer)):
+    #setup rnn/lstm
+    for layer in range(1, len(neuronLayer) - 2):
         if boolLSTM:
             recurModel.add(LSTM(neuronLayer[layer], return_sequences = True))
         else:
@@ -355,15 +320,16 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, boolLSTM, iterations,
     if drop > 0:
             recurModel.add(Dropout(drop))
 
-    recurModel.add(Dense(2, activation = 'softmax'))
+    recurModel.add(Flatten())
+    recurModel.add(Dense(neuronLayer[len(neuronLayer)- 1], activation = 'softmax'))
     recurModel.summary()
 
     #compile and train the model
-    #recurModel.compile()
-    #recur_hist = convModel.fit()
+    recurModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
+    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
     #plot stuff
-    #makePlots(recur_hist, outputFile)
+    makePlots(recur_hist, outputFile)
 
     return recurModel
 
@@ -475,9 +441,10 @@ if __name__ == "__main__":
     denseNN = dnn([16,16,1], dropout, learningRate, momentum, decay, boolNest, epochs,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
 
     #cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    convNN = cnn([20,50,500,1], kernel, pool, strideC, strideP, 0.01, epochs, train_data2, train_label, dev_data2, dev_label, outputDL) # these are the lenet values
+    convNN = cnn([20,50,500,1], kernel, pool, strideC, strideP, 0.01, epochs, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
 
-    #recurrNN = rnn()
+    #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL)
+    recurrNN = rnn([20,60, 1],kernel, pool, strideC, strideP, dropout, learningRate, True, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
     #radialBayesNN = rbfn()
     #siameseNN = snn()
 
