@@ -70,7 +70,7 @@ def brier_skill_score_keras(obs, preds):
     climo = K.mean((obs - K.mean(obs)) ** 2)
     return 1.0 - brier_score_keras(obs, preds) / (climo + 1e-10)
 
-def makePlots(model_hist, output):
+def makePlots(model_hist, output, fpr_train, tpr_train, fpr_dev, tpr_dev):
     '''
     this method creates all relevent metric plots.
 
@@ -104,12 +104,10 @@ def makePlots(model_hist, output):
     plt.savefig(output + '_accuracy.png')
     plt.cla()
 
-    '''
     #roc plot
     plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot(model_hist.history["val_FP"], model_hist.history["val_TP"], label='validation area = {:.3f})'.format(skm.auc(model_hist.history["val_FP"],model_hist.history["val_TP"])))
-    plt.plot(model_hist.history["FP"], model_hist.history["TP"], label='train area = {:.3f}'.format(skm.auc(model_hist.history["FP"],model_hist.history["TP"])))
-    #plt.xticks(dense_hist.epoch)
+    plt.plot(fpr_dev, tpr_dev, label='validation area = {:.3f})'.format(skm.auc(fpr_dev,tpr_dev)))
+    plt.plot(fpr_train, tpr_train, label='train area = {:.3f}'.format(skm.auc(fpr_train,tpr_train)))
     #plt.ylim(-1, 1)
     plt.legend()
     plt.ylabel("True positive")
@@ -117,7 +115,6 @@ def makePlots(model_hist, output):
     plt.title("Dense Net ROC")
     plt.savefig(output + '_roc.png')
     plt.cla()
-    '''
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
@@ -185,8 +182,13 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
     print(dense_hist.history)
-    #plot info
-    makePlots(dense_hist, outputFile)
+    #calculate ROC info
+    train_pred = denseModel.predict(train_data).ravel()
+    dev_pred = denseModel.predict(dev_data).ravel()
+    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
+    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
+
+    makePlots(dense_hist, outputFile, fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     return denseModel
 
@@ -256,8 +258,13 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, learnRate, iterations, train
     convModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
     conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
-    #plot stuff
-    makePlots(conv_hist, outputFile)
+    #calculate ROC info
+    train_pred = convModel.predict(train_data).ravel()
+    dev_pred = convModel.predict(dev_data).ravel()
+    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
+    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
+
+    makePlots(conv_hist, outputFile, fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     return convModel
 # rnn
@@ -328,8 +335,13 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, 
     recurModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
     recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
-    #plot stuff
-    makePlots(recur_hist, outputFile)
+    #calculate ROC info
+    train_pred = recurModel.predict(train_data).ravel()
+    dev_pred = recurModel.predict(dev_data).ravel()
+    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
+    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
+
+    makePlots(recur_hist, outputFile, fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     return recurModel
 
@@ -445,6 +457,7 @@ if __name__ == "__main__":
 
     #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL)
     recurrNN = rnn([20,60, 1],kernel, pool, strideC, strideP, dropout, learningRate, True, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
+
     #radialBayesNN = rbfn()
     #siameseNN = snn()
 
