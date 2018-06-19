@@ -86,7 +86,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.xticks(model_hist.epoch)
     #plt.ylim(-1, 1)
     plt.legend()
-    plt.ylabel("Brier Skill Score")
+    plt.ylabel("Loss - Binary Crossentropy")
     plt.xlabel("Epoch")
     plt.title(modelName + " Loss")
     plt.savefig(output + '_loss.png')
