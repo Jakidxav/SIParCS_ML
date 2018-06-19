@@ -81,15 +81,15 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
         nothing. should create plot images
     '''
     #bss plot
-    plt.plot(model_hist.epoch, model_hist.history["val_brier_skill_score_keras"], label="validation")
-    plt.plot(model_hist.epoch, model_hist.history["brier_skill_score_keras"], label="train")
+    plt.plot(model_hist.epoch, model_hist.history["val_loss"], label="validation")
+    plt.plot(model_hist.epoch, model_hist.history["loss"], label="train")
     plt.xticks(model_hist.epoch)
     #plt.ylim(-1, 1)
     plt.legend()
     plt.ylabel("Brier Skill Score")
     plt.xlabel("Epoch")
-    plt.title(modelName + " Brier Skill Score")
-    plt.savefig(output + '_bss.png')
+    plt.title(modelName + " Loss")
+    plt.savefig(output + '_loss.png')
     plt.cla()
 
     #accuracy plot
@@ -169,12 +169,12 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     denseModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
     #define optimizer
-    #opt_dense = SDG(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-    opt_dense = Adam(lr = learnRate)
+    opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+    #opt_dense = Adam(lr = learnRate)
     denseModel.summary()
 
     #compile
-    denseModel.compile(opt_dense, binary_crossentropy, metrics=[brier_skill_score_keras, binary_accuracy])
+    denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
 
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
 
@@ -264,10 +264,10 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     convModel.summary()
 
     #define optimizer and compile
-    #opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-    opt_conv = SGD(lr = learnRate)
+    opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+    #opt_conv = SGD(lr = learnRate)
     #opt_conv = Adam(lr = learnRate)
-    convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[brier_skill_score_keras, binary_accuracy])
+    convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
 
     #fit model
     conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
@@ -342,11 +342,11 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, 
             recurModel.add(Dropout(drop))
 
     recurModel.add(Flatten())
-    recurModel.add(Dense(1, activation = 'softmax'))
+    recurModel.add(Dense(1, activation = 'sigmoid'))
     recurModel.summary()
 
     #compile and train the model
-    recurModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[brier_skill_score_keras, binary_accuracy])
+    recurModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[binary_accuracy])
     recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
     #calculate ROC info
