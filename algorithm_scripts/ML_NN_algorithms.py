@@ -2,7 +2,7 @@
 
 @author Negin Sobhani, Joshua Driscol, Karen Stengel
 
-this script is designed to use keras with Tensorflow as the backendself.
+this script is designed to use keras with Tensorflow as the backend.
 it should be used in conjunction with data_processing.py which should set up/create necessary
 datasets from the McKinnon et al. dataself plus any other data added to the set.
 
@@ -11,34 +11,20 @@ and return ROC scores; can use the binary_accuaracy method in keras as a startin
 This script will also include optimizers so that we can get the best
 scores possible.
 
-NEED TO FIGURE OUT HOW TO DO THE FOLLOWING IN KERAS EFFECIENTLY
 algorithms to include:
     dense nn - already created by Negin so will just need to try optimizing
     CNN - also already tried by Negin so will need to try optimizing.
+    RNN - use LSTM. look into if the data needs to be reshaped
     siamese nn - possibly use? need to look into best implementation...
-    RNN - not yet tried. will need to set up and OPTIMIZE. use LSTM?
     RBFN - ? maybe use? could allow for an interesing analysis....
 
-will need each algorithm method to take in certain parameters to make optimizing easier.
-    keras optimizers are specifically for things like momentum, learning rate, epislon, etc etc
-    thus, we will have to manually (or write a method to) change number on neurons and/or layers (and # in each layer)
-    will probably want to automate this.
-    EACH NN METHOD SHOULD TAKE IN # NEURONS
-    AS AN ARRAY WHERE EACH INDEX IS A NONINPUT LAYER, EACH RELEVANT TUNING PARAMETER. should use a for loops when setting up
-    layers to go through number of neurons and layers. should make each method as versitile as possible s.t. network optimization
-    can be easily optimized. can also add in the hidden activation and output activation if needed.
-
-need to write out all info regarding metrics and paramters to a file. should include the original picture with corresponding label,
-    and ROC, bss graphs. will need to name file so that these parameters are easily tracked.
-
     will also need to save models once they are fully trained/work (hopefully)
-
-need to change train_data.shape to use slicing..... Karen is not good at slicing
 
 datasets:
     should be set up with various lead prediction times. ex: 10, 30, 45, 60 days in advance
     should also use a control set with randomly shuffled labels
 """
+from contextlib import redirect_stdout
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import numpy as np
@@ -60,7 +46,7 @@ import os
 import datetime
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./"
+outputDir = "./data/"
 
 #brier score and brier skill score. both methods written by Negin
 def brier_score_keras(obs, preds):
@@ -118,7 +104,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a dense neural network. also outputs info to a file.
 
@@ -150,11 +136,8 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
     file.write("drop " + str(drop) + "\n")
-    file.write("learnRate " + str(learnRate) + "\n")
-    file.write("momentum "+ str(momentum) + "\n")
-    file.write("decay "+ str(decay) + "\n")
-    file.write("boolNest "+ str(boolNest) + "\n")
     file.write("iterations "+ str(iterations) + "\n")
+    file.write("learnRate " + str(learnRate) + "\n")
 
     #initilaize model with Sequential()
     denseModel = Sequential()
@@ -169,9 +152,25 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
     denseModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
     #define optimizer
-    opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+    if boolAdam:
+        file.write("Adam\n")
+        #write adam parameters here
+        file.write("beta1 " + str(b1) + "\n")
+        file.write("beta2 " + str(b2) + "\n")
+        file.write("epsilon " + str(epsilon) + "\n")
+        file.write("decay " + str(bdecay) + "\n")
+        file.write("amsgrad " + str(amsgrad) + "\n")
+
+        opt_dense = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+    else:
+        file.write("SGD \n")
+        file.write("momentum "+ str(momentum) + "\n")
+        file.write("decay "+ str(decay) + "\n")
+        file.write("boolNest "+ str(boolNest) + "\n")
+        opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
     #opt_dense = Adam(lr = learnRate)
-    denseModel.summary()
+    with redirect_stdout(file):
+        denseModel.summary()
 
     #compile
     denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
@@ -190,7 +189,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, trai
 
 #cnn
     # start with lenet
-def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a convolutional neural network and creates files with parameters and plots
 
@@ -215,7 +214,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
     Example:
         cnn([32,64, 1000, 1], [5,5], [2,2], [1,1], [1,1], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
-        lenet would be: cnn([6,16,120,84,1], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
+        lenet would be: cnn([6,16,120,84], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
         alexnet: https://gist.github.com/JBed/c2fb3ce8ed299f197eff
     '''
     print("convoultional neural network")
@@ -248,25 +247,40 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
     convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0]),padding = "valid"))
 
-    for layer in range(1, len(neuronLayer) - 1):
+    for layer in range(1, len(neuronLayer) - 2):
         print(layer, strideP[layer])
 
         convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), strides = strideC[layer], padding = 'same', activation='relu'))
         convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer]), padding = "valid"))
 
-    #convModel.add(Conv2D(neuronLayer[len(neuronLayer) - 2], kernel_size = kernel[len(kernel) - 1], strides = strideC[len(strideC) - 1], activation = 'relu'))
-    #convModel.add(Dropout(drop))
+    convModel.add(Conv2D(neuronLayer[len(neuronLayer) - 2], kernel_size = kernel[len(kernel) - 1], strides = strideC[len(strideC) - 1], activation = 'relu'))
+    convModel.add(Dropout(drop))
     convModel.add(Flatten())
-    convModel.add(Dense(neuronLayer[len(neuronLayer) - 1], activation='relu'))
+    convModel.add(Dense(neuronLayer[len(neuronLayer) - 1], kernel_regularizer=l2(0.0001), activation='relu'))
     #convModel.add(Dropout(drop))
-    convModel.add(Dense(1, activation='sigmoid'))
-
-    convModel.summary()
+    convModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation='sigmoid'))
+    #save model to a file
+    with redirect_stdout(file):
+        convModel.summary()
 
     #define optimizer and compile
-    opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-    #opt_conv = SGD(lr = learnRate)
-    #opt_conv = Adam(lr = learnRate)
+    if boolAdam:
+        file.write("Adam\n")
+        #write adam parameters here
+        file.write("beta1 " + str(b1) + "\n")
+        file.write("beta2 " + str(b2) + "\n")
+        file.write("epsilon " + str(epsilon) + "\n")
+        file.write("decay " + str(bdecay) + "\n")
+        file.write("amsgrad " + str(amsgrad) + "\n")
+
+        opt_conv = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+    else:
+        file.write("SGD \n")
+        file.write("momentum "+ str(momentum) + "\n")
+        file.write("decay "+ str(decay) + "\n")
+        file.write("boolNest "+ str(boolNest) + "\n")
+        opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+
     convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
 
     #fit model
@@ -283,7 +297,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     return convModel
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
@@ -294,6 +308,11 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, 
         strideC : size of conv stride
         strideP : size of pooling stride
         dropout : % of neurons to dropout. set to 0 if not using dropout
+        learnRate : learning rate for optimization
+        momentum : momentum to use
+        decay : decay rate to used
+        boolNest : use nestov or not
+        iterations : number of iterations to train the model
         iterations : number of iterations to train the model
         boolLSTM : boolean representing to use LSTM net or simple RNN
         train_data : data to train on
@@ -342,11 +361,31 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, 
             recurModel.add(Dropout(drop))
 
     recurModel.add(Flatten())
-    recurModel.add(Dense(1, activation = 'sigmoid'))
-    recurModel.summary()
+    recurModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
+
+    #save model to a file
+    with redirect_stdout(file):
+        recurModel.summary()
 
     #compile and train the model
-    recurModel.compile(loss=binary_crossentropy,optimizer=SGD(lr=learnRate),metrics=[binary_accuracy])
+    if boolAdam:
+        file.write("Adam\n")
+        #write adam parameters here
+        file.write("beta1 " + str(b1) + "\n")
+        file.write("beta2 " + str(b2) + "\n")
+        file.write("epsilon " + str(epsilon) + "\n")
+        file.write("decay " + str(bdecay) + "\n")
+        file.write("amsgrad " + str(amsgrad) + "\n")
+
+        opt_rnn = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+    else:
+        file.write("SGD \n")
+        file.write("momentum "+ str(momentum) + "\n")
+        file.write("decay "+ str(decay) + "\n")
+        file.write("boolNest "+ str(boolNest) + "\n")
+        opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+
+    recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
     recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
 
     #calculate ROC info
@@ -408,7 +447,7 @@ if __name__ == "__main__":
     outputFile = ""
 
     #start setting up the name for the output file
-    date = datetime.datetime.now().strftime("%y%m%d-%H_")
+    date = datetime.datetime.now().strftime("%y%m%d-%H%M_")
     print(date)
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
@@ -418,7 +457,7 @@ if __name__ == "__main__":
 
         #extract the data from all the necessary files for the given lead time
         # need to change
-        if not '.' in folder:
+        if (not '.' in folder) and '_' in folder:
             print('folder', folder)
             #get lead time to save to output file name
             lead,extra = folder.split("_")
@@ -430,6 +469,7 @@ if __name__ == "__main__":
 
                 if not f.startswith('.'):
 
+                    #_norm
                     with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
                         if f == 'X_train':
                             train_data = pickle.load(file)
@@ -450,29 +490,41 @@ if __name__ == "__main__":
     test_data2 = test_data.reshape(-1,120,340,1)
 
     #hyperparameters and paramters
+    #SGD parameters
     dropout = 0.5
-    learningRate = 0.0001
+    learningRate = 0.001
+    momentum = 0.99
+    decay = 1e-4
+    boolNest = True
+
     epochs = 150
+
+    #parameters for conv/pooling layers
     strideC = [5,5]
     strideP = [2,2]
     kernel = [5, 5]
     pool = [2,2]
-    boolNest = True
-    momentum = 0.99
-    decay = 1e-4
+
+    #parameters for Adam optimizaiton
+    boolAdam = True #change to false if SGD is desired
+    beta_1=0.9
+    beta_2=0.999
+    epsilon=None
+    amsgrad=False
+
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
 
     #DO NOT INCLUDE THE FINAL LAYER IN THE neuronLayer[]. SINCE WE ARE DOING BINARY CLASSIFICATION THE FINAL LAYER IS HARD CODED WITH neuron = 1
 
-    #dnn(neuronLayer, drop, learnRate, momentum, decay,boolNest, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    denseNN = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, epochs,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
+    #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
+    denseNN = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
 
-    #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    convNN = cnn([20,50,500], kernel, pool, strideC, strideP, 0.5, 0.01, momentum, decay,boolNest,epochs, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
+    #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
+    convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, 0.001, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
 
-    #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, boolLSTM, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, True, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
+    #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
+    recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
 
     #radialBayesNN = rbfn()
     #siameseNN = snn()
