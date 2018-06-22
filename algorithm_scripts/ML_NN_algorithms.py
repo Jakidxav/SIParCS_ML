@@ -18,11 +18,20 @@ algorithms to include:
     siamese nn - possibly use? need to look into best implementation...
     RBFN - ? maybe use? could allow for an interesing analysis....
 
-    will also need to save models once they are fully trained/work (hopefully)
+    will also need to save models once they are fully trained/work
 
 datasets:
     should be set up with various lead prediction times. ex: 10, 30, 45, 60 days in advance
     should also use a control set with randomly shuffled labels
+
+try with other stations; could do individually or as a multiclassification with ~20
+
+try with soil temperature; need separate NN and merge
+
+figure out how file output works with grid search
+alexnet; with loaded weights from alexnet website
+
+find time and space complexity - ask alessandro
 """
 from contextlib import redirect_stdout
 import matplotlib.pyplot as plt
@@ -63,6 +72,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     Arguments:
         model_hist : History object created from a model.fit call
         output : beginning of file name for each plot image output
+        fpr_train, tpr_train, fpr_dev, tpr_dev : true/false positives for train/dev datasets respectively
     Returns:
         nothing. should create plot images
     '''
@@ -102,6 +112,29 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.savefig(output + '_roc.png')
     plt.cla()
 
+def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad):
+    #this method writes all parameters to a file.
+    #size	iterations     boolLSTM	boolAdam	boolNesterov	dropout	kernel	pool	strideC	strideP	momentum	decay	learning rate	beta1	beta2	epsilon	amsgrad
+
+    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
+    file.write("iterations "+ str(iterations) + "\n")
+    file.write("boolLSTM "+ str(boolLSTM) + "\n")
+    file.write("boolAdam "+ str(boolAdam) + "\n")
+    file.write("boolNest "+ str(boolNest) + "\n")
+    file.write("drop " + str(drop) + "\n")
+    file.write("kernel " + " ".join(str(x) for x in kernel) + "\n")
+    file.write("pool " + " ".join(str(x) for x in pool) + "\n")
+    file.write("strideC " + " ".join(str(x) for x in strideC) + "\n")
+    file.write("strideP " + " ".join(str(x) for x in strideP) + "\n")
+    file.write("momentum "+ str(momentum) + "\n")
+    file.write("decay "+ str(decay) + "\n")
+    file.write("learnRate " + str(learnRate) + "\n")
+    file.write("beta1 " + str(b1) + "\n")
+    file.write("beta2 " + str(b2) + "\n")
+    file.write("epsilon " + str(epsilon) + "\n")
+    file.write("amsgrad " + str(amsgrad) + "\n")
+
+
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
 def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
@@ -133,11 +166,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     outputFile = outputDL + "dnn"
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-
-    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
-    file.write("drop " + str(drop) + "\n")
-    file.write("iterations "+ str(iterations) + "\n")
-    file.write("learnRate " + str(learnRate) + "\n")
+    writeFile(file, neuronLayer, iterations, None, boolAdam, boolNest, drop, [None], [None], [None], [None], momentum, decay, learnRate, b1, b2, epsilon, amsgrad)
 
     #initilaize model with Sequential()
     denseModel = Sequential()
@@ -153,20 +182,10 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     denseModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
     #define optimizer
     if boolAdam:
-        file.write("Adam\n")
-        #write adam parameters here
-        file.write("beta1 " + str(b1) + "\n")
-        file.write("beta2 " + str(b2) + "\n")
-        file.write("epsilon " + str(epsilon) + "\n")
-        file.write("decay " + str(bdecay) + "\n")
-        file.write("amsgrad " + str(amsgrad) + "\n")
-
+        #adam optimizer
         opt_dense = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
     else:
-        file.write("SGD \n")
-        file.write("momentum "+ str(momentum) + "\n")
-        file.write("decay "+ str(decay) + "\n")
-        file.write("boolNest "+ str(boolNest) + "\n")
+        #SGD optimizer
         opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
     #opt_dense = Adam(lr = learnRate)
     with redirect_stdout(file):
@@ -189,7 +208,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
 
 #cnn
     # start with lenet
-def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
     '''
     implements a convolutional neural network and creates files with parameters and plots
 
@@ -227,18 +246,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     print(outputFile)
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
-    file.write("kernel " + " ".join(str(x) for x in kernel) + "\n")
-    file.write("learnRate " + str(learnRate) + "\n")
-    file.write("kernel size " + " ".join(str(x) for x in kernel) + "\n")
-    file.write("pool " + " ".join(str(x) for x in pool) + "\n")
-    file.write("strideC " + " ".join(str(x) for x in strideC) + "\n")
-    file.write("strideP " + " ".join(str(x) for x in strideP) + "\n")
-    file.write("drop " + str(drop) + "\n")
-    file.write("momentum "+ str(momentum) + "\n")
-    file.write("decay "+ str(decay) + "\n")
-    file.write("boolNest "+ str(boolNest) + "\n")
-    file.write("iterations " + str(iterations) + "\n")
+    writeFile(file,neuronLayer, iterations, None, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad)
 
     #initilaize model with Sequential
     convModel = Sequential()
@@ -253,11 +261,15 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
         convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), strides = strideC[layer], padding = 'same', activation='relu'))
         convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer]), padding = "valid"))
 
+    convModel.summary()
+    print(neuronLayer[len(neuronLayer) - 2])
+    print( kernel[len(kernel) - 1])
+    print(strideC[len(strideC) - 1])
     convModel.add(Conv2D(neuronLayer[len(neuronLayer) - 2], kernel_size = kernel[len(kernel) - 1], strides = strideC[len(strideC) - 1], activation = 'relu'))
     convModel.add(Dropout(drop))
     convModel.add(Flatten())
     convModel.add(Dense(neuronLayer[len(neuronLayer) - 1], kernel_regularizer=l2(0.0001), activation='relu'))
-    #convModel.add(Dropout(drop))
+    convModel.add(Dropout(drop))
     convModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation='sigmoid'))
     #save model to a file
     with redirect_stdout(file):
@@ -265,20 +277,8 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
     #define optimizer and compile
     if boolAdam:
-        file.write("Adam\n")
-        #write adam parameters here
-        file.write("beta1 " + str(b1) + "\n")
-        file.write("beta2 " + str(b2) + "\n")
-        file.write("epsilon " + str(epsilon) + "\n")
-        file.write("decay " + str(bdecay) + "\n")
-        file.write("amsgrad " + str(amsgrad) + "\n")
-
         opt_conv = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
     else:
-        file.write("SGD \n")
-        file.write("momentum "+ str(momentum) + "\n")
-        file.write("decay "+ str(decay) + "\n")
-        file.write("boolNest "+ str(boolNest) + "\n")
         opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
@@ -332,15 +332,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
     print(outputFile)
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
-    file.write("kernel " + " ".join(str(x) for x in kernel) + "\n")
-    file.write("learnRate " + str(learnRate) + "\n")
-    file.write("kernel size " + " ".join(str(x) for x in kernel) + "\n")
-    file.write("pool " + " ".join(str(x) for x in pool) + "\n")
-    file.write("strideC " + " ".join(str(x) for x in strideC) + "\n")
-    file.write("strideP " + " ".join(str(x) for x in strideP) + "\n")
-    file.write("iterations " + str(iterations) + "\n")
-    file.write("boolLSTM "+ str(boolLSTM) + "\n")
+    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad)
 
     #set up model with sequential
     recurModel = Sequential()
@@ -369,20 +361,8 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     #compile and train the model
     if boolAdam:
-        file.write("Adam\n")
-        #write adam parameters here
-        file.write("beta1 " + str(b1) + "\n")
-        file.write("beta2 " + str(b2) + "\n")
-        file.write("epsilon " + str(epsilon) + "\n")
-        file.write("decay " + str(bdecay) + "\n")
-        file.write("amsgrad " + str(amsgrad) + "\n")
-
         opt_rnn = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
     else:
-        file.write("SGD \n")
-        file.write("momentum "+ str(momentum) + "\n")
-        file.write("decay "+ str(decay) + "\n")
-        file.write("boolNest "+ str(boolNest) + "\n")
         opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
@@ -500,9 +480,9 @@ if __name__ == "__main__":
     epochs = 150
 
     #parameters for conv/pooling layers
-    strideC = [5,5]
+    strideC = [5,5, 1]
     strideP = [2,2]
-    kernel = [5, 5]
+    kernel = [5, 5,1]
     pool = [2,2]
 
     #parameters for Adam optimizaiton
@@ -524,7 +504,7 @@ if __name__ == "__main__":
     convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, 0.001, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
 
     #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
+    recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
 
     #radialBayesNN = rbfn()
     #siameseNN = snn()
