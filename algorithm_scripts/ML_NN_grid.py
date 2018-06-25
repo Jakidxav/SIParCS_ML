@@ -62,8 +62,43 @@ import pickle
 import os
 import datetime
 
-#path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/"
+train_data = None
+train_label = None
+dev_data = None
+dev_label = None
+test_data = None
+test_label = None
+outputFile = ""
+
+for folder in os.listdir('.'):
+
+    #extract the data from all the necessary files for the given lead time
+    # need to change
+    if (not '.' in folder) and '_' in folder:
+
+        for f in os.listdir(folder):
+
+            if not f.startswith('.'):
+
+                #_norm
+                with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
+                    if f == 'X_train':
+                        train_data = pickle.load(file)
+                    if f == 'X_dev':
+                        dev_data = pickle.load(file)
+                    if f == 'X_val':
+                        test_data = pickle.load(file)
+                    if f == 'Y_train':
+                        train_label = pickle.load(file)
+                    if f == 'Y_dev':
+                        dev_label = pickle.load(file)
+                    if f == 'Y_val':
+                        test_label = pickle.load(file)
+
+#reshape all data files.
+train_data2 = train_data.reshape(-1,120,340, 1)
+dev_data2 = dev_data.reshape(-1,120,340,1)
+test_data2 = test_data.reshape(-1,120,340,1)
 
 #hyperparameters and paramters. use as list for GridSearchCV options.
 #SGD parameters
@@ -88,6 +123,8 @@ beta_2=0.999
 epsilon=None
 amsgrad=False
 
+neuronLayer = [16,16]
+
 optimizer = ['SGD', 'adam']
 
 #GridsearchCV dictionary params
@@ -95,23 +132,9 @@ param_grid = param_grid = dict(optimizer=optimizer, epochs=epochs)
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, train_data, train_label, optimizer = 'adam'):
+def dnn(optimizer = 'adam'):
     '''
     implements a dense neural network. also outputs info to a file.
-
-    Arguments:
-        neuronLayer : array containing the number of neurons perlayer excluding input layer
-        drop : % of neurons to drop. must be 0 < & < 1
-        learnRate : learning rate. should be a float
-        momentum : momentum. should be float
-        decay : decay. also float
-        boolNest : boolean representing if nesterov is used for optimizing
-        iterations : number of iterations to train the model
-        train_data : numpy array data to train on
-        train_label : numpy array labels of training data
-        test_data : numpy array of test data
-        test_label : numpy array of test labels
-        outputDL : path for data output
 
     Returns:
         denseModel : a trained keras dense network
@@ -123,7 +146,7 @@ def dnn(neuronLayer, train_data, train_label, optimizer = 'adam'):
     #initilaize model with Sequential()
     denseModel = Sequential()
     #add first layers
-    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data[0].shape)) # negin used this as the first layer. need to double check syntax
+    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data2[0].shape)) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
     for layer in range(len(neuronLayer)):
@@ -142,7 +165,7 @@ def dnn(neuronLayer, train_data, train_label, optimizer = 'adam'):
     denseModel.summary()
 
     #compile
-    denseModel.compile(optimizer, binary_crossentropy, metrics=[binary_accuracy])
+    denseModel.compile(optimizer, binary_crossentropy, metrics=['accuracy'])
     '''
     dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
 
@@ -156,73 +179,13 @@ def dnn(neuronLayer, train_data, train_label, optimizer = 'adam'):
     '''
     return denseModel
 
-#cnn
-    # start with lenet
-
 #main stuff
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
     print("you are in main.")
-    train_data = None
-    train_label = None
-    dev_data = None
-    dev_label = None
-    test_data = None
-    test_label = None
-    outputFile = ""
-
-    #start setting up the name for the output file
-    date = datetime.datetime.now().strftime("%y%m%d-%H%M_")
-    print(date)
-
-    #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
-    #can change this directory once run location on cheyenne is selected
-
-    for folder in os.listdir('.'):
-
-        #extract the data from all the necessary files for the given lead time
-        # need to change
-        if (not '.' in folder) and '_' in folder:
-            print('folder', folder)
-            #get lead time to save to output file name
-            lead,extra = folder.split("_")
-            outputDL = date + lead + "_"
-            print(outputDL)
-            outputFile = outputDir + outputDL
-
-            for f in os.listdir(folder):
-
-                if not f.startswith('.'):
-
-                    #_norm
-                    with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
-                        if f == 'X_train':
-                            train_data = pickle.load(file)
-                        if f == 'X_dev':
-                            dev_data = pickle.load(file)
-                        if f == 'X_val':
-                            test_data = pickle.load(file)
-                        if f == 'Y_train':
-                            train_label = pickle.load(file)
-                        if f == 'Y_dev':
-                            dev_label = pickle.load(file)
-                        if f == 'Y_val':
-                            test_label = pickle.load(file)
-
-    #reshape all data files.
-    train_data2 = train_data.reshape(-1,120,340, 1)
-    dev_data2 = dev_data.reshape(-1,120,340,1)
-    test_data2 = test_data.reshape(-1,120,340,1)
 
 
-    #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
-    #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
-
-    #DO NOT INCLUDE THE FINAL LAYER IN THE neuronLayer[]. SINCE WE ARE DOING BINARY CLASSIFICATION THE FINAL LAYER IS HARD CODED WITH neuron = 1
-
-    #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-
-    model = KerasClassifier(build_fn=dnn([16,16], train_data2, train_label), batch_size=10, verbose=0)
+    model = KerasClassifier(build_fn=dnn, batch_size=10, verbose=1)
     grid = GridSearchCV(estimator=model, param_grid=param_grid)
 
     grid_result = grid.fit(train_data2, train_label)
