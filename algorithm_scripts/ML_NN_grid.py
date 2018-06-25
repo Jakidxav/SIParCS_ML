@@ -56,7 +56,8 @@ from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
 import sklearn.metrics as skm
 from keras.wrappers.scikit_learn import KerasClassifier
-from sklearn.model_selection import GridSearchCV
+from sklearn.model_selection import GridSearchCV, RandomizedSearchCV
+from scipy.stats import randint as sp_randint
 from tensorflow import metrics as tf
 import pickle
 import os
@@ -108,7 +109,7 @@ momentum = 0.99
 decay = 1e-4
 boolNest = True
 
-epochs = [150, 200, 250]
+epochs = sp_randint(150,250)
 
 #parameters for conv/pooling layers
 strideC = [5,5,1]
@@ -123,12 +124,15 @@ beta_2=0.999
 epsilon=None
 amsgrad=False
 
+
+#for numerical values use a random distribution 
+batch_size = sp_randint(50, 256)
 neuronLayer = [16,16]
 
 optimizer = ['SGD', 'adam']
 
 #GridsearchCV dictionary params
-param_grid = param_grid = dict(optimizer=optimizer, epochs=epochs)
+param_grid = param_grid = dict(optimizer=optimizer, epochs=epochs, batch_size = batch_size)
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
@@ -185,10 +189,11 @@ if __name__ == "__main__":
     print("you are in main.")
 
 
-    model = KerasClassifier(build_fn=dnn, batch_size=10, verbose=1)
-    grid = GridSearchCV(estimator=model, param_grid=param_grid)
+    model = KerasClassifier(build_fn=dnn, verbose=1)
+    n_iter_search = 20
+    random_search = RandomizedSearchCV(model, param_distributions=param_grid, n_iter=n_iter_search)
 
-    grid_result = grid.fit(train_data2, train_label)
+    grid_result = random_search.fit(train_data2, train_label)
 # summarize results
     print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
