@@ -261,10 +261,6 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
         convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), strides = strideC[layer], padding = 'same', activation='relu'))
         convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer]), padding = "valid"))
 
-    convModel.summary()
-    print(neuronLayer[len(neuronLayer) - 2])
-    print( kernel[len(kernel) - 1])
-    print(strideC[len(strideC) - 1])
     convModel.add(Conv2D(neuronLayer[len(neuronLayer) - 2], kernel_size = kernel[len(kernel) - 1], strides = strideC[len(strideC) - 1], activation = 'relu'))
     convModel.add(Dropout(drop))
     convModel.add(Flatten())
