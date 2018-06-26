@@ -374,42 +374,86 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     return recurModel
 
-#RBFN
-    #do stuff, look at what might be a good starting point
-def rbfn():
-    '''
-    implements a radial bayes neural network
+def alex(train_data, train_label, dev_data, dev_label):
+    # (3) Create a sequential model
+    model = Sequential()
 
-    Arguments:
-        neuronLayer : array containing the number of neurons perlayer excluding input layer
-        remaining tuning parameters
-        iterations : number of iterations to train the model
-        train_data : data to train on
-        train_label : labels of training data
+    # 1st Convolutional Layer
+    model.add(Conv2D(filters=96, input_shape=(train_data.shape[0]), kernel_size=(11,11),\
+     strides=(4,4), padding='valid'))
+    model.add(Activation('relu'))
+    # Pooling
+    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
+    # Batch Normalisation before passing it to the next layer
+    model.add(BatchNormalization())
 
-    Returns:
-        rbfModel : a trained keras RBF network
-    '''
-    print("radial bayes neural network")
+    # 2nd Convolutional Layer
+    model.add(Conv2D(filters=256, kernel_size=(11,11), strides=(1,1), padding='valid'))
+    model.add(Activation('relu'))
+    # Pooling
+    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
+    # Batch Normalisation
+    model.add(BatchNormalization())
 
-#siamese nn
-    # DO NOT ATTEMPT UNTIL LAST. can use example from https://gist.github.com/mmmikael/0a3d4fae965bdbec1f9d
-def snn():
-    '''
-    implements a siamese neural network
+    # 3rd Convolutional Layer
+    model.add(Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), padding='valid'))
+    model.add(Activation('relu'))
+    # Batch Normalisation
+    model.add(BatchNormalization())
 
-    Arguments:
-        neuronLayer : array containing the number of neurons perlayer excluding input layer
-        remaining tuning parameters
-        iterations : number of iterations to train the model
-        train_data : data to train on
-        train_label : labels of training data
+    # 4th Convolutional Layer
+    model.add(Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), padding='valid'))
+    model.add(Activation('relu'))
+    # Batch Normalisation
+    model.add(BatchNormalization())
 
-    Returns:
-        siameseModel : a trained keras siamese network
-    '''
-    print("siamese neural network")
+    # 5th Convolutional Layer
+    model.add(Conv2D(filters=256, kernel_size=(3,3), strides=(1,1), padding='valid'))
+    model.add(Activation('relu'))
+    # Pooling
+    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
+    # Batch Normalisation
+    model.add(BatchNormalization())
 
+    # Passing it to a dense layer
+    model.add(Flatten())
+    # 1st Dense Layer
+    model.add(Dense(4096, input_shape=(x.shape[0],)))
+    model.add(Activation('relu'))
+    # Add Dropout to prevent overfitting
+    model.add(Dropout(0.4))
+    # Batch Normalisation
+    model.add(BatchNormalization())
+
+    # 2nd Dense Layer
+    model.add(Dense(4096))
+    model.add(Activation('relu'))
+    # Add Dropout
+    model.add(Dropout(0.4))
+    # Batch Normalisation
+    model.add(BatchNormalization())
+
+    # 3rd Dense Layer
+    model.add(Dense(1000))
+    model.add(Activation('relu'))
+    # Add Dropout
+    model.add(Dropout(0.4))
+    # Batch Normalisation
+    model.add(BatchNormalization())
+
+    # Output Layer
+    model.add(Dense(17))
+    model.add(Activation('softmax'))
+
+    model.summary()
+
+    # (4) Compile
+    model.compile(loss='categorical_crossentropy', optimizer='adam',metrics=['accuracy'])
+
+        # (5) Train
+    model.fit(train_data, train_label, batch_size=64, epochs=1, verbose=1, validation_data=(dev_data, dev_label))
+
+    return model
 #main stuff
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
@@ -494,16 +538,15 @@ if __name__ == "__main__":
     #DO NOT INCLUDE THE FINAL LAYER IN THE neuronLayer[]. SINCE WE ARE DOING BINARY CLASSIFICATION THE FINAL LAYER IS HARD CODED WITH neuron = 1
 
     #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    denseNN = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
+    #denseNN = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
 
     #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, 0.001, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
+    #convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, 0.001, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
 
     #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-    recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
+    #recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
 
-    #radialBayesNN = rbfn()
-    #siameseNN = snn()
-
+    #alexnet
+    alexNN = alex(train_data, train_label, dev_data, dev_label)
     #run test sets.
     # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
