@@ -379,8 +379,7 @@ def alex(train_data, train_label, dev_data, dev_label):
     model = Sequential()
 
     # 1st Convolutional Layer
-    model.add(Conv2D(filters=96, input_shape=(train_data.shape[0]), kernel_size=(11,11),\
-     strides=(4,4), padding='valid'))
+    model.add(Conv2D(filters=96, input_shape=(train_data[0].shape), kernel_size=(11,11),strides=(1,1), padding='valid'))
     model.add(Activation('relu'))
     # Pooling
     model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
@@ -411,14 +410,14 @@ def alex(train_data, train_label, dev_data, dev_label):
     model.add(Conv2D(filters=256, kernel_size=(3,3), strides=(1,1), padding='valid'))
     model.add(Activation('relu'))
     # Pooling
-    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
+    model.add(MaxPooling2D(pool_size=(1,1), strides=(1,1), padding='valid'))
     # Batch Normalisation
     model.add(BatchNormalization())
 
     # Passing it to a dense layer
     model.add(Flatten())
     # 1st Dense Layer
-    model.add(Dense(4096, input_shape=(x.shape[0],)))
+    model.add(Dense(4096))
     model.add(Activation('relu'))
     # Add Dropout to prevent overfitting
     model.add(Dropout(0.4))
@@ -442,16 +441,17 @@ def alex(train_data, train_label, dev_data, dev_label):
     model.add(BatchNormalization())
 
     # Output Layer
-    model.add(Dense(17))
-    model.add(Activation('softmax'))
+    model.add(Dense(1))
+    model.add(Activation('sigmoid'))
 
     model.summary()
 
     # (4) Compile
-    model.compile(loss='categorical_crossentropy', optimizer='adam',metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
 
         # (5) Train
-    model.fit(train_data, train_label, batch_size=64, epochs=1, verbose=1, validation_data=(dev_data, dev_label))
+    print(dev_data.shape)
+    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=1, verbose=1, validation_data=(dev_data, dev_label))
 
     return model
 #main stuff
@@ -547,6 +547,6 @@ if __name__ == "__main__":
     #recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputFile)
 
     #alexnet
-    alexNN = alex(train_data, train_label, dev_data, dev_label)
+    alexNN = alex(train_data2, train_label, dev_data2, dev_label)
     #run test sets.
     # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
