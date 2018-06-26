@@ -125,9 +125,10 @@ epsilon=None
 amsgrad=False
 
 
-#for numerical values use a random distribution 
+#for numerical values use a random distribution. format: sp_randint(min, max)
 batch_size = sp_randint(50, 256)
-neuronLayer = [16,16]
+dnnNeuronLayer = [16,16]
+cnnNeuronLayer = [6,16,120,84]
 
 optimizer = ['SGD', 'adam']
 
@@ -153,10 +154,10 @@ def dnn(optimizer = 'adam'):
     denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data2[0].shape)) # negin used this as the first layer. need to double check syntax
     denseModel.add(Flatten())
 
-    for layer in range(len(neuronLayer)):
+    for layer in range(len(dnnNeuronLayer)):
         #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
         denseModel.add(Dropout(drop))
-        denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'relu'))
+        denseModel.add(Dense(dnnNeuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'relu'))
 
     denseModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
     #define optimizer
@@ -183,21 +184,96 @@ def dnn(optimizer = 'adam'):
     '''
     return denseModel
 
+def cnn(optimizer = 'adam'):
+    '''
+    implements a convolutional neural network and creates files with parameters and plots
+
+    Arguments:
+
+    Returns:
+        convModel : a trained keras convolutional network
+
+    Example:
+        cnn([32,64, 1000, 1], [5,5], [2,2], [1,1], [1,1], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
+        lenet would be: cnn([6,16,120,84], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
+        alexnet: https://gist.github.com/JBed/c2fb3ce8ed299f197eff
+    '''
+    print("convoultional neural network")
+
+    #make sure all lists are the same length s.t. the for loops for setting up dont break
+    assert (len(kernel) == len(strideC))
+    assert (len(pool) == len(strideP))
+
+    #initilaize model with Sequential
+    convModel = Sequential()
+
+    #add first conv and pooling layers
+    convModel.add(Conv2D(cnnNeuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
+    convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0]),padding = "valid"))
+
+    for layer in range(1, len(cnnNeuronLayer) - 2):
+        print(layer, strideP[layer])
+
+        convModel.add(Conv2D(cnnNeuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), strides = strideC[layer], padding = 'same', activation='relu'))
+        convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer]), padding = "valid"))
+
+    convModel.add(Conv2D(cnnNeuronLayer[len(cnnNeuronLayer) - 2], kernel_size = kernel[len(kernel) - 1], strides = strideC[len(strideC) - 1], activation = 'relu'))
+    convModel.add(Dropout(drop))
+    convModel.add(Flatten())
+    convModel.add(Dense(cnnNeuronLayer[len(cnnNeuronLayer) - 1], kernel_regularizer=l2(0.0001), activation='relu'))
+    convModel.add(Dropout(drop))
+    convModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation='sigmoid'))
+    #save model to a file
+    with redirect_stdout(file):
+        convModel.summary()
+
+    #define optimizer and compile
+    '''
+    if boolAdam:
+        opt_conv = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+    else:
+        opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+    '''
+    convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
+    '''
+    #fit model
+    conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
+
+    #calculate ROC info
+    train_pred = convModel.predict(train_data).ravel()
+    dev_pred = convModel.predict(dev_data).ravel()
+    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
+    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
+
+    makePlots(conv_hist, outputFile, "Conv Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
+    '''
+    return convModel
+
 #main stuff
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
     print("you are in main.")
 
+    # below methods use https://machinelearningmastery.com/grid-search-hyperparameters-deep-learning-models-python-keras/
+    #as a guide line. using their printing method for best params.
 
+    #dnn random grid search
     model = KerasClassifier(build_fn=dnn, verbose=1)
     n_iter_search = 20
     random_search = RandomizedSearchCV(model, param_distributions=param_grid, n_iter=n_iter_search)
 
     grid_result = random_search.fit(train_data2, train_label)
-# summarize results
+    # summarize results
     print("Best: %f using %s" % (grid_result.best_score_, grid_result.best_params_))
     means = grid_result.cv_results_['mean_test_score']
     stds = grid_result.cv_results_['std_test_score']
     params = grid_result.cv_results_['params']
     for mean, stdev, param in zip(means, stds, params):
         print("%f (%f) with: %r" % (mean, stdev, param))
+
+
+    #cnn random grid search
+    cmodel = KerasClassifier(build_fn=cnn, verbose=1)
+
+    #rnn random grid search
+    #rmodel = KerasClassifier(build_fn=rnn, verbose=1)
