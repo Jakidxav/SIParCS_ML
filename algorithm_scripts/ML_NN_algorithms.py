@@ -549,10 +549,13 @@ if __name__ == "__main__":
     #will also have to change the param lists depending on which params are being optimized
     bestDnnAUROC = 0
     bestDnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestDnnSearchNum = 0
     bestCnnAUROC = 0
     bestCnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestCnnSearchNum = 0
     bestRnnAUROC = 0
     bestRnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestRnnSearchNum = 0
 
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
@@ -571,28 +574,34 @@ if __name__ == "__main__":
                 if dnnAUROC > bestDnnAUROC:
                     bestDnnAUROC = dnnAUROC
                     bestDnnParams = [e, d, l]
+                    bestDnnSearchNum = i
 
                 #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
                 convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, d, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
                 if cnnAUROC > bestCnnAUROC:
                     bestCnnAUROC = cnnAUROC
                     bestCnnParams = [e, d, l]
+                    bestCnnSearchNum = i
 
                 #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
                 recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, d, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
                 if rnnAUROC > bestRnnAUROC:
                     bestRnnAUROC = rnnAUROC
                     bestRnnParams = [e, d, l]
+                    bestRnnSearchNum = i
 
                 i += 1
 
     bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
+    bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
     bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n")
 
     bfile.write("best CNN AUROC for dev set: " + str(bestCnnAUROC) + "\n")
+    bfile.write("best CNN search iteration for dev set: " + str(bestCnnSearchNum) + "\n")
     bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n")
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
+    bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
     bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n")
 
     #alexnet
