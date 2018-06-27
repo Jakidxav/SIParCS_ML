@@ -127,10 +127,10 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.savefig(output + '_roc.png')
     plt.cla()
 
-def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad):
+def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
     #this method writes all parameters to a file.
     #size	iterations     boolLSTM	boolAdam	boolNesterov	dropout	kernel	pool	strideC	strideP	momentum	decay	learning rate	beta1	beta2	epsilon	amsgrad
-
+    file.write("grid search iteration: " + str(searchNum) + "\n")
     file.write("neuronLayer " + " ".join(str(x) for x in neuronLayer) + "\n")
     file.write("iterations "+ str(iterations) + "\n")
     file.write("boolLSTM "+ str(boolLSTM) + "\n")
@@ -151,7 +151,7 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
     '''
     implements a dense neural network. also outputs info to a file.
 
@@ -180,7 +180,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     outputFile = outputDL + "dnn"
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file, neuronLayer, iterations, None, boolAdam, boolNest, drop, [None], [None], [None], [None], momentum, decay, learnRate, b1, b2, epsilon, amsgrad)
+    writeFile(file, neuronLayer, iterations, None, boolAdam, boolNest, drop, [None], [None], [None], [None], momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
 
     #initilaize model with Sequential()
     denseModel = Sequential()
@@ -218,11 +218,11 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
 
     makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
 
-    return denseModel
+    return denseModel, skm.auc(fpr_dev,tpr_dev)
 
 #cnn
     # start with lenet
-def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
     '''
     implements a convolutional neural network and creates files with parameters and plots
 
@@ -260,7 +260,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, None, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad)
+    writeFile(file,neuronLayer, iterations, None, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
 
     #initilaize model with Sequential
     convModel = Sequential()
@@ -303,10 +303,10 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
     makePlots(conv_hist, outputFile, "Conv Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
-    return convModel
+    return convModel, skm.auc(fpr_dev,tpr_dev)
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
@@ -338,14 +338,13 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
     '''
     print("recurrent neural network")
     outputFile = outputDL + "rnn"
-    print(outputFile)
+
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad)
+    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
 
     #set up model with sequential
     recurModel = Sequential()
-    print(train_data.shape)
     #create a cnn
     #should allow for the images to be processed similar to movie frames.
     recurModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
@@ -385,11 +384,11 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
-    return recurModel
+    return recurModel, skm.auc(fpr_dev,tpr_dev)
 
 def alex(train_data, train_label, dev_data, dev_label, outputDL):
 
-    outputFile = outputDL + "cnn"
+    outputFile = outputDL + "alex"
     print(outputFile)
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
@@ -493,6 +492,7 @@ if __name__ == "__main__":
     test_data = None
     test_label = None
     outputFile = ""
+    bestFile = ""
 
     #start setting up the name for the output file
     date = datetime.datetime.now().strftime("%y%m%d-%H%M_")
@@ -537,29 +537,66 @@ if __name__ == "__main__":
     dev_data2 = dev_data.reshape(-1,120,340,1)
     test_data2 = test_data.reshape(-1,120,340,1)
 
+    #set up file name for best parameters file. willl have to change things to write to file as the
+    #search parameters are chosen/optimized and others are being tried.
+    bestFile = outputFile + "best.txt"
+    bfile = open(bestFile, "w+")
+    bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
+    bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
+    bfile.write("learningRates tried: " + " ".join(str(x) for x in learningRate) + "\n")
+
+    #best scores for each net and the associated parameters
+    #will also have to change the param lists depending on which params are being optimized
+    bestDnnAUROC = 0
+    bestDnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestCnnAUROC = 0
+    bestCnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestRnnAUROC = 0
+    bestRnnParams = [epochs[0], dropout[0], learningRate[0]]
+
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
 
-    #DO NOT INCLUDE THE FINAL LAYER IN THE neuronLayer[]. SINCE WE ARE DOING BINARY CLASSIFICATION THE FINAL LAYER IS HARD CODED WITH neuron = 1
+    #train models with grid search
     for e in epochs:
         for d in dropout:
             for l in learningRate:
-                outputFile += str(i) + "_"
+
+                outputSearch = outputFile += str(i) + "_"
                 #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                denseNN = dnn([16,16], d, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputFile) #these are all negins values right now.
+                denseNN, dnnAUROC = dnn([16,16], d, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
+                if dnnAUROC > bestDnnAUROC:
+                    bestDnnAUROC = dnnAUROC
+                    bestDnnParams = [e, d, l]
 
                 #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, d, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputFile) # these are the lenet values
+                convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, d, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
+                if cnnAUROC > bestCnnAUROC:
+                    bestCnnAUROC = cnnAUROC
+                    bestCnnParams = [e, d, l]
 
                 #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                recurrNN = rnn([20,60],kernel, pool, strideC, strideP, d, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputFile)
+                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, d, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
+                if rnnAUROC > bestRnnAUROC:
+                    bestRnnAUROC = rnnAUROC
+                    bestRnnParams = [e, d, l]
+
                 i += 1
+
+    bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
+    bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n")
+
+    bfile.write("best CNN AUROC for dev set: " + str(bestCnnAUROC) + "\n")
+    bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n")
+
+    bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
+    bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n")
 
     #alexnet
     #alexNN = alex(train_data2, train_label, dev_data2, dev_label)
-    print(time.time() - start)
+    print("runtime ",time.time() - start)
     #run test sets.
     # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
