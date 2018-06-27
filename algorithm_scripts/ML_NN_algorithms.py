@@ -386,13 +386,13 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     return recurModel, skm.auc(fpr_dev,tpr_dev)
 
-def alex(train_data, train_label, dev_data, dev_label, outputDL):
+def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputSearch, searchNum):
 
     outputFile = outputDL + "alex"
-    print(outputFile)
+
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad)
+    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
 
     # (3) Create a sequential model
     model = Sequential()
@@ -463,14 +463,21 @@ def alex(train_data, train_label, dev_data, dev_label, outputDL):
     model.add(Dense(1))
     model.add(Activation('sigmoid'))
 
+    if boolAdam:
+        #adam optimizer
+        opt_alex = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+    else:
+        #SGD optimizer
+        opt_alex = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
+
     with redirect_stdout(file):
         model.summary()
 
     # (4) Compile
-    model.compile(loss='binary_crossentropy', optimizer='adam',metrics=['accuracy'])
+    model.compile(loss='binary_crossentropy', optimizer=opt_alex, metrics=[binary_accuracy])
 
     # (5) Train
-    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=1, verbose=1, validation_data=(dev_data, dev_label))
+    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=iterations, verbose=1, validation_data=(dev_data, dev_label))
 
     #calculate ROC info
     train_pred = model.predict(train_data).ravel()
@@ -478,9 +485,9 @@ def alex(train_data, train_label, dev_data, dev_label, outputDL):
     fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
-    makePlots(alex_hist, outputFile, "Conv Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
+    makePlots(alex_hist, outputFile, "Alex Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
-    return model
+    return model, skm.roc_curve(dev_label, dev_pred)
 #main stuff
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
@@ -557,6 +564,10 @@ if __name__ == "__main__":
     bestRnnParams = [epochs[0], dropout[0], learningRate[0]]
     bestRnnSearchNum = 0
 
+    bestAlexAUROC = 0
+    bestAlexParams = [epochs[0], dropout[0], learningRate[0]]
+    bestAlexSearchNum = 0
+
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
@@ -568,7 +579,7 @@ if __name__ == "__main__":
         for d in dropout:
             for l in learningRate:
 
-                outputSearch = outputFile += str(i) + "_"
+                outputSearch = outputFile + str(i) + "_"
                 #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
                 denseNN, dnnAUROC = dnn([16,16], d, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
                 if dnnAUROC > bestDnnAUROC:
@@ -590,6 +601,13 @@ if __name__ == "__main__":
                     bestRnnParams = [e, d, l]
                     bestRnnSearchNum = i
 
+                #alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
+                alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
+                if alexAUROC > bestAlexAUROC:
+                    bestAlexAUROC = alexAUROC
+                    bestAlexParams = [e, d, l]
+                    bestAlexSearchNum = i
+
                 i += 1
 
     bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
@@ -604,8 +622,10 @@ if __name__ == "__main__":
     bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
     bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n")
 
-    #alexnet
-    #alexNN = alex(train_data2, train_label, dev_data2, dev_label)
+    bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
+    bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
+    bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n")
+
     print("runtime ",time.time() - start)
     #run test sets.
     # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
