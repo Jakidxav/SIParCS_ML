@@ -612,19 +612,19 @@ if __name__ == "__main__":
 
     bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
     bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
-    bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n")
+    bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n\n")
 
     bfile.write("best CNN AUROC for dev set: " + str(bestCnnAUROC) + "\n")
     bfile.write("best CNN search iteration for dev set: " + str(bestCnnSearchNum) + "\n")
-    bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n")
+    bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n\n")
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
     bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
-    bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n")
+    bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n\n")
 
     bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
     bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
-    bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n")
+    bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n\n")
 
     print("runtime ",time.time() - start)
     #run test sets.
