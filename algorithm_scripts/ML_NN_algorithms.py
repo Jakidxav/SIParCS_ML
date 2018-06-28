@@ -506,6 +506,7 @@ if __name__ == "__main__":
     outputFile = ""
     bestFile = ""
     netType = sys.argv[1] #can be dense, conv, recur, or alex
+    stationNum = sys.argv[2] # the station to be used. should be in the form of station1
     print(netType)
 
     #start setting up the name for the output file
@@ -530,21 +531,24 @@ if __name__ == "__main__":
             for f in os.listdir(folder):
 
                 if not f.startswith('.'):
-
-                    #_norm
-                    with open(folder + "/" + f + "/" + f + ".txt", 'rb') as file:
-                        if f == 'X_train':
-                            train_data = pickle.load(file)
-                        if f == 'X_dev':
-                            dev_data = pickle.load(file)
-                        if f == 'X_val':
-                            test_data = pickle.load(file)
-                        if f == 'Y_train':
-                            train_label = pickle.load(file)
-                        if f == 'Y_dev':
-                            dev_label = pickle.load(file)
-                        if f == 'Y_val':
-                            test_label = pickle.load(file)
+                    if 'X' in f:
+                        #open normalized sst files
+                        with open(folder + "/" + f + "/" + f + "_norm.txt", 'rb') as file:
+                            if f == 'X_train':
+                                train_data = pickle.load(file)
+                            if f == 'X_dev':
+                                dev_data = pickle.load(file)
+                            if f == 'X_val':
+                                test_data = pickle.load(file)
+                    if 'Y' in f:
+                        #open labels for stationNum station 
+                        with open(folder + "/" + f + "/" + stationNum + "/" + f + ".txt", 'rb') as file:
+                            if f == 'Y_train':
+                                train_label = pickle.load(file)
+                            if f == 'Y_dev':
+                                dev_label = pickle.load(file)
+                            if f == 'Y_val':
+                                test_label = pickle.load(file)
 
     #reshape all data files.
     train_data2 = train_data.reshape(-1,120,340, 1)
