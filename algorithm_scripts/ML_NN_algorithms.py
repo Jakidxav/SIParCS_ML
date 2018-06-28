@@ -52,13 +52,18 @@ import pickle
 import os
 import datetime
 import time
+import random
+import sys
 
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./data/"
 
+#example for generating list of random numbers for grid search
+# list = random.sample(range(min, max), numberToGenerate)
+
 #hyperparameters and paramters
 #SGD parameters
-dropout = [0.4, 0.5, 0.6]
+dropout = 0.5
 learningRate = [0.001, 0.01, 0.05, 0.1, 0.5]
 momentum = 0.99
 decay = 1e-4
@@ -500,6 +505,8 @@ if __name__ == "__main__":
     test_label = None
     outputFile = ""
     bestFile = ""
+    netType = sys.argv[1] #can be dense, conv, recur, or alex
+    print(netType)
 
     #start setting up the name for the output file
     date = datetime.datetime.now().strftime("%y%m%d-%H%M_")
@@ -549,23 +556,23 @@ if __name__ == "__main__":
     bestFile = outputFile + "best.txt"
     bfile = open(bestFile, "w+")
     bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
-    bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
+    #bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
     bfile.write("learningRates tried: " + " ".join(str(x) for x in learningRate) + "\n")
 
     #best scores for each net and the associated parameters
     #will also have to change the param lists depending on which params are being optimized
     bestDnnAUROC = 0
-    bestDnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestDnnParams = [epochs[0], learningRate[0]]
     bestDnnSearchNum = 0
     bestCnnAUROC = 0
-    bestCnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestCnnParams = [epochs[0], learningRate[0]]
     bestCnnSearchNum = 0
     bestRnnAUROC = 0
-    bestRnnParams = [epochs[0], dropout[0], learningRate[0]]
+    bestRnnParams = [epochs[0], learningRate[0]]
     bestRnnSearchNum = 0
 
     bestAlexAUROC = 0
-    bestAlexParams = [epochs[0], dropout[0], learningRate[0]]
+    bestAlexParams = [epochs[0], learningRate[0]]
     bestAlexSearchNum = 0
 
 
@@ -576,31 +583,31 @@ if __name__ == "__main__":
 
     #train models with grid search
     for e in epochs:
-        for d in dropout:
-            for l in learningRate:
+        for l in learningRate:
 
-                outputSearch = outputFile + str(i) + "_"
+            outputSearch = outputFile + str(i) + "_"
+            if netType == 'dense':
                 #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                denseNN, dnnAUROC = dnn([16,16], d, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
+                denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
                 if dnnAUROC > bestDnnAUROC:
                     bestDnnAUROC = dnnAUROC
                     bestDnnParams = [e, d, l]
                     bestDnnSearchNum = i
-
+            if netType == 'conv':
                 #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, d, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
+                convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
                 if cnnAUROC > bestCnnAUROC:
                     bestCnnAUROC = cnnAUROC
                     bestCnnParams = [e, d, l]
                     bestCnnSearchNum = i
-
+            if netType == 'recur':
                 #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, d, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
+                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
                 if rnnAUROC > bestRnnAUROC:
                     bestRnnAUROC = rnnAUROC
                     bestRnnParams = [e, d, l]
                     bestRnnSearchNum = i
-
+            if netType == 'alex':
                 #alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
                 alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
                 if alexAUROC > bestAlexAUROC:
@@ -626,6 +633,6 @@ if __name__ == "__main__":
     bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
     bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n\n")
 
-    print("runtime ",time.time() - start)
+    print("runtime ",time.time() - start, " seconds")
     #run test sets.
     # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
