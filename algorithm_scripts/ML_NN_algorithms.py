@@ -505,7 +505,7 @@ if __name__ == "__main__":
     test_label = None
     outputFile = ""
     bestFile = ""
-    netType = sys.argv[1] #can be dense, conv, recur, or alex
+    netType = sys.argv[1] #can be dense, conv, recur, alex, or all
     stationNum = sys.argv[2] # the station to be used. should be in the form of station1
     print(netType)
 
@@ -541,7 +541,7 @@ if __name__ == "__main__":
                             if f == 'X_val':
                                 test_data = pickle.load(file)
                     if 'Y' in f:
-                        #open labels for stationNum station 
+                        #open labels for stationNum station
                         with open(folder + "/" + f + "/" + stationNum + "/" + f + ".txt", 'rb') as file:
                             if f == 'Y_train':
                                 train_label = pickle.load(file)
@@ -597,6 +597,7 @@ if __name__ == "__main__":
                     bestDnnAUROC = dnnAUROC
                     bestDnnParams = [e, d, l]
                     bestDnnSearchNum = i
+
             if netType == 'conv':
                 #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
                 convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
@@ -604,6 +605,7 @@ if __name__ == "__main__":
                     bestCnnAUROC = cnnAUROC
                     bestCnnParams = [e, d, l]
                     bestCnnSearchNum = i
+
             if netType == 'recur':
                 #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
                 recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
@@ -611,8 +613,35 @@ if __name__ == "__main__":
                     bestRnnAUROC = rnnAUROC
                     bestRnnParams = [e, d, l]
                     bestRnnSearchNum = i
+
             if netType == 'alex':
                 #alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
+                alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
+                if alexAUROC > bestAlexAUROC:
+                    bestAlexAUROC = alexAUROC
+                    bestAlexParams = [e, d, l]
+                    bestAlexSearchNum = i
+
+            if netType == 'all':
+                #run all the nets!
+                denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
+                if dnnAUROC > bestDnnAUROC:
+                    bestDnnAUROC = dnnAUROC
+                    bestDnnParams = [e, d, l]
+                    bestDnnSearchNum = i
+
+                convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
+                if cnnAUROC > bestCnnAUROC:
+                    bestCnnAUROC = cnnAUROC
+                    bestCnnParams = [e, d, l]
+                    bestCnnSearchNum = i
+
+                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
+                if rnnAUROC > bestRnnAUROC:
+                    bestRnnAUROC = rnnAUROC
+                    bestRnnParams = [e, d, l]
+                    bestRnnSearchNum = i
+                    
                 alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
                 if alexAUROC > bestAlexAUROC:
                     bestAlexAUROC = alexAUROC
