@@ -9,7 +9,7 @@ ML_NN_algorithms.py takes in 2 Arguments - netType and stationNum
   which station is selected as labels regardless of lead time.
 
 all lead times will be run automatically if they are in the same directory as ML_NN_algorithms.py
-  this can changed directly in the script in __main__ or by only having one lead time folder in the directory.
+  this can changed directly in the script in \_\_main\_\_ or by only having one lead time folder in the directory.
   all lead time files should be in the form 'X_lead' where X an integer representing how many days are used in the lead time.
 
 all parameters can be tuned by changed the corresponding parameter to a list (of either randomly generated or hardcoded values)
