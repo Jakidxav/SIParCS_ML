@@ -55,6 +55,10 @@ import time
 import random
 import sys
 
+#will allow for files to
+matplotlib.rcParams['pdf.fonttype'] = 42
+matplotlib.rcParams['ps.fonttype'] = 42
+
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./data/"
 
@@ -106,6 +110,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.xlabel("Epoch")
     plt.title(modelName + " Loss")
     plt.savefig(output + '_loss.png')
+    plt.savefig(output + "_loss.svg", format="svg")
     plt.cla()
 
     #accuracy plot
@@ -118,6 +123,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.xlabel("Epoch")
     plt.title(modelName + " Accuracy")
     plt.savefig(output + '_accuracy.png')
+    plt.savefig(output + "_accuracy.svg", format="svg")
     plt.cla()
 
     #roc plot
@@ -130,6 +136,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.xlabel("False positives")
     plt.title(modelName + " ROC")
     plt.savefig(output + '_roc.png')
+    plt.savefig(output + "_roc.svg", format="svg")
     plt.cla()
 
 def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
@@ -641,7 +648,7 @@ if __name__ == "__main__":
                     bestRnnAUROC = rnnAUROC
                     bestRnnParams = [e, d, l]
                     bestRnnSearchNum = i
-                    
+
                 alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
                 if alexAUROC > bestAlexAUROC:
                     bestAlexAUROC = alexAUROC
