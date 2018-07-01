@@ -514,50 +514,46 @@ if __name__ == "__main__":
     test_label = None
     outputFile = ""
     bestFile = ""
-    netType = sys.argv[1] #can be dense, conv, recur, alex, or all
-    stationNum = sys.argv[2] # the station to be used. should be in the form of station1
-    print(netType)
+    #netType = sys.argv[1] #can be dense, conv, recur, alex, or all
+    #stationNum = sys.argv[2] # the station to be used. should be in the form of station1
+    #print(netType)
 
     #start setting up the name for the output file
     date = datetime.datetime.now().strftime("%y%m%d_")
-    print(date)
+    #print(date)
 
     #for all dataset directories & all data in each: need to walk through the various dierctories that contain each dataset
     #can change this directory once run location on cheyenne is selected
 
-    for folder in os.listdir('.'):
+    outputDL = date + "_30_"
+    #print(outputDL)
+    outputFile = outputDir + outputDL
+    
+    X_train_filename = '/glade/work/joshuadr/IPython/30_lead/X_train/X_train.txt'
+    X_dev_filename = '/glade/work/joshuadr/IPython/30_lead/X_dev/X_dev.txt'
+    X_val_filename = '/glade/work/joshuadr/IPython/30_lead/X_val/X_val.txt'
 
-        #extract the data from all the necessary files for the given lead time
-        # need to change
-        if (not '.' in folder) and '_' in folder:
-            print('folder', folder)
-            #get lead time to save to output file name
-            lead,extra = folder.split("_")
-            outputDL = date + lead + "_"
-            print(outputDL)
-            outputFile = outputDir + outputDL
+    Y_train_filename = '/glade/work/joshuadr/IPython/30_lead/Y_train/station1/Y_train.txt'
+    Y_dev_filename = '/glade/work/joshuadr/IPython/30_lead/Y_dev/station1/Y_dev.txt'
+    Y_val_filename = '/glade/work/joshuadr/IPython/30_lead/Y_val/station1/Y_val.txt'
+    
+    with open(X_train_filename, 'rb') as f:
+        train_data = pickle.load(f)
 
-            for f in os.listdir(folder):
+    with open(X_dev_filename, 'rb') as g:
+        dev_data = pickle.load(g)
 
-                if not f.startswith('.'):
-                    if 'X' in f:
-                        #open normalized sst files
-                        with open(folder + "/" + f + "/" + f + "_norm.txt", 'rb') as file:
-                            if f == 'X_train':
-                                train_data = pickle.load(file)
-                            if f == 'X_dev':
-                                dev_data = pickle.load(file)
-                            if f == 'X_val':
-                                test_data = pickle.load(file)
-                    if 'Y' in f:
-                        #open labels for stationNum station
-                        with open(folder + "/" + f + "/" + stationNum + "/" + f + ".txt", 'rb') as file:
-                            if f == 'Y_train':
-                                train_label = pickle.load(file)
-                            if f == 'Y_dev':
-                                dev_label = pickle.load(file)
-                            if f == 'Y_val':
-                                test_label = pickle.load(file)
+    with open(X_val_filename, 'rb') as h:
+        test_data = pickle.load(h)
+
+    with open(Y_train_filename, 'rb') as i:
+        train_label = pickle.load(i)
+
+    with open(Y_dev_filename, 'rb') as j:
+        dev_label = pickle.load(j)
+
+    with open(Y_val_filename, 'rb') as k:
+        test_label = pickle.load(k)
 
     #reshape all data files.
     train_data2 = train_data.reshape(-1,120,340, 1)
@@ -597,83 +593,52 @@ if __name__ == "__main__":
     #train models with grid search
     for e in epochs:
         for l in learningRate:
-
             outputSearch = outputFile + str(i) + "_"
-            if netType == 'dense':
-                #dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
-                if dnnAUROC > bestDnnAUROC:
-                    bestDnnAUROC = dnnAUROC
-                    bestDnnParams = [e, d, l]
-                    bestDnnSearchNum = i
+            
+            convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
+            if cnnAUROC > bestCnnAUROC:
+                bestCnnAUROC = cnnAUROC
+                bestCnnParams = [e, l]
+                bestCnnSearchNum = i
 
-            if netType == 'conv':
-                #cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
-                if cnnAUROC > bestCnnAUROC:
-                    bestCnnAUROC = cnnAUROC
-                    bestCnnParams = [e, d, l]
-                    bestCnnSearchNum = i
+            i += 1
+            
+             #denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
+            #if dnnAUROC > bestDnnAUROC:
+                #bestDnnAUROC = dnnAUROC
+                #bestDnnParams = [e, d, l]
+                #bestDnnSearchNum = i
 
-            if netType == 'recur':
-                #rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL)
-                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
-                if rnnAUROC > bestRnnAUROC:
-                    bestRnnAUROC = rnnAUROC
-                    bestRnnParams = [e, d, l]
-                    bestRnnSearchNum = i
 
-            if netType == 'alex':
-                #alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
-                alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
-                if alexAUROC > bestAlexAUROC:
-                    bestAlexAUROC = alexAUROC
-                    bestAlexParams = [e, d, l]
-                    bestAlexSearchNum = i
+             #recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
+             #if rnnAUROC > bestRnnAUROC:
+                 #bestRnnAUROC = rnnAUROC
+                 #bestRnnParams = [e, d, l]
+                 #bestRnnSearchNum = i
 
-            if netType == 'all':
-                #run all the nets!
-                denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
-                if dnnAUROC > bestDnnAUROC:
-                    bestDnnAUROC = dnnAUROC
-                    bestDnnParams = [e, d, l]
-                    bestDnnSearchNum = i
 
-                convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
-                if cnnAUROC > bestCnnAUROC:
-                    bestCnnAUROC = cnnAUROC
-                    bestCnnParams = [e, d, l]
-                    bestCnnSearchNum = i
+             #alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
+             #if alexAUROC > bestAlexAUROC:
+                 #bestAlexAUROC = alexAUROC
+                 #bestAlexParams = [e, d, l]
+                 #bestAlexSearchNum = i
+                   
 
-                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
-                if rnnAUROC > bestRnnAUROC:
-                    bestRnnAUROC = rnnAUROC
-                    bestRnnParams = [e, d, l]
-                    bestRnnSearchNum = i
-
-                alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
-                if alexAUROC > bestAlexAUROC:
-                    bestAlexAUROC = alexAUROC
-                    bestAlexParams = [e, d, l]
-                    bestAlexSearchNum = i
-
-                i += 1
-
-    bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
-    bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
-    bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n\n")
+    #bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
+    #bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
+    #bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n\n")
 
     bfile.write("best CNN AUROC for dev set: " + str(bestCnnAUROC) + "\n")
     bfile.write("best CNN search iteration for dev set: " + str(bestCnnSearchNum) + "\n")
     bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n\n")
 
-    bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
-    bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
-    bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n\n")
+    #bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
+    #bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
+    #bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n\n")
 
-    bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
-    bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
-    bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n\n")
+    #bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
+    #bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
+    #bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n\n")
 
     print("runtime ",time.time() - start, " seconds")
     #run test sets.
