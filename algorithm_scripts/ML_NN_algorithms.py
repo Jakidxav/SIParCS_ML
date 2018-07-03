@@ -28,10 +28,6 @@ try with other stations; could do individually or as a multiclassification with 
 
 try with soil temperature; need separate NN and merge
 
-figure out how file output works with grid search
-alexnet; with loaded weights from alexnet website
-
-find time and space complexity - ask alessandro
 """
 from contextlib import redirect_stdout
 import matplotlib
@@ -50,6 +46,7 @@ from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
 import sklearn.metrics as skm
 from tensorflow import metrics as tf
+import h5py
 import pickle
 import os
 import datetime
@@ -528,7 +525,7 @@ if __name__ == "__main__":
     outputDL = date + "_30_"
     #print(outputDL)
     outputFile = outputDir + outputDL
-    
+
     X_train_filename = '/glade/work/joshuadr/IPython/30_lead/X_train/X_train.txt'
     X_dev_filename = '/glade/work/joshuadr/IPython/30_lead/X_dev/X_dev.txt'
     X_val_filename = '/glade/work/joshuadr/IPython/30_lead/X_val/X_val.txt'
@@ -536,7 +533,7 @@ if __name__ == "__main__":
     Y_train_filename = '/glade/work/joshuadr/IPython/30_lead/Y_train/station1/Y_train.txt'
     Y_dev_filename = '/glade/work/joshuadr/IPython/30_lead/Y_dev/station1/Y_dev.txt'
     Y_val_filename = '/glade/work/joshuadr/IPython/30_lead/Y_val/station1/Y_val.txt'
-    
+
     with open(X_train_filename, 'rb') as f:
         train_data = pickle.load(f)
 
@@ -594,7 +591,7 @@ if __name__ == "__main__":
     for e in epochs:
         for l in learningRate:
             outputSearch = outputFile + str(i) + "_"
-            
+
             convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
             if cnnAUROC > bestCnnAUROC:
                 bestCnnAUROC = cnnAUROC
@@ -602,7 +599,7 @@ if __name__ == "__main__":
                 bestCnnSearchNum = i
 
             i += 1
-            
+
              #denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
             #if dnnAUROC > bestDnnAUROC:
                 #bestDnnAUROC = dnnAUROC
@@ -622,7 +619,7 @@ if __name__ == "__main__":
                  #bestAlexAUROC = alexAUROC
                  #bestAlexParams = [e, d, l]
                  #bestAlexSearchNum = i
-                   
+
 
     #bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
     #bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
