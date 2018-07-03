@@ -28,6 +28,10 @@ try with other stations; could do individually or as a multiclassification with 
 
 try with soil temperature; need separate NN and merge
 
+figure out how file output works with grid search
+alexnet; with loaded weights from alexnet website
+
+find time and space complexity - ask alessandro
 """
 from contextlib import redirect_stdout
 import matplotlib
@@ -46,7 +50,6 @@ from IPython.display import SVG
 from keras.utils.vis_utils import model_to_dot, plot_model
 import sklearn.metrics as skm
 from tensorflow import metrics as tf
-import h5py
 import pickle
 import os
 import datetime
@@ -59,7 +62,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Conv/lrE/"
+outputDir = "./data/Alex/lrE/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -525,7 +528,7 @@ if __name__ == "__main__":
     outputDL = date + "_30_"
     #print(outputDL)
     outputFile = outputDir + outputDL
-
+    
     X_train_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_train/X_train.txt'
     X_dev_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_dev/X_dev.txt'
     X_val_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_val/X_val.txt'
@@ -533,7 +536,7 @@ if __name__ == "__main__":
     Y_train_filename = '/glade/work/joshuadr/IPython/Y/Y_train/station0/Y_train.txt'
     Y_dev_filename = '/glade/work/joshuadr/IPython/Y/Y_dev/station0/Y_dev.txt'
     Y_val_filename = '/glade/work/joshuadr/IPython/Y/Y_val/station0/Y_val.txt'
-
+    
     with open(X_train_filename, 'rb') as f:
         train_data = pickle.load(f)
 
@@ -591,51 +594,19 @@ if __name__ == "__main__":
     for e in epochs:
         for l in learningRate:
             outputSearch = outputFile + str(i) + "_"
-
-            convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
-            if cnnAUROC > bestCnnAUROC:
-                bestCnnAUROC = cnnAUROC
-                bestCnnParams = [e, l]
-                bestCnnSearchNum = i
-
+            
+            alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
+            if alexAUROC > bestAlexAUROC:
+                bestAlexAUROC = alexAUROC
+                bestAlexParams = [e, l]
+                bestAlexSearchNum = i
+            
             i += 1
+            
 
-             #denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
-            #if dnnAUROC > bestDnnAUROC:
-                #bestDnnAUROC = dnnAUROC
-                #bestDnnParams = [e, d, l]
-                #bestDnnSearchNum = i
-
-
-             #recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i)
-             #if rnnAUROC > bestRnnAUROC:
-                 #bestRnnAUROC = rnnAUROC
-                 #bestRnnParams = [e, d, l]
-                 #bestRnnSearchNum = i
-
-
-             #alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
-             #if alexAUROC > bestAlexAUROC:
-                 #bestAlexAUROC = alexAUROC
-                 #bestAlexParams = [e, d, l]
-                 #bestAlexSearchNum = i
-
-
-    #bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
-    #bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
-    #bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n\n")
-
-    bfile.write("best CNN AUROC for dev set: " + str(bestCnnAUROC) + "\n")
-    bfile.write("best CNN search iteration for dev set: " + str(bestCnnSearchNum) + "\n")
-    bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n\n")
-
-    #bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
-    #bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
-    #bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n\n")
-
-    #bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
-    #bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
-    #bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n\n")
+    bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
+    bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
+    bfile.write("best parameters for Alex: " + " ".join(str(x) for x in bestAlexParams) + "\n\n")
 
     print("runtime ",time.time() - start, " seconds")
     #run test sets.
