@@ -99,10 +99,15 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     Returns:
         nothing. should create plot images
     '''
+    #for decerasing the number of tick marks on the grapphs for readibility
+    xList = []
+    for e in range(len(model_hist.epoch) + 1):
+        if e % 25 == 0:
+            xList.append(e)
     #bss plot
     plt.plot(model_hist.epoch, model_hist.history["val_loss"], label="validation")
     plt.plot(model_hist.epoch, model_hist.history["loss"], label="train")
-    plt.xticks(model_hist.epoch)
+    plt.xticks(xList)
     #plt.ylim(-1, 1)
     plt.legend()
     plt.ylabel("Loss - Binary Crossentropy")
@@ -115,7 +120,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     #accuracy plot
     plt.plot(model_hist.epoch, model_hist.history["val_binary_accuracy"], label="validation")
     plt.plot(model_hist.epoch, model_hist.history["binary_accuracy"], label="train")
-    plt.xticks(model_hist.epoch)
+    plt.xticks(xList)
     #plt.ylim(-1, 1)
     plt.legend()
     plt.ylabel("accuracy")
