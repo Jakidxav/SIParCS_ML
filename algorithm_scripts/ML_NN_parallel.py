@@ -32,7 +32,7 @@ import time
 import random
 import sys
 
-#will allow for files to
+#will allow for files to have their text treated as text in illustrator
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
@@ -283,6 +283,10 @@ if __name__ == "__main__":
     #set up the other nn on different dataset
     #merge nns
     #save model.summary to file
+
+    #option 2:
+    #load pretrained models. learn weights just for deciding which nn should play a bigger role in determining final output
+    #still need a merge layer for the NN outputs
     start = time.time()
     '''
     convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, learningRate[1], momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs[0], train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values

@@ -102,10 +102,15 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     Returns:
         nothing. should create plot images
     '''
+    #for decerasing the number of tick marks on the grapphs for readibility
+    xList = []
+    for e in range(len(model_hist.epoch) + 1):
+        if e % 25 == 0:
+            xList.append(e)
     #bss plot
     plt.plot(model_hist.epoch, model_hist.history["val_loss"], label="validation")
     plt.plot(model_hist.epoch, model_hist.history["loss"], label="train")
-    plt.xticks(model_hist.epoch)
+    plt.xticks(xList)
     #plt.ylim(-1, 1)
     plt.legend()
     plt.ylabel("Loss - Binary Crossentropy")
@@ -118,7 +123,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     #accuracy plot
     plt.plot(model_hist.epoch, model_hist.history["val_binary_accuracy"], label="validation")
     plt.plot(model_hist.epoch, model_hist.history["binary_accuracy"], label="train")
-    plt.xticks(model_hist.epoch)
+    plt.xticks(xList)
     #plt.ylim(-1, 1)
     plt.legend()
     plt.ylabel("accuracy")
@@ -528,7 +533,7 @@ if __name__ == "__main__":
     outputDL = date + "_30_"
     #print(outputDL)
     outputFile = outputDir + outputDL
-    
+
     X_train_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_train/X_train.txt'
     X_dev_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_dev/X_dev.txt'
     X_val_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_val/X_val.txt'
@@ -536,7 +541,7 @@ if __name__ == "__main__":
     Y_train_filename = '/glade/work/joshuadr/IPython/Y/Y_train/station0/Y_train.txt'
     Y_dev_filename = '/glade/work/joshuadr/IPython/Y/Y_dev/station0/Y_dev.txt'
     Y_val_filename = '/glade/work/joshuadr/IPython/Y/Y_val/station0/Y_val.txt'
-    
+
     with open(X_train_filename, 'rb') as f:
         train_data = pickle.load(f)
 
@@ -594,15 +599,15 @@ if __name__ == "__main__":
     for e in epochs:
         for l in learningRate:
             outputSearch = outputFile + str(i) + "_"
-            
+
             alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i)
             if alexAUROC > bestAlexAUROC:
                 bestAlexAUROC = alexAUROC
                 bestAlexParams = [e, l]
                 bestAlexSearchNum = i
-            
+
             i += 1
-            
+
 
     bfile.write("best Alex AUROC for dev set: " + str(bestAlexAUROC) + "\n")
     bfile.write("best Alex search iteration for dev set: " + str(bestAlexSearchNum) + "\n")
