@@ -91,7 +91,7 @@ epsilon=None
 amsgrad=False
 
 
-ddef makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
+def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
     '''
     this method creates all relevent metric plots.
 
