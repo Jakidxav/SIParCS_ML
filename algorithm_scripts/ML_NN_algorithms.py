@@ -114,7 +114,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.xlabel("Epoch")
     plt.title(modelName + " Loss")
     plt.savefig(output + '_loss.png')
-    plt.savefig(output + "_loss.svg", format="svg")
+    plt.savefig(output + "_loss.pdf", format="pdf")
     plt.cla()
 
     #accuracy plot
@@ -126,8 +126,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.ylabel("accuracy")
     plt.xlabel("Epoch")
     plt.title(modelName + " Accuracy")
-    plt.savefig(output + '_accuracy.png')
-    plt.savefig(output + "_accuracy.svg", format="svg")
+    plt.savefig(output + "_accuracy.pdf", format="pdf")
     plt.cla()
 
     #roc plot
@@ -139,8 +138,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.ylabel("True positive")
     plt.xlabel("False positives")
     plt.title(modelName + " ROC")
-    plt.savefig(output + '_roc.png')
-    plt.savefig(output + "_roc.svg", format="svg")
+    plt.savefig(output + "_roc.pdf", format="pdf")
     plt.cla()
 
 def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
