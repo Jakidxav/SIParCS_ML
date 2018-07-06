@@ -114,7 +114,6 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.ylabel("Loss - Binary Crossentropy")
     plt.xlabel("Epoch")
     plt.title(modelName + " Loss")
-    plt.savefig(output + '_loss.png')
     plt.savefig(output + "_loss.pdf", format="pdf")
     plt.cla()
 

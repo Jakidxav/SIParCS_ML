@@ -117,7 +117,6 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.ylabel("Loss - Binary Crossentropy")
     plt.xlabel("Epoch")
     plt.title(modelName + " Loss")
-    plt.savefig(output + '_loss.png')
     plt.savefig(output + "_loss.pdf", format="pdf")
     plt.cla()
 
@@ -361,7 +360,7 @@ if __name__ == "__main__":
     #train models with grid search
     for j in np.arange(len(epochs)):
         outputSearch = outputFile + str(i) + "_"
-        
+
         alexNN, alexAUROC = alex(learningRate[j], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad, epochs[j], train_data2, train_label, dev_data2, dev_label, outputSearch, i)
         if alexAUROC > bestAlexAUROC:
             bestAlexAUROC = alexAUROC
