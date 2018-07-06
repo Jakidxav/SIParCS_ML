@@ -59,7 +59,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Conv/lrE/"
+outputDir = "./data/Conv/lrE2/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -67,12 +67,13 @@ outputDir = "./data/Conv/lrE/"
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
-learningRate = [0.001, 0.01, 0.05, 0.1, 0.5]
+learningRate = [0.49,  0.123, 0.225, 0.357, 0.347, 0.123, 0.001, 0.011, 0.184, 0.49,  0.154, 0.032,
+ 0.205, 0.052, 0.266, 0.388]
 momentum = 0.99
 decay = 1e-4
 boolNest = True
 
-epochs = [150, 200, 250]
+epochs = [213, 178, 250, 198, 233, 176, 158, 233, 156, 229, 219, 211, 182, 207, 247, 209]
 
 #parameters for conv/pooling layers
 strideC = [5,5, 1]
@@ -309,7 +310,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
 
     #fit model
-    conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
+    conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label))
 
     #calculate ROC info
     train_pred = convModel.predict(train_data).ravel()
@@ -593,17 +594,16 @@ if __name__ == "__main__":
     i = 0
 
     #train models with grid search
-    for e in epochs:
-        for l in learningRate:
-            outputSearch = outputFile + str(i) + "_"
+    for j in np.arange(len(epochs)):
+        outputSearch = outputFile + str(i) + "_"
 
-            convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, l, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,e, train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
-            if cnnAUROC > bestCnnAUROC:
-                bestCnnAUROC = cnnAUROC
-                bestCnnParams = [e, l]
-                bestCnnSearchNum = i
+        convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, learningRate[j], momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs[j], train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
+        if cnnAUROC > bestCnnAUROC:
+            bestCnnAUROC = cnnAUROC
+            bestCnnParams = [epochs[j], learningRate[j]]
+            bestCnnSearchNum = i
 
-            i += 1
+        i += 1
 
              #denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
             #if dnnAUROC > bestDnnAUROC:
