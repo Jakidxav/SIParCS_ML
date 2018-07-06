@@ -1,37 +1,4 @@
 """
-
-@author Negin Sobhani, Joshua Driscol, Karen Stengel
-
-this script is designed to use keras with Tensorflow as the backend.
-it should be used in conjunction with data_processing.py which should set up/create necessary
-datasets from the McKinnon et al. dataself plus any other data added to the set.
-
-this script will take the premade datasets and run them through the various ML NN algorithms
-and return ROC scores; can use the binary_accuaracy method in keras as a starting pointself.
-This script will also include optimizers so that we can get the best
-scores possible.
-
-algorithms to include:
-    dense nn - already created by Negin so will just need to try optimizing
-    CNN - also already tried by Negin so will need to try optimizing.
-    RNN - use LSTM. look into if the data needs to be reshaped
-    siamese nn - possibly use? need to look into best implementation...
-    RBFN - ? maybe use? could allow for an interesing analysis....
-
-    will also need to save models once they are fully trained/work
-
-datasets:
-    should be set up with various lead prediction times. ex: 10, 30, 45, 60 days in advance
-    should also use a control set with randomly shuffled labels
-
-try with other stations; could do individually or as a multiclassification with ~20
-
-try with soil temperature; need separate NN and merge
-
-figure out how file output works with grid search
-alexnet; with loaded weights from alexnet website
-
-find time and space complexity - ask alessandro
 """
 from contextlib import redirect_stdout
 import matplotlib
@@ -62,7 +29,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Dense/lrE/"
+outputDir = "./data/Dense/lrE2/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -70,12 +37,13 @@ outputDir = "./data/Dense/lrE/"
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
-learningRate = [0.001, 0.01, 0.05, 0.1, 0.5]
+learningRate = [0.49,  0.123, 0.225, 0.357, 0.347, 0.123, 0.001, 0.011, 0.184, 0.49,  0.154, 0.032,
+ 0.205, 0.052, 0.266, 0.388]
 momentum = 0.99
 decay = 1e-4
 boolNest = True
 
-epochs = [150, 200, 250]
+epochs = [213, 178, 250, 198, 233, 176, 158, 233, 156, 229, 219, 211, 182, 207, 247, 209]
 
 #parameters for conv/pooling layers
 strideC = [5,5, 1]
@@ -237,274 +205,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
 
     return denseModel, skm.auc(fpr_dev,tpr_dev)
 
-#cnn
-    # start with lenet
-def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
-    '''
-    implements a convolutional neural network and creates files with parameters and plots
 
-    Arguments:
-        neuronLayer : array containing the number of neurons perlayer excluding input layer
-        kernel : array of size of conv kernel
-        pool : array of pool_size amount
-        strideC : array of lengths of conv stride
-        strideP : array of lengths of pool stride
-        drop : % of neurons to drop
-        learnRate : learning rate
-        momentum : momentum to use
-        decay : decay rate to used
-        boolNest : use nestov or not
-        iterations : number of iterations to train the model
-        train_data : data to train on (numpy array)
-        train_label : labels of training data (numpy array)
-        outputDL : path for data output
-
-    Returns:
-        convModel : a trained keras convolutional network
-
-    Example:
-        cnn([32,64, 1000, 1], [5,5], [2,2], [1,1], [1,1], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
-        lenet would be: cnn([6,16,120,84], [5,5], [2,2], [1,1], [2,2], 0.01, 1000, train_data, train_label, dev_data, dev_label, outputDL)
-        alexnet: https://gist.github.com/JBed/c2fb3ce8ed299f197eff
-    '''
-    print("convoultional neural network")
-
-    #make sure all lists are the same length s.t. the for loops for setting up dont break
-    assert (len(kernel) == len(strideC))
-    assert (len(pool) == len(strideP))
-
-    outputFile = outputDL + "cnn"
-
-    #create and fill file with parameters and network info
-    file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, None, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
-
-    #initilaize model with Sequential
-    convModel = Sequential()
-
-    #add first conv and pooling layers
-    convModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
-    convModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0]),padding = "valid"))
-
-    for layer in range(1, len(neuronLayer) - 2):
-
-        convModel.add(Conv2D(neuronLayer[layer], kernel_size = (kernel[layer],kernel[layer]), strides = strideC[layer], padding = 'same', activation='relu'))
-        convModel.add(MaxPooling2D(pool_size=(pool[layer], pool[layer]), strides=(strideP[layer], strideP[layer]), padding = "valid"))
-
-    convModel.add(Conv2D(neuronLayer[len(neuronLayer) - 2], kernel_size = kernel[len(kernel) - 1], strides = strideC[len(strideC) - 1], activation = 'relu'))
-    convModel.add(Dropout(drop))
-    convModel.add(Flatten())
-    convModel.add(Dense(neuronLayer[len(neuronLayer) - 1], kernel_regularizer=l2(0.0001), activation='relu'))
-    convModel.add(Dropout(drop))
-    convModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation='sigmoid'))
-    #save model to a file
-    with redirect_stdout(file):
-        convModel.summary()
-
-    #define optimizer and compile
-    if boolAdam:
-        opt_conv = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
-    else:
-        opt_conv = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-
-    convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
-
-    #fit model
-    conv_hist = convModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
-
-    #calculate ROC info
-    train_pred = convModel.predict(train_data).ravel()
-    dev_pred = convModel.predict(dev_data).ravel()
-    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
-    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
-
-    makePlots(conv_hist, outputFile, "Conv Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
-
-    return convModel, skm.auc(fpr_dev,tpr_dev)
-# rnn
-    # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
-    '''
-    implements a recurrent neural network and creates files with parameters and plots
-
-    Arguments:
-        neuronLayer : array containing the number of neurons perlayer excluding input layer
-        kernel : sixe of convolutional kernel
-        pool : size of pool
-        strideC : size of conv stride
-        strideP : size of pooling stride
-        dropout : % of neurons to dropout. set to 0 if not using dropout
-        learnRate : learning rate for optimization
-        momentum : momentum to use
-        decay : decay rate to used
-        boolNest : use nestov or not
-        iterations : number of iterations to train the model
-        iterations : number of iterations to train the model
-        boolLSTM : boolean representing to use LSTM net or simple RNN
-        train_data : data to train on
-        train_label : labels of training data
-        dev_data : data for dev set/validation
-        dev_label : labels for the dev set
-        outputDL : path for data output
-
-    Returns:
-        recurModel : a trained keras recurrent network
-
-    Example:
-        rnn([],)
-    '''
-    print("recurrent neural network")
-    outputFile = outputDL + "rnn"
-
-    #create and fill file with parameters and network info
-    file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
-
-    #set up model with sequential
-    recurModel = Sequential()
-    #create a cnn
-    #should allow for the images to be processed similar to movie frames.
-    recurModel.add(Conv2D(neuronLayer[0], kernel_size=(kernel[0], kernel[0]), strides = strideC[0],padding = 'same',activation='relu', input_shape=train_data[0].shape))
-    recurModel.add(MaxPooling2D(pool_size=(pool[0], pool[0]), strides=(strideP[0], strideP[0]),padding = "valid"))
-    recurModel.add(TimeDistributed(Flatten()))
-
-    #setup rnn/lstm
-    for layer in range(1,len(neuronLayer)):
-        if boolLSTM:
-            recurModel.add(LSTM(neuronLayer[layer], return_sequences = True))
-        else:
-            print("RNN?")
-    if drop > 0:
-            recurModel.add(Dropout(drop))
-
-    recurModel.add(Flatten())
-    recurModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
-
-    #save model to a file
-    with redirect_stdout(file):
-        recurModel.summary()
-
-    #compile and train the model
-    if boolAdam:
-        opt_rnn = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
-    else:
-        opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-
-    recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
-    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
-
-    #calculate ROC info
-    train_pred = recurModel.predict(train_data).ravel()
-    dev_pred = recurModel.predict(dev_data).ravel()
-    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
-    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
-
-    makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
-
-    return recurModel, skm.auc(fpr_dev,tpr_dev)
-
-def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputSearch, searchNum):
-
-    outputFile = outputDL + "dense"
-
-    #create and fill file with parameters and network info
-    file = open(outputFile + '.txt', "w+")
-    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
-
-    # (3) Create a sequential model
-    model = Sequential()
-
-    # 1st Convolutional Layer
-    model.add(Conv2D(filters=96, input_shape=(train_data[0].shape), kernel_size=(11,11),strides=(1,1), padding='valid'))
-    model.add(Activation('relu'))
-    # Pooling
-    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
-    # Batch Normalisation before passing it to the next layer
-    model.add(BatchNormalization())
-
-    # 2nd Convolutional Layer
-    model.add(Conv2D(filters=256, kernel_size=(11,11), strides=(1,1), padding='valid'))
-    model.add(Activation('relu'))
-    # Pooling
-    model.add(MaxPooling2D(pool_size=(2,2), strides=(2,2), padding='valid'))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # 3rd Convolutional Layer
-    model.add(Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), padding='valid'))
-    model.add(Activation('relu'))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # 4th Convolutional Layer
-    model.add(Conv2D(filters=384, kernel_size=(3,3), strides=(1,1), padding='valid'))
-    model.add(Activation('relu'))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # 5th Convolutional Layer
-    model.add(Conv2D(filters=256, kernel_size=(3,3), strides=(1,1), padding='valid'))
-    model.add(Activation('relu'))
-    # Pooling
-    model.add(MaxPooling2D(pool_size=(1,1), strides=(1,1), padding='valid'))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # Passing it to a dense layer
-    model.add(Flatten())
-    # 1st Dense Layer
-    model.add(Dense(4096))
-    model.add(Activation('relu'))
-    # Add Dropout to prevent overfitting
-    model.add(Dropout(0.4))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # 2nd Dense Layer
-    model.add(Dense(4096))
-    model.add(Activation('relu'))
-    # Add Dropout
-    model.add(Dropout(0.4))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # 3rd Dense Layer
-    model.add(Dense(1000))
-    model.add(Activation('relu'))
-    # Add Dropout
-    model.add(Dropout(0.4))
-    # Batch Normalisation
-    model.add(BatchNormalization())
-
-    # Output Layer
-    model.add(Dense(1))
-    model.add(Activation('sigmoid'))
-
-    if boolAdam:
-        #adam optimizer
-        opt_alex = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
-    else:
-        #SGD optimizer
-        opt_alex = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-
-    with redirect_stdout(file):
-        model.summary()
-
-    # (4) Compile
-    model.compile(loss='binary_crossentropy', optimizer=opt_alex, metrics=[binary_accuracy])
-
-    # (5) Train
-    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=iterations, verbose=1, validation_data=(dev_data, dev_label))
-
-    #calculate ROC info
-    train_pred = model.predict(train_data).ravel()
-    dev_pred = model.predict(dev_data).ravel()
-    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
-    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
-
-    makePlots(alex_hist, outputFile, "Alex Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
-
-    return model, skm.roc_curve(dev_label, dev_pred)
 #main stuff
     #this should read in each dataset and call the NN algorithms.
 if __name__ == "__main__":
@@ -576,16 +277,6 @@ if __name__ == "__main__":
     bestDnnAUROC = 0
     bestDnnParams = [epochs[0], learningRate[0]]
     bestDnnSearchNum = 0
-    bestCnnAUROC = 0
-    bestCnnParams = [epochs[0], learningRate[0]]
-    bestCnnSearchNum = 0
-    bestRnnAUROC = 0
-    bestRnnParams = [epochs[0], learningRate[0]]
-    bestRnnSearchNum = 0
-
-    bestAlexAUROC = 0
-    bestAlexParams = [epochs[0], learningRate[0]]
-    bestAlexSearchNum = 0
 
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
@@ -594,17 +285,16 @@ if __name__ == "__main__":
     i = 0
 
     #train models with grid search
-    for e in epochs:
-        for l in learningRate:
-            outputSearch = outputFile + str(i) + "_"
+    for j in np.arange(len(epochs)):
+        outputSearch = outputFile + str(i) + "_"
 
-            denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
-            if dnnAUROC > bestDnnAUROC:
-                bestDnnAUROC = dnnAUROC
-                bestDnnParams = [e, l]
-                bestDnnSearchNum = i
+        denseNN, dnnAUROC = dnn([16,16], dropout, learningRate[j], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs[j],train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
+        if dnnAUROC > bestDnnAUROC:
+            bestDnnAUROC = dnnAUROC
+            bestDnnParams = [epochs[j], learningRate[j]]
+            bestDnnSearchNum = i
 
-            i += 1
+        i += 1
 
 
     bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
