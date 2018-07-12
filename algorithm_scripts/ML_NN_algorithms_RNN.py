@@ -211,6 +211,13 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
     fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
+    rfile = open(outputFile + '_roc_vals.txt', "w+")
+    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
+
+    for val in range(len(fpr_train) - 1):
+        for val in range(len(fpr_dev) - 1):
+            rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
+
     makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     return recurModel, skm.auc(fpr_dev,tpr_dev)
