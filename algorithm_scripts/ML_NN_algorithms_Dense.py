@@ -209,6 +209,8 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
 
     makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
 
+    denseModel.save(outputFile+ '.h5')
+
     return denseModel, skm.auc(fpr_dev,tpr_dev)
 
 

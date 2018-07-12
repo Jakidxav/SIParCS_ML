@@ -220,6 +220,8 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
+    recurModel.save(outputFile+ '.h5')
+
     return recurModel, skm.auc(fpr_dev,tpr_dev)
 
 
