@@ -275,6 +275,8 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
 
     makePlots(alex_hist, outputFile, "Alex Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
+    model.save(outputFile+ '.h5')
+
     return model, skm.roc_curve(dev_label, dev_pred)
 #main stuff
     #this should read in each dataset and call the NN algorithms.

@@ -239,6 +239,8 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
 
     makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
 
+    denseModel.save(outputFile+ '.h5')
+
     return denseModel, skm.auc(fpr_dev,tpr_dev)
 
 #cnn
@@ -331,6 +333,8 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
     makePlots(conv_hist, outputFile, "Conv Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
+    convModel.save(outputFile+ '.h5')
+
     return convModel, skm.auc(fpr_dev,tpr_dev)
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
@@ -418,6 +422,8 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
             rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
 
     makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
+
+    recurModel.save(outputFile+ '.h5')
 
     return recurModel, skm.auc(fpr_dev,tpr_dev)
 
@@ -528,6 +534,8 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
             rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
 
     makePlots(alex_hist, outputFile, "Alex Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
+
+    model.save(outputFile+ '.h5')
 
     return model, skm.roc_curve(dev_label, dev_pred)
 #main stuff
