@@ -141,81 +141,6 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
     file.write("epsilon " + str(epsilon) + "\n")
     file.write("amsgrad " + str(amsgrad) + "\n")
 
-#dense nn
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
-    '''
-    implements a dense neural network. also outputs info to a file.
-
-    Arguments:
-        neuronLayer : array containing the number of neurons perlayer excluding input layer
-        drop : % of neurons to drop. must be 0 < & < 1
-        learnRate : learning rate. should be a float
-        momentum : momentum. should be float
-        decay : decay. also float
-        boolNest : boolean representing if nesterov is used for optimizing
-        iterations : number of iterations to train the model
-        train_data : numpy array data to train on
-        train_label : numpy array labels of training data
-        test_data : numpy array of test data
-        test_label : numpy array of test labels
-        outputDL : path for data output
-
-    Returns:
-        denseModel : a trained keras dense network
-
-    Example :
-        dnn([16,16], 0.5, 0.0001, 0.99, 1e-4, True, train_data, train_label, dev_data, dev_label, outputDL)
-    '''
-    print("dense neural network")
-    #set final output name/location.
-    outputFile = outputDL + "dnn"
-    #create and fill file with parameters and network info
-    file = open(outputFile + '.txt', "w+")
-    writeFile(file, neuronLayer, iterations, None, boolAdam, boolNest, drop, [None], [None], [None], [None], momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
-
-    #initilaize model with Sequential()
-    denseModel = Sequential()
-    #add first layers
-    denseModel.add(AveragePooling2D(pool_size = (32,32), input_shape = train_data[0].shape)) # negin used this as the first layer. need to double check syntax
-    denseModel.add(Flatten())
-
-    for layer in range(len(neuronLayer)):
-        #add layers to denseModel with # of neurons at neuronLayer[i] and apply dropout
-        denseModel.add(Dropout(drop))
-        denseModel.add(Dense(neuronLayer[layer], kernel_regularizer=l2(0.0001), activation = 'relu'))
-
-    denseModel.add(Dense(1, kernel_regularizer=l2(0.0001), activation = 'sigmoid'))
-    #define optimizer
-    if boolAdam:
-        #adam optimizer
-        opt_dense = Adam(lr=learnRate, beta_1=b1, beta_2=b2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
-    else:
-        #SGD optimizer
-        opt_dense = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
-    #opt_dense = Adam(lr = learnRate)
-    with redirect_stdout(file):
-        denseModel.summary()
-
-    #compile
-    denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
-
-    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
-
-    #calculate ROC info
-    train_pred = denseModel.predict(train_data).ravel()
-    dev_pred = denseModel.predict(dev_data).ravel()
-    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
-    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
-
-    makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
-
-    return denseModel
-
-#conv nn
-
-#lstm nn
-
-#alexnet?
 
 #main
 if __name__ == "__main__":
@@ -276,31 +201,31 @@ if __name__ == "__main__":
     with open(Y_val_filename, 'rb') as k:
         test_label = pickle.load(k)
 
+    #open up nonsst data
+
     #reshape all data files.
     train_data2 = train_data.reshape(-1,120,340, 1)
     dev_data2 = dev_data.reshape(-1,120,340,1)
     test_data2 = test_data.reshape(-1,120,340,1)
 
-    #set up one nn on one dataset
-    #set up the other nn on different dataset
-    #merge nns
-    #save model.summary to file
-
-    #option 2:
     #load pretrained models. learn weights just for deciding which nn should play a bigger role in determining final output
     #still need a merge layer for the NN outputs
+
     start = time.time()
     '''
-    convNN = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, learningRate[1], momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs[0], train_data2, train_label, dev_data2, dev_label, outputSearch, i) # these are the lenet values
+    # load json and create model
+    json_file = open('model.json', 'r')
+    loaded_model_json = json_file.read()
+    json_file.close()
+    loaded_model = model_from_json(loaded_model_json)
+    # load weights into new model
+    loaded_model.load_weights("model.h5")
+    print("Loaded model from disk")
 
-    denseNN = dnn([16,16], dropout, learningRate[1], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs[0],train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
-
-    recurrNN = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate[1], momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs[0], train_data2, train_label, dev_data2, dev_label,outputSearch, i)
-
-
-    alexNN = alex(learningRate[1], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad, epochs[0], train_data2, train_label, dev_data2, dev_label, outputFile, 1)
+    # evaluate loaded model on test data
+    loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
+    score = loaded_model.evaluate(X, Y, verbose=0)
+    print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
     '''
 
     print("runtime ",time.time() - start, " seconds")
-    #run test sets.
-    # ex model.predict(self, x, batch_size=None, verbose=0, steps=None)
