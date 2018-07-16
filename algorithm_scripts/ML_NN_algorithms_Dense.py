@@ -29,7 +29,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Dense/lrE2/"
+outputDir = "./data/Dense/final/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -37,13 +37,14 @@ outputDir = "./data/Dense/lrE2/"
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
-learningRate = [0.49,  0.123, 0.225, 0.357, 0.347, 0.123, 0.001, 0.011, 0.184, 0.49,  0.154, 0.032,
- 0.205, 0.052, 0.266, 0.388]
 momentum = 0.99
-decay = 1e-4
-boolNest = True
 
-epochs = [213, 178, 250, 198, 233, 176, 158, 233, 156, 229, 219, 211, 182, 207, 247, 209]
+learningRate = 0.154
+epochs = 219
+decay = 1.02e-06
+batch = 175
+
+boolNest = True
 
 #parameters for conv/pooling layers
 strideC = [5,5, 1]
@@ -53,8 +54,10 @@ pool = [2,2]
 
 #parameters for Adam optimizaiton
 boolAdam = True #change to false if SGD is desired
-beta_1=0.9
-beta_2=0.999
+
+beta_1= 0.9
+beta_2= 0.999
+
 epsilon=None
 amsgrad=False
 
@@ -135,7 +138,7 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
     '''
     implements a dense neural network. also outputs info to a file.
 
@@ -192,7 +195,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     #compile
     denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
 
-    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
+    dense_hist = denseModel.fit(train_data, train_label, batch_size=batch, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
 
     #calculate ROC info
     train_pred = denseModel.predict(train_data).ravel()
@@ -208,7 +211,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
             rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
 
     makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
-
+    
     denseModel.save(outputFile+ '.h5')
 
     return denseModel, skm.auc(fpr_dev,tpr_dev)
@@ -276,14 +279,13 @@ if __name__ == "__main__":
     #search parameters are chosen/optimized and others are being tried.
     bestFile = outputFile + "best.txt"
     bfile = open(bestFile, "w+")
-    bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
+    #bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
     #bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
-    bfile.write("learningRates tried: " + " ".join(str(x) for x in learningRate) + "\n")
+    #bfile.write("learningRates tried: " + " ".join(str(x) for x in learningRate) + "\n")
 
     #best scores for each net and the associated parameters
     #will also have to change the param lists depending on which params are being optimized
     bestDnnAUROC = 0
-    bestDnnParams = [epochs[0], learningRate[0]]
     bestDnnSearchNum = 0
 
 
@@ -291,15 +293,15 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
+    try = 20
 
     #train models with grid search
-    for j in np.arange(len(epochs)):
+    for j in np.arange(len(try)):
         outputSearch = outputFile + str(i) + "_"
 
-        denseNN, dnnAUROC = dnn([16,16], dropout, learningRate[j], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs[j],train_data2, train_label,dev_data2, dev_label, outputSearch, i) #these are all negins values right now.
+        denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
         if dnnAUROC > bestDnnAUROC:
             bestDnnAUROC = dnnAUROC
-            bestDnnParams = [epochs[j], learningRate[j]]
             bestDnnSearchNum = i
 
         i += 1
@@ -307,7 +309,6 @@ if __name__ == "__main__":
 
     bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
     bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
-    bfile.write("best parameters for DNN: " + " ".join(str(x) for x in bestDnnParams) + "\n\n")
 
 
     print("runtime ",time.time() - start, " seconds")

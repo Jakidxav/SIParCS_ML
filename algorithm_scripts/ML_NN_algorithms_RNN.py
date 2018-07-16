@@ -29,7 +29,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Recur/lrE2/"
+outputDir = "./data/Recur/final/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -37,13 +37,15 @@ outputDir = "./data/Recur/lrE2/"
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
-learningRate = [0.49,  0.123, 0.225, 0.357, 0.347, 0.123, 0.001, 0.011, 0.184, 0.49,  0.154, 0.032,
- 0.205, 0.052, 0.266, 0.388]
 momentum = 0.99
-decay = 1e-4
-boolNest = True
 
-epochs = [213, 178, 250, 198, 233, 176, 158, 233, 156, 229, 219, 211, 182, 207, 247, 209]
+learningRate = .123
+epochs = 176
+decay = 1e-4
+batch = 128
+
+
+boolNest = True
 
 #parameters for conv/pooling layers
 strideC = [5,5, 1]
@@ -53,8 +55,10 @@ pool = [2,2]
 
 #parameters for Adam optimizaiton
 boolAdam = True #change to false if SGD is desired
-beta_1=0.9
-beta_2=0.999
+
+beta_1= 0.9
+beta_2= 0.999
+
 epsilon=None
 amsgrad=False
 
@@ -135,7 +139,7 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
 
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
@@ -203,7 +207,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
         opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
-    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label))
+    recur_hist = recurModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label))
 
     #calculate ROC info
     train_pred = recurModel.predict(train_data).ravel()
@@ -287,34 +291,29 @@ if __name__ == "__main__":
     #search parameters are chosen/optimized and others are being tried.
     bestFile = outputFile + "best.txt"
     bfile = open(bestFile, "w+")
-    bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
+    #bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
     #bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
-    bfile.write("learningRates tried: " + " ".join(str(x) for x in learningRate) + "\n")
+    #bfile.write("learningRates tried: " + " ".join(str(x) for x in learningRate) + "\n") 
 
     #best scores for each net and the associated parameters
     #will also have to change the param lists depending on which params are being optimized
     bestRnnAUROC = 0
-    bestRnnParams = [epochs[0], learningRate[0]]
     bestRnnSearchNum = 0
-
-    bestAlexAUROC = 0
-    bestAlexParams = [epochs[0], learningRate[0]]
-    bestAlexSearchNum = 0
 
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
+    try = 20
 
     #train models with grid search
-    for j in np.arange(len(epochs)):
+    for j in np.arange(len(try)):
         outputSearch = outputFile + str(i) + "_"
 
-        recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate[j], momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs[j], train_data2, train_label, dev_data2, dev_label,outputSearch, i)
+        recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch)
         if rnnAUROC > bestRnnAUROC:
             bestRnnAUROC = rnnAUROC
-            bestRnnParams = [epochs[j], learningRate[j]]
             bestRnnSearchNum = i
 
         i += 1
@@ -322,7 +321,6 @@ if __name__ == "__main__":
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
     bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
-    bfile.write("best parameters for RNN: " + " ".join(str(x) for x in bestRnnParams) + "\n\n")
 
 
     print("runtime ",time.time() - start, " seconds")
