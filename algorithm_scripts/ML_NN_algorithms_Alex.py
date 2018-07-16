@@ -265,7 +265,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
     dev_pred = model.predict(dev_data).ravel()
     fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
-
+    
     rfile = open(outputFile + '_roc_vals.txt', "w+")
     rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
 
@@ -274,7 +274,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
             rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
 
     makePlots(alex_hist, outputFile, "Alex Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
-
+    
     model.save(outputFile+ '.h5')
 
     return model, skm.roc_curve(dev_label, dev_pred)
@@ -346,16 +346,6 @@ if __name__ == "__main__":
 
     #best scores for each net and the associated parameters
     #will also have to change the param lists depending on which params are being optimized
-    bestDnnAUROC = 0
-    bestDnnParams = [epochs[0], learningRate[0]]
-    bestDnnSearchNum = 0
-    bestCnnAUROC = 0
-    bestCnnParams = [epochs[0], learningRate[0]]
-    bestCnnSearchNum = 0
-    bestRnnAUROC = 0
-    bestRnnParams = [epochs[0], learningRate[0]]
-    bestRnnSearchNum = 0
-
     bestAlexAUROC = 0
     bestAlexParams = [epochs[0], learningRate[0]]
     bestAlexSearchNum = 0
@@ -369,7 +359,7 @@ if __name__ == "__main__":
     #train models with grid search
     for j in np.arange(len(epochs)):
         outputSearch = outputFile + str(i) + "_"
-
+        
         alexNN, alexAUROC = alex(learningRate[j], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad, epochs[j], train_data2, train_label, dev_data2, dev_label, outputSearch, i)
         if alexAUROC > bestAlexAUROC:
             bestAlexAUROC = alexAUROC
