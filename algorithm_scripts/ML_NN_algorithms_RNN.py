@@ -305,10 +305,10 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
-    try = 20
+    try_this = 20
 
     #train models with grid search
-    for j in np.arange(len(try)):
+    for j in np.arange(try_this):
         outputSearch = outputFile + str(i) + "_"
 
         recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch)
