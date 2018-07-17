@@ -91,6 +91,27 @@ beta_2= 0.999
 epsilon=None
 amsgrad=False
 
+def rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev):
+    #method for saving ROC values to a file for accessing later if needed in excel
+    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
+
+    rocVal = [[len(fpr_train)]]
+
+    for val in range(len(fpr_train) - 1):
+        #go through train values and save to rocVal
+        temp = []
+        temp.append(fpr_train[val])
+        temp.append(tpr_train[val])
+        rocVal.append(temp)
+
+    for val in range(len(fpr_dev) - 1):
+        #go thru dev values
+        rocVal[val].append(fpr_dev[val])
+        rocVal[val].append(tpr_dev[val])
+
+    for t in range(len(rocVal)-1):
+        rfile.write(" ".join(str(x)+ "\t" for x in rocVal[t]) + "\n")
+
 
 def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
     '''
@@ -234,11 +255,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
     rfile = open(outputFile + '_roc_vals.txt', "w+")
-    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
-
-    for val in range(len(fpr_train) - 1):
-        for val in range(len(fpr_dev) - 1):
-            rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
+    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
 
@@ -328,12 +345,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
     rfile = open(outputFile + '_roc_vals.txt', "w+")
-    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
-
-    for val in range(len(fpr_train) - 1):
-        for val in range(len(fpr_dev) - 1):
-            rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
-
+    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
     makePlots(conv_hist, outputFile, "Conv Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     convModel.save(outputFile+ '.h5')
@@ -419,12 +431,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
     rfile = open(outputFile + '_roc_vals.txt', "w+")
-    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
-
-    for val in range(len(fpr_train) - 1):
-        for val in range(len(fpr_dev) - 1):
-            rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
-
+    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
     makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     recurModel.save(outputFile+ '.h5')
@@ -531,12 +538,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
     rfile = open(outputFile + '_roc_vals.txt', "w+")
-    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
-
-    for val in range(len(fpr_train) - 1):
-        for val in range(len(fpr_dev) - 1):
-            rfile.write(str(fpr_train[val]) + "\t" + str(tpr_train[val]) + "\t" + str(fpr_dev[val]) + "\t" + str(tpr_dev[val]) + "\n")
-
+    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
     makePlots(alex_hist, outputFile, "Alex Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
 
     model.save(outputFile+ '.h5')
@@ -614,11 +616,11 @@ if __name__ == "__main__":
     #bestDnnAUROC = 0
     #bestDnnParams = [epochs[0], learningRate[0]]
     #bestDnnSearchNum = 0
-    
+
     bestCnnAUROC = 0
     #bestCnnParams = [epochs[0], learningRate[0]]
     bestCnnSearchNum = 0
-    
+
     #bestRnnAUROC = 0
     #bestRnnParams = [epochs[0], learningRate[0]]
     #bestRnnSearchNum = 0
