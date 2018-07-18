@@ -216,7 +216,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     #compile
     denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
 
-    dense_hist = denseModel.fit(train_data, train_label, batch_size=batch, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
+    dense_hist = denseModel.fit(train_data, train_label, batch_size=batch, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = denseModel.predict(train_data).ravel()

@@ -279,7 +279,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
     model.compile(loss='binary_crossentropy', optimizer=opt_alex, metrics=[binary_accuracy])
 
     # (5) Train
-    alex_hist = model.fit(train_data, train_label, batch_size=1, epochs=iterations, verbose=1, validation_data=(dev_data, dev_label))
+    alex_hist = model.fit(train_data, train_label, batch_size=1, epochs=iterations, verbose=1, validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = model.predict(train_data).ravel()
