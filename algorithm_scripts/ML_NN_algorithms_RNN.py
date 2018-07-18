@@ -228,7 +228,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
         opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
-    recur_hist = recurModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label))
+    recur_hist = recurModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = recurModel.predict(train_data).ravel()

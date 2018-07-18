@@ -246,7 +246,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     #compile
     denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
 
-    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label))
+    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = denseModel.predict(train_data).ravel()
@@ -336,7 +336,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
 
     #fit model
-    conv_hist = convModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label))
+    conv_hist = convModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = convModel.predict(train_data).ravel()
@@ -422,7 +422,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
         opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
-    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label))
+    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = recurModel.predict(train_data).ravel()
@@ -529,7 +529,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
     model.compile(loss='binary_crossentropy', optimizer=opt_alex, metrics=[binary_accuracy])
 
     # (5) Train
-    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=iterations, verbose=2, validation_data=(dev_data, dev_label))
+    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=iterations, verbose=2, validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
 
     #calculate ROC info
     train_pred = model.predict(train_data).ravel()
