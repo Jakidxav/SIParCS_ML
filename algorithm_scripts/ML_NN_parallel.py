@@ -1,5 +1,4 @@
 '''
-this script uses almost the same methods as ML_NN_algorithms.py but implements a
 parallel 2x NN for using soil etc data with the SST data. methods are different in the sense that each nn method returns an uncompiled
 nn for one half of the parallel net. each net should be returned for the given dataset then merged for the final decision.
 after the merge a model summary, compiling, and fitting should occur
@@ -13,10 +12,12 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
 import numpy as np
+from keras import layers, models
+from keras.layers.merge import average
 from keras.models import Sequential, Model, save_model, load_model
 import keras.backend as K
-from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, MaxPooling2D, Flatten, LeakyReLU, TimeDistributed, LSTM, Dropout, BatchNormalization
-from keras.metrics import binary_accuracy
+from keras.layers import Dense, Activation, Conv2D, Input, AveragePooling2D, MaxPooling2D, Flatten, LeakyReLU, TimeDistributed, LSTM, Dropout, BatchNormalization, Average
+from keras.metrics import binary_accuracy, mean_squared_error
 from keras.losses import  binary_crossentropy
 from keras.regularizers import l2
 from keras.optimizers import SGD, Adam
@@ -42,28 +43,42 @@ outputDir = "./data/"
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
 
+# opt_merge = Adam(lr=learningRate, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+# merged_model.fit(train_data, train_label,batch_size=128,epochs=epochs,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+
 #hyperparameters and paramters
-#SGD parameters
-dropout = 0.5
-learningRate = [0.001, 0.01, 0.05, 0.1, 0.5]
-momentum = 0.99
-decay = 1e-4
-boolNest = True
 
-epochs = [150, 200, 250]
-
-#parameters for conv/pooling layers
-strideC = [5,5, 1]
-strideP = [2,2]
-kernel = [5, 5,1]
-pool = [2,2]
+epochs = 219
 
 #parameters for Adam optimizaiton
-boolAdam = True #change to false if SGD is desired
+learningRate = 0.01
+decay = 1e-4
 beta_1=0.9
 beta_2=0.999
 epsilon=None
 amsgrad=False
+
+# create tab delim text file of roc stuff.
+def rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev):
+    #method for saving ROC values to a file for accessing later if needed in excel
+    rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
+
+    rocVal = [[len(fpr_train)]]
+
+    for val in range(len(fpr_train) - 1):
+        #go through train values and save to rocVal
+        temp = []
+        temp.append(fpr_train[val])
+        temp.append(tpr_train[val])
+        rocVal.append(temp)
+
+    for val in range(len(fpr_dev) - 1):
+        #go thru dev values
+        rocVal[val].append(fpr_dev[val])
+        rocVal[val].append(tpr_dev[val])
+
+    for t in range(len(rocVal)-1):
+        rfile.write(" ".join(str(x)+ "\t" for x in rocVal[t]) + "\n")
 
 #make plots
 def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
@@ -153,7 +168,7 @@ if __name__ == "__main__":
     test_label = None
     outputFile = ""
     bestFile = ""
-    #netType = sys.argv[1] #can be dense, conv, recur, alex, or all
+    #netType = sys.argv[1] #can be dense, conv, merged, alex, or all
     #stationNum = sys.argv[2] # the station to be used. should be in the form of station1
     #print(netType)
 
@@ -163,9 +178,9 @@ if __name__ == "__main__":
 
     outputDL = date + "30_"
     #print(outputDL)
-    outputFile = outputDir + outputDL
-    '''
+    outputFile = outputDir + outputDL +'_merged'
 
+    '''
     X_train_filename = '/glade/work/joshuadr/IPython/30_lead/X_train/X_train.txt'
     X_dev_filename = '/glade/work/joshuadr/IPython/30_lead/X_dev/X_dev.txt'
     X_val_filename = '/glade/work/joshuadr/IPython/30_lead/X_val/X_val.txt'
@@ -174,7 +189,7 @@ if __name__ == "__main__":
     Y_dev_filename = '/glade/work/joshuadr/IPython/30_lead/Y_dev/station1/Y_dev.txt'
     Y_val_filename = '/glade/work/joshuadr/IPython/30_lead/Y_val/station1/Y_val.txt'
     '''
-
+    #will need to adjust the following file input once another dataset is created. 
     X_train_filename = './30_lead/X_train/X_train.txt'
     X_dev_filename = './30_lead/X_dev/X_dev.txt'
     X_val_filename = './30_lead/X_val/X_val.txt'
@@ -212,20 +227,107 @@ if __name__ == "__main__":
     #still need a merge layer for the NN outputs
 
     start = time.time()
-    '''
-    # load json and create model
-    json_file = open('model.json', 'r')
-    loaded_model_json = json_file.read()
-    json_file.close()
-    loaded_model = model_from_json(loaded_model_json)
-    # load weights into new model
-    loaded_model.load_weights("model.h5")
-    print("Loaded model from disk")
 
-    # evaluate loaded model on test data
-    loaded_model.compile(loss='binary_crossentropy', optimizer='rmsprop', metrics=['accuracy'])
-    score = loaded_model.evaluate(X, Y, verbose=0)
-    print("%s: %.2f%%" % (loaded_model.metrics_names[1], score[1]*100))
-    '''
+    #load in and test first model
+    seqmodel = load_model("./data/Recur/lrE2/180716__30_0_rnn.h5")
+    score = seqmodel.evaluate(train_data2, train_label, verbose=1)
+    print("%s: %.2f%%" % (seqmodel.metrics_names[1], score[1]*100))
+
+    #convert first model to functional
+    input_layer = layers.Input(batch_shape=seqmodel.layers[0].input_shape)
+    prev_layer = input_layer
+    for layer in seqmodel.layers:
+        prev_layer = layer(prev_layer)
+        print(type(prev_layer))
+
+    funcmodel = models.Model([input_layer], [prev_layer])
+    funcmodel.summary()
+
+
+    #load in and test second model
+    seqmodel2 = load_model("./data/Dense/lrE2/180716__30_0_dnn.h5")
+    score = seqmodel2.evaluate(train_data2, train_label, verbose=1)
+    print("%s: %.2f%%" % (seqmodel2.metrics_names[1], score[1]*100))
+
+    #convert second model to functional
+    input_layer2 = layers.Input(batch_shape=seqmodel2.layers[0].input_shape)
+    prev_layer2 = input_layer2
+    for layer in seqmodel2.layers:
+        prev_layer2 = layer(prev_layer2)
+
+    funcmodel2 = models.Model([input_layer2], [prev_layer2])
+    funcmodel2.summary()
+
+    #rename layers in the second model if they exist in first model. if no renaming occurs an error will occur upon merging :(
+    #check to see if the name of prev_layer2 exists in funcmodel
+    #this should only have to be done once for each layer type cause the layer increments should be adjusted accordingly.
+    print("layer checking \n")
+    for layer2 in funcmodel2.layers:
+        #if it does, find all layers in funcmodel of that layer type. increment the largest number by 1 and save
+        for layer in funcmodel.layers:
+            if layer2.name == layer.name:
+                #check through all prefix_num until no more wiht prefix exist in funcmodel. change layer2.name to prefix_maxNum+1
+                lType, num = layer.name.split('_')
+                num = int(num)
+                for l in funcmodel.layers:
+
+                    lt, n = l.name.rsplit('_',1)
+                    n = int(n)
+                    #if more than one layer of lType exists, then save the number to num
+                    if lt == lType:
+                        num = n
+
+                # change the name so the number at the end of the name is now the saved number
+                layer2.name = lType + '_' + str(num)
+                #then check through funcmodel2 to increment each layer with prefix by 1
+                for l2 in funcmodel2.layers:
+
+                    lt2, n2 = l2.name.rsplit('_',1)
+                    n2 = int(n2)
+                    if lt2 == lType:
+                        l2.name = lt2 +  '_' + str(n2 + 1)
+
+    #merge models
+    merged = average([prev_layer, prev_layer2])
+
+    #need to get number of dense layers to name final dense layer correctly.
+    dense = 1
+
+    for layer in funcmodel.layers:
+        lType, num = layer.name.rsplit('_',1)
+        if lType == 'dense':
+            dense = dense + 1
+
+    for layer in funcmodel2.layers:
+        lType, num = layer.name.rsplit('_',1)
+        if lType == 'dense':
+            dense = dense + 1
+
+    #create output dense layer
+    final = Dense(1, activation='sigmoid', name='dense' +  '_' + str(dense + 1))(merged)
+
+    merged_model = Model(input = [input_layer, input_layer2], output = final)
+
+    merged_model.summary()
+
+    opt_merge = Adam(lr=learningRate, beta_1=beta_1, beta_2=beta_2, epsilon=epsilon, decay=decay, amsgrad=amsgrad)
+
+    merged_model.compile(loss=mean_squared_error,optimizer=opt_merge,metrics=[binary_accuracy])
+    merged_hist = merged_model.fit(train_data, train_label,batch_size=128,epochs=epochs,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+
+    #calculate ROC info
+    train_pred = merged_model.predict(train_data).ravel()
+    dev_pred = merged_model.predict(dev_data).ravel()
+    fpr_train, tpr_train, thresholds_train = skm.roc_curve(train_label,train_pred)
+    fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
+
+    #save roc info to a tab delim file
+    rfile = open(outputFile + '_roc_vals.txt', "w+")
+    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
+    #generate plts and save
+    makePlots(merged_hist, outputFile, "Merged Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
+
+    #save the model
+    merged_model.save(outputFile+ '.h5')
 
     print("runtime ",time.time() - start, " seconds")
