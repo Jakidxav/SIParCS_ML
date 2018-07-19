@@ -63,7 +63,8 @@ outputDir =  "./data/Conv/final/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
-
+posWeight = [2,4,8,16]
+trials = 3
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
@@ -165,7 +166,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.savefig(output + "_roc.pdf", format="pdf")
     plt.cla()
 
-def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
+def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight):
     #this method writes all parameters to a file.
     #size	iterations     boolLSTM	boolAdam	boolNesterov	dropout	kernel	pool	strideC	strideP	momentum	decay	learning rate	beta1	beta2	epsilon	amsgrad
     file.write("grid search iteration: " + str(searchNum) + "\n")
@@ -186,10 +187,12 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
     file.write("beta2 " + str(b2) + "\n")
     file.write("epsilon " + str(epsilon) + "\n")
     file.write("amsgrad " + str(amsgrad) + "\n")
+    file.write("weight for positive prediciton " + str(posWeight) + "\n")
+
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch, posWeight):
     '''
     implements a dense neural network. also outputs info to a file.
 
@@ -218,7 +221,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     outputFile = outputDL + "dnn"
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file, neuronLayer, iterations, None, boolAdam, boolNest, drop, [None], [None], [None], [None], momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
+    writeFile(file, neuronLayer, iterations, None, boolAdam, boolNest, drop, [None], [None], [None], [None], momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight)
 
     #initilaize model with Sequential()
     denseModel = Sequential()
@@ -246,7 +249,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     #compile
     denseModel.compile(opt_dense, binary_crossentropy, metrics=[binary_accuracy])
 
-    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+    dense_hist = denseModel.fit(train_data, train_label, batch_size=256, epochs=iterations, verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:1, 1:posWeight})
 
     #calculate ROC info
     train_pred = denseModel.predict(train_data).ravel()
@@ -265,7 +268,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
 
 #cnn
     # start with lenet
-def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
+def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolAdam, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch, posWeight):
     '''
     implements a convolutional neural network and creates files with parameters and plots
 
@@ -303,7 +306,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, None, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
+    writeFile(file,neuronLayer, iterations, None, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight)
 
     #initilaize model with Sequential
     convModel = Sequential()
@@ -336,7 +339,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
     convModel.compile(loss=binary_crossentropy,optimizer=opt_conv,metrics=[binary_accuracy])
 
     #fit model
-    conv_hist = convModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+    conv_hist = convModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:1, 1:posWeight})
 
     #calculate ROC info
     train_pred = convModel.predict(train_data).ravel()
@@ -354,7 +357,7 @@ def cnn(neuronLayer, kernel, pool,strideC, strideP, drop, learnRate, momentum, d
 
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch, posWeight):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
@@ -389,7 +392,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
+    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight)
 
     #set up model with sequential
     recurModel = Sequential()
@@ -422,7 +425,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
         opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
-    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+    recur_hist = recurModel.fit(train_data, train_label,batch_size=256,epochs=iterations,verbose=1,validation_data=(dev_data, dev_label), class_weight = {0:1, 1:posWeight})
 
     #calculate ROC info
     train_pred = recurModel.predict(train_data).ravel()
@@ -438,13 +441,13 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     return recurModel, skm.auc(fpr_dev,tpr_dev)
 
-def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputSearch, searchNum, batch):
+def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputSearch, searchNum, batch, posWeight):
 
     outputFile = outputDL + "alex"
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
+    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum,posWeight)
 
     # (3) Create a sequential model
     model = Sequential()
@@ -529,7 +532,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
     model.compile(loss='binary_crossentropy', optimizer=opt_alex, metrics=[binary_accuracy])
 
     # (5) Train
-    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=iterations, verbose=2, validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+    alex_hist = model.fit(train_data, train_label, batch_size=64, epochs=iterations, verbose=2, validation_data=(dev_data, dev_label), class_weight = {0:1, 1:posWeight})
 
     #calculate ROC info
     train_pred = model.predict(train_data).ravel()
@@ -634,40 +637,27 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
-    try_this = 20
+    for w in posWeight:
 
-    #train models with grid search
-    for j in np.arange(try_this):
         outputSearch = outputFile + str(i) + "_"
+        #denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,219,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
+        model = None
+        modelAUROC = 0
+        bestTry = 0
+        for t in range(trials):
 
-        convNN, cnnAUROC = cnn([6,16,120,84], kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay,boolNest,boolAdam, beta_1, beta_2, epsilon, amsgrad,epochs, train_data2, train_label, dev_data2, dev_label, outputSearch, i, batch) # these are the lenet values
-        if cnnAUROC > bestCnnAUROC:
-            bestCnnAUROC = cnnAUROC
-            #bestCnnParams = [epochs[j], learningRate[j]]
-            bestCnnSearchNum = i
+            recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, w)
+            if rnnAUROC > modelAUROC:
+                model = recurrNN
+                modelAUROC = rnnAUROC
+                bestTry = t
+        model.save(outputSearch + str(bestTry)+'.h5')
 
+        if modelAUROC > bestRnnAUROC:
+            bestRnnAUROC = modelAUROC
+            bestRnnParams = [w]
+            bestRnnSearchNum = i
         i += 1
-
-             #denseNN, dnnAUROC = dnn([16,16], dropout, l, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,e,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
-            #if dnnAUROC > bestDnnAUROC:
-                #bestDnnAUROC = dnnAUROC
-                #bestDnnParams = [e, d, l]
-                #bestDnnSearchNum = i
-
-
-             #recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, l, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch)
-             #if rnnAUROC > bestRnnAUROC:
-                 #bestRnnAUROC = rnnAUROC
-                 #bestRnnParams = [e, d, l]
-                 #bestRnnSearchNum = i
-
-
-             #alexNN, alexAUROC = alex(l, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, e, train_data2, train_label, dev_data2, dev_label, outputSearch, i, batch)
-             #if alexAUROC > bestAlexAUROC:
-                 #bestAlexAUROC = alexAUROC
-                 #bestAlexParams = [e, d, l]
-                 #bestAlexSearchNum = i
-
 
     #bfile.write("best DNN AUROC for dev set: " + str(bestDnnAUROC) + "\n")
     #bfile.write("best DNN search iteration for dev set: " + str(bestDnnSearchNum) + "\n")
