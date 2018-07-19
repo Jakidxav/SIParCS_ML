@@ -84,7 +84,7 @@ def rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev):
         rfile.write(" ".join(str(x)+ "\t" for x in rocVal[t]) + "\n")
 
 
-def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
+def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred):
     '''
     this method creates all relevent metric plots.
 
@@ -135,6 +135,43 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.title(modelName + " ROC")
     plt.savefig(output + "_roc.pdf", format="pdf")
     plt.cla()
+
+    #training confusion matrix
+    train_class = np.round(train_pred)
+    for x in train_class:
+        int(x)
+
+    cm_train = skm.confusion_matrix(train_label, train_class)
+
+    xlabel = 'Predicted labels'
+    ylabel = 'True labels'
+    train_title = 'Training ROC Confusion Matrix'
+
+
+    ax = sns.heatmap(cm_train, annot=True, fmt='d', cbar=False)
+    ax.set_xlabel(xlabel)
+    ax.set_ylabel(ylabel)
+    ax.set_title(train_title)
+    ax.figure.savefig(output + '_train_cm.pdf', format='pdf')
+    plt.cla()
+    ax.clear()
+
+    #dev confusion matrix
+    dev_class = np.round(dev_pred)
+    for y in dev_class:
+        int(y)
+
+    cm_dev = skm.confusion_matrix(dev_label, dev_class)
+
+    dev_title = 'Dev Set ROC Confusion Matrix'
+
+    ax2 = sns.heatmap(cm_dev, annot=True, fmt='d', cbar=False)
+    ax2.set_xlabel(xlabel)
+    ax2.set_ylabel(ylabel)
+    ax2.set_title(dev_title)
+    ax2.figure.savefig(output + '_dev_cm.pdf', format='pdf')
+    plt.cla()
+    ax2.clear()
 
 def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
     #this method writes all parameters to a file.
@@ -237,8 +274,8 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
     rfile = open(outputFile + '_roc_vals.txt', "w+")
-    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
-    makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev)
+    #rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
+    makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred)
 
     recurModel.save(outputFile+ '.h5')
 
