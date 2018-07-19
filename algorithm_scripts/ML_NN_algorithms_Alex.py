@@ -66,7 +66,8 @@ outputDir = "./data/Alex/lrE2/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
-
+posWeight = [2,4,8,16]
+trials = 3
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
@@ -165,7 +166,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.savefig(output + "_roc.pdf", format="pdf")
     plt.cla()
 
-def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
+def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight):
     #this method writes all parameters to a file.
     #size	iterations     boolLSTM	boolAdam	boolNesterov	dropout	kernel	pool	strideC	strideP	momentum	decay	learning rate	beta1	beta2	epsilon	amsgrad
     file.write("grid search iteration: " + str(searchNum) + "\n")
@@ -186,6 +187,7 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
     file.write("beta2 " + str(b2) + "\n")
     file.write("epsilon " + str(epsilon) + "\n")
     file.write("amsgrad " + str(amsgrad) + "\n")
+    file.write("weight for positive prediciton " + str(posWeight) + "\n")
 
 
 def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputSearch, searchNum):
@@ -194,7 +196,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
+    writeFile(file,[4096, 4096, 1000], 1, None, True, False, 0.4, [11, 11, 3,3,3], [2,2,1], [1,1,1,1], [2,2,1], None, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight)
 
     # (3) Create a sequential model
     model = Sequential()
@@ -279,7 +281,7 @@ def alex(learnRate, momentum, decay, boolNest, boolAdam, b1, b2, epsilon, amsgra
     model.compile(loss='binary_crossentropy', optimizer=opt_alex, metrics=[binary_accuracy])
 
     # (5) Train
-    alex_hist = model.fit(train_data, train_label, batch_size=1, epochs=iterations, verbose=1, validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+    alex_hist = model.fit(train_data, train_label, batch_size=1, epochs=iterations, verbose=1, validation_data=(dev_data, dev_label), class_weight = {0:1, 1:posWeight})
 
     #calculate ROC info
     train_pred = model.predict(train_data).ravel()
@@ -371,17 +373,26 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
+for w in posWeight:
 
-    #train models with grid search
-    for j in np.arange(len(epochs)):
         outputSearch = outputFile + str(i) + "_"
+        #denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,219,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
+        model = None
+        modelAUROC = 0
+        bestTry = 0
+        for t in range(trials):
 
-        alexNN, alexAUROC = alex(learningRate[j], momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad, epochs[j], train_data2, train_label, dev_data2, dev_label, outputSearch, i)
-        if alexAUROC > bestAlexAUROC:
-            bestAlexAUROC = alexAUROC
-            bestAlexParams = [epochs[j], learningRate[j]]
+            alexNN, alexAUROC = alex([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, w)
+            if alexAUROC > modelAUROC:
+                model = alexNN
+                modelAUROC = alexAUROC
+                bestTry = t
+        model.save(outputSearch + str(bestTry)+'.h5')
+
+        if modelAUROC > bestAlexAUROC:
+            bestAlexAUROC = modelAUROC
+            bestAlexParams = [w]
             bestAlexSearchNum = i
-
         i += 1
 
 

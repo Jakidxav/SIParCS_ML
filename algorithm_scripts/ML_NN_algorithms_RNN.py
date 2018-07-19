@@ -33,7 +33,8 @@ outputDir = "./data/Recur/final/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
-
+posWeight = [2,4,8,16]
+trials = 3
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
@@ -136,7 +137,7 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.savefig(output + "_roc.pdf", format="pdf")
     plt.cla()
 
-def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum):
+def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight):
     #this method writes all parameters to a file.
     #size	iterations     boolLSTM	boolAdam	boolNesterov	dropout	kernel	pool	strideC	strideP	momentum	decay	learning rate	beta1	beta2	epsilon	amsgrad
     file.write("grid search iteration: " + str(searchNum) + "\n")
@@ -157,10 +158,12 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
     file.write("beta2 " + str(b2) + "\n")
     file.write("epsilon " + str(epsilon) + "\n")
     file.write("amsgrad " + str(amsgrad) + "\n")
+    file.write("weight for positive prediciton " + str(posWeight) + "\n")
+
 
 # rnn
     # do stuff. look at what might be a good starting point; could try LSTM??
-def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
+def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, decay,boolNest,boolLSTM, boolAdam, b1, b2, epsilon, amsgrad, iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch, posWeight):
     '''
     implements a recurrent neural network and creates files with parameters and plots
 
@@ -195,7 +198,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
-    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum)
+    writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight)
 
     #set up model with sequential
     recurModel = Sequential()
@@ -228,7 +231,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
         opt_rnn = SGD(lr=learnRate, momentum= momentum, decay= decay, nesterov= boolNest)
 
     recurModel.compile(loss=binary_crossentropy,optimizer=opt_rnn,metrics=[binary_accuracy])
-    recur_hist = recurModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:0.5, 1:1})
+    recur_hist = recurModel.fit(train_data, train_label,batch_size=batch,epochs=iterations,verbose=2,validation_data=(dev_data, dev_label), class_weight = {0:1, 1:posWeight})
 
     #calculate ROC info
     train_pred = recurModel.predict(train_data).ravel()
@@ -321,17 +324,26 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
-    try_this = 20
+    for w in posWeight:
 
-    #train models with grid search
-    for j in np.arange(try_this):
         outputSearch = outputFile + str(i) + "_"
+        #denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,219,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
+        model = None
+        modelAUROC = 0
+        bestTry = 0
+        for t in range(trials):
 
-        recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, decay, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch)
-        if rnnAUROC > bestRnnAUROC:
-            bestRnnAUROC = rnnAUROC
+            recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, w)
+            if rnnAUROC > modelAUROC:
+                model = recurrNN
+                modelAUROC = rnnAUROC
+                bestTry = t
+        model.save(outputSearch + str(bestTry)+'.h5')
+
+        if modelAUROC > bestRnnAUROC:
+            bestRnnAUROC = modelAUROC
+            bestRnnParams = [w]
             bestRnnSearchNum = i
-
         i += 1
 
 
