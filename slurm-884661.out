@@ -1,0 +1,11 @@
+Resetting modules to system default
+/glade/u/home/joshuadr/.bash_profile: line 22: bind: warning: line editing not enabled
+[?1034h/glade/u/home/joshuadr/.bash_profile: line 23: bind: warning: line editing not enabled
+/glade/u/home/joshuadr/tensor_test/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+you are in main.
+Traceback (most recent call last):
+  File "ML_NN_algorithms_RNN.py", line 373, in <module>
+    recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, w)
+TypeError: rnn() missing 1 required positional argument: 'posWeight'

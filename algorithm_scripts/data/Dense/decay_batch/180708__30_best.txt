@@ -1,6 +1,0 @@
-decay rates tried: 1.09e-07 1.02e-06 1.728e-09 0.03079 0.0001553 4.095e-07 0.0009762 5.698e-07 9.038e-05 3.946e-07 0.000942 1.89e-07 0.0008724 9.429e-05 2.453e-05 9.075e-07
-batch sizes tried: 96 175 219 35 236 71 104 171 111 35 54 182 154 248 140 155
-best DNN AUROC for dev set: 0.7575474634298164
-best DNN search iteration for dev set: 1
-best parameters for DNN: 1.02e-06 175
-
