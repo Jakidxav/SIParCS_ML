@@ -2,10 +2,10 @@
 """
 from contextlib import redirect_stdout
 import matplotlib
-import seaborn as sns
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
+import seaborn as sns
 import numpy as np
 from keras.models import Sequential, Model, save_model, load_model
 import keras.backend as K
