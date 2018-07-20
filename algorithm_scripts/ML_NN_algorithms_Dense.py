@@ -161,7 +161,7 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
 
 #dense nn
     # based off of dnn from Negin. just need to focus on optimizing
-def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch):
+def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2, epsilon, amsgrad,iterations, train_data, train_label, dev_data, dev_label, outputDL, searchNum, batch, posWeight):
     '''
     implements a dense neural network. also outputs info to a file.
 
@@ -320,7 +320,7 @@ if __name__ == "__main__":
         bestTry = 0
         for t in range(trials):
 
-            denseNN, dnnAUROC = dnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, w)
+            denseNN, dnnAUROC = dnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i,batch, w)
             if dnnAUROC > modelAUROC:
                 model = denseNN
                 modelAUROC = dnnAUROC

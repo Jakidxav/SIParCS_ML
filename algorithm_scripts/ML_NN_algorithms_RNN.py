@@ -369,7 +369,7 @@ if __name__ == "__main__":
         modelAUROC = 0
         bestTry = 0
         for t in range(trials):
-            recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, batch,i, w)
+            recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
             if rnnAUROC > modelAUROC:
                 model = recurrNN
                 modelAUROC = rnnAUROC
