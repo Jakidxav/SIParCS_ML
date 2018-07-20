@@ -84,7 +84,7 @@ def rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev):
         rfile.write(" ".join(str(x)+ "\t" for x in rocVal[t]) + "\n")
 
 
-def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
+def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred):
     '''
     this method creates all relevent metric plots.
 
@@ -227,8 +227,8 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     fpr_dev, tpr_dev, thresholds_dev = skm.roc_curve(dev_label, dev_pred)
 
     rfile = open(outputFile + '_roc_vals.txt', "w+")
-    rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
-    makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
+    #rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
+    makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred)
 
     denseModel.save(outputFile+ '.h5')
 

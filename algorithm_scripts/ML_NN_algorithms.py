@@ -114,7 +114,7 @@ def rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev):
         rfile.write(" ".join(str(x)+ "\t" for x in rocVal[t]) + "\n")
 
 
-def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev):
+def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred):
     '''
     this method creates all relevent metric plots.
 
@@ -166,7 +166,9 @@ def makePlots(model_hist, output, modelName, fpr_train, tpr_train, fpr_dev, tpr_
     plt.savefig(output + "_roc.pdf", format="pdf")
     plt.cla()
 
+
 def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, kernel, pool, strideC, strideP, momentum, decay, learnRate, b1, b2, epsilon, amsgrad, searchNum, posWeight):
+
     #this method writes all parameters to a file.
     #size	iterations     boolLSTM	boolAdam	boolNesterov	dropout	kernel	pool	strideC	strideP	momentum	decay	learning rate	beta1	beta2	epsilon	amsgrad
     file.write("grid search iteration: " + str(searchNum) + "\n")
@@ -260,7 +262,7 @@ def dnn(neuronLayer, drop, learnRate, momentum, decay,boolAdam, boolNest, b1, b2
     rfile = open(outputFile + '_roc_vals.txt', "w+")
     rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
 
-    makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev)
+    makePlots(dense_hist, outputFile, "Dense Neural Net",fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred)
 
     denseModel.save(outputFile+ '.h5')
 
