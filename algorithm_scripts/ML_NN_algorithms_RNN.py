@@ -29,7 +29,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Recur/final/"
+outputDir = "./data/Recur/weights/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
