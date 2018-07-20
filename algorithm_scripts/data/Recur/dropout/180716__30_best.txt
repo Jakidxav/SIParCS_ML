@@ -1,0 +1,5 @@
+dropouts tried: 0.26 0.69 0.35 0.0 0.5
+best RNN AUROC for dev set: 0.5
+best RNN search iteration for dev set: 0
+best parameters for RNN: 0.26
+

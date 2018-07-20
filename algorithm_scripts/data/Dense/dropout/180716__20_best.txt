@@ -1,0 +1,5 @@
+dropouts tried: 0.26 0.69 0.35 0.0 0.5
+best DNN AUROC for dev set: 0.7526714389459488
+best DNN search iteration for dev set: 0
+best parameters for DNN: 0.26
+
