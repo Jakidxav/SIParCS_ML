@@ -1,4 +1,0 @@
-Resetting modules to system default
-/tmp/slurmd/job884713/slurm_script: line 15: /glade/u/home/kstengel/tensor_test/bin/activate: No such file or directory
-/tmp/slurmd/job884713/slurm_script: line 18: cd: /glade2/work/joshuadr/SIParCS_ML/algorithm_scripts/: No such file or directory
-bash: python3: command not found
