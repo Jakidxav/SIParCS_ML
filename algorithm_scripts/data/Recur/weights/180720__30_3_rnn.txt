@@ -1,6 +1,6 @@
 grid search iteration: 3
 neuronLayer 20 60
-iterations 17
+iterations 500
 boolLSTM True
 boolAdam True
 boolNest True
