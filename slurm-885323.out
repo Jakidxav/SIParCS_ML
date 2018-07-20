@@ -1,0 +1,453 @@
+Resetting modules to system default
+2018-07-20 10:23:00.407237: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 0 with properties: 
+name: Tesla K20Xm major: 3 minor: 5 memoryClockRate(GHz): 0.732
+pciBusID: 0000:20:00.0
+totalMemory: 5.57GiB freeMemory: 5.45GiB
+2018-07-20 10:23:00.565744: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 1 with properties: 
+name: Tesla K20Xm major: 3 minor: 5 memoryClockRate(GHz): 0.732
+pciBusID: 0000:8b:00.0
+totalMemory: 5.57GiB freeMemory: 5.48GiB
+2018-07-20 10:23:00.565901: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1435] Adding visible gpu devices: 0, 1
+2018-07-20 10:23:04.704624: I tensorflow/core/common_runtime/gpu/gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-07-20 10:23:04.704698: I tensorflow/core/common_runtime/gpu/gpu_device.cc:929]      0 1 
+2018-07-20 10:23:04.704734: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 0:   N N 
+2018-07-20 10:23:04.704757: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 1:   N N 
+2018-07-20 10:23:04.749597: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 5240 MB memory) -> physical GPU (device: 0, name: Tesla K20Xm, pci bus id: 0000:20:00.0, compute capability: 3.5)
+2018-07-20 10:23:04.841222: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 5273 MB memory) -> physical GPU (device: 1, name: Tesla K20Xm, pci bus id: 0000:8b:00.0, compute capability: 3.5)
+you are in main.
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 9s - loss: 3.6681 - binary_accuracy: 0.8481 - val_loss: 3.4429 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 3.9474 - binary_accuracy: 0.8782 - val_loss: 3.4485 - val_binary_accuracy: 0.7875
+Epoch 3/17
+ - 1s - loss: 3.9493 - binary_accuracy: 0.8782 - val_loss: 3.4471 - val_binary_accuracy: 0.7875
+Epoch 4/17
+ - 1s - loss: 3.9470 - binary_accuracy: 0.8782 - val_loss: 3.4441 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 3.9439 - binary_accuracy: 0.8782 - val_loss: 3.4411 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 3.9411 - binary_accuracy: 0.8782 - val_loss: 3.4385 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 3.9387 - binary_accuracy: 0.8782 - val_loss: 3.4364 - val_binary_accuracy: 0.7875
+Epoch 8/17
+ - 1s - loss: 3.9367 - binary_accuracy: 0.8782 - val_loss: 3.4346 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 3.9351 - binary_accuracy: 0.8782 - val_loss: 3.4331 - val_binary_accuracy: 0.7875
+Epoch 10/17
+ - 1s - loss: 3.9337 - binary_accuracy: 0.8782 - val_loss: 3.4319 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 3.9325 - binary_accuracy: 0.8782 - val_loss: 3.4309 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 3.9316 - binary_accuracy: 0.8782 - val_loss: 3.4300 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 3.9307 - binary_accuracy: 0.8782 - val_loss: 3.4292 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 3.9301 - binary_accuracy: 0.8782 - val_loss: 3.4286 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 3.9295 - binary_accuracy: 0.8782 - val_loss: 3.4281 - val_binary_accuracy: 0.7875
+Epoch 16/17
+ - 1s - loss: 3.9290 - binary_accuracy: 0.8782 - val_loss: 3.4276 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 3.9285 - binary_accuracy: 0.8782 - val_loss: 3.4272 - val_binary_accuracy: 0.7875
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 2s - loss: 3.6508 - binary_accuracy: 0.8391 - val_loss: 3.4431 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 3.9479 - binary_accuracy: 0.8782 - val_loss: 3.4495 - val_binary_accuracy: 0.7875
+Epoch 3/17
+ - 1s - loss: 3.9507 - binary_accuracy: 0.8782 - val_loss: 3.4490 - val_binary_accuracy: 0.7875
+Epoch 4/17
+ - 1s - loss: 3.9491 - binary_accuracy: 0.8782 - val_loss: 3.4466 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 3.9465 - binary_accuracy: 0.8782 - val_loss: 3.4439 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 3.9439 - binary_accuracy: 0.8782 - val_loss: 3.4414 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 3.9415 - binary_accuracy: 0.8782 - val_loss: 3.4392 - val_binary_accuracy: 0.7875
+Epoch 8/17
+ - 1s - loss: 3.9395 - binary_accuracy: 0.8782 - val_loss: 3.4373 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 3.9377 - binary_accuracy: 0.8782 - val_loss: 3.4357 - val_binary_accuracy: 0.7875
+Epoch 10/17
+ - 1s - loss: 3.9362 - binary_accuracy: 0.8782 - val_loss: 3.4343 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 3.9349 - binary_accuracy: 0.8782 - val_loss: 3.4331 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 3.9337 - binary_accuracy: 0.8782 - val_loss: 3.4320 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 3.9327 - binary_accuracy: 0.8782 - val_loss: 3.4311 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 3.9319 - binary_accuracy: 0.8782 - val_loss: 3.4303 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 3.9311 - binary_accuracy: 0.8782 - val_loss: 3.4297 - val_binary_accuracy: 0.7875
+Epoch 16/17
+ - 1s - loss: 3.9305 - binary_accuracy: 0.8782 - val_loss: 3.4291 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 3.9299 - binary_accuracy: 0.8782 - val_loss: 3.4285 - val_binary_accuracy: 0.7875
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 2s - loss: 3.6106 - binary_accuracy: 0.8359 - val_loss: 3.4427 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 3.9470 - binary_accuracy: 0.8782 - val_loss: 3.4478 - val_binary_accuracy: 0.7875
+Epoch 3/17
+ - 1s - loss: 3.9485 - binary_accuracy: 0.8782 - val_loss: 3.4462 - val_binary_accuracy: 0.7875
+Epoch 4/17
+ - 1s - loss: 3.9459 - binary_accuracy: 0.8782 - val_loss: 3.4430 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 3.9428 - binary_accuracy: 0.8782 - val_loss: 3.4400 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 3.9400 - binary_accuracy: 0.8782 - val_loss: 3.4375 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 3.9377 - binary_accuracy: 0.8782 - val_loss: 3.4355 - val_binary_accuracy: 0.7875
+Epoch 8/17
+ - 1s - loss: 3.9359 - binary_accuracy: 0.8782 - val_loss: 3.4339 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 3.9344 - binary_accuracy: 0.8782 - val_loss: 3.4325 - val_binary_accuracy: 0.7875
+Epoch 10/17
+ - 1s - loss: 3.9331 - binary_accuracy: 0.8782 - val_loss: 3.4314 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 3.9321 - binary_accuracy: 0.8782 - val_loss: 3.4305 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 3.9312 - binary_accuracy: 0.8782 - val_loss: 3.4297 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 3.9305 - binary_accuracy: 0.8782 - val_loss: 3.4290 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 3.9299 - binary_accuracy: 0.8782 - val_loss: 3.4285 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 3.9294 - binary_accuracy: 0.8782 - val_loss: 3.4280 - val_binary_accuracy: 0.7875
+Epoch 16/17
+ - 1s - loss: 3.9289 - binary_accuracy: 0.8782 - val_loss: 3.4276 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 3.9285 - binary_accuracy: 0.8782 - val_loss: 3.4272 - val_binary_accuracy: 0.7875
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 7.3614 - binary_accuracy: 0.8474 - val_loss: 3.4423 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 7.8726 - binary_accuracy: 0.8782 - val_loss: 3.4470 - val_binary_accuracy: 0.7875
+Epoch 3/17
+ - 1s - loss: 7.8737 - binary_accuracy: 0.8782 - val_loss: 3.4450 - val_binary_accuracy: 0.7875
+Epoch 4/17
+ - 1s - loss: 7.8708 - binary_accuracy: 0.8782 - val_loss: 3.4416 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 7.8675 - binary_accuracy: 0.8782 - val_loss: 3.4385 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 7.8646 - binary_accuracy: 0.8782 - val_loss: 3.4359 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 7.8623 - binary_accuracy: 0.8782 - val_loss: 3.4339 - val_binary_accuracy: 0.7875
+Epoch 8/17
+ - 1s - loss: 7.8605 - binary_accuracy: 0.8782 - val_loss: 3.4323 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 7.8591 - binary_accuracy: 0.8782 - val_loss: 3.4310 - val_binary_accuracy: 0.7875
+Epoch 10/17
+ - 1s - loss: 7.8579 - binary_accuracy: 0.8782 - val_loss: 3.4300 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 7.8569 - binary_accuracy: 0.8782 - val_loss: 3.4292 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 7.8562 - binary_accuracy: 0.8782 - val_loss: 3.4285 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 7.8555 - binary_accuracy: 0.8782 - val_loss: 3.4279 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 7.8550 - binary_accuracy: 0.8782 - val_loss: 3.4275 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 7.8546 - binary_accuracy: 0.8782 - val_loss: 3.4271 - val_binary_accuracy: 0.7875
+Epoch 16/17
+ - 1s - loss: 7.8542 - binary_accuracy: 0.8782 - val_loss: 3.4268 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 7.8540 - binary_accuracy: 0.8782 - val_loss: 3.4265 - val_binary_accuracy: 0.7875
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 7.5220 - binary_accuracy: 0.8327 - val_loss: 3.4430 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 7.8738 - binary_accuracy: 0.8782 - val_loss: 3.4489 - val_binary_accuracy: 0.7875
+Epoch 3/17
+ - 1s - loss: 7.8761 - binary_accuracy: 0.8782 - val_loss: 3.4479 - val_binary_accuracy: 0.7875
+Epoch 4/17
+ - 1s - loss: 7.8740 - binary_accuracy: 0.8782 - val_loss: 3.4451 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 7.8711 - binary_accuracy: 0.8782 - val_loss: 3.4422 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 7.8684 - binary_accuracy: 0.8782 - val_loss: 3.4397 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 7.8661 - binary_accuracy: 0.8782 - val_loss: 3.4376 - val_binary_accuracy: 0.7875
+Epoch 8/17
+ - 1s - loss: 7.8641 - binary_accuracy: 0.8782 - val_loss: 3.4358 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 7.8624 - binary_accuracy: 0.8782 - val_loss: 3.4343 - val_binary_accuracy: 0.7875
+Epoch 10/17
+ - 1s - loss: 7.8610 - binary_accuracy: 0.8782 - val_loss: 3.4330 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 7.8598 - binary_accuracy: 0.8782 - val_loss: 3.4319 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 7.8588 - binary_accuracy: 0.8782 - val_loss: 3.4309 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 7.8579 - binary_accuracy: 0.8782 - val_loss: 3.4301 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 7.8571 - binary_accuracy: 0.8782 - val_loss: 3.4294 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 7.8565 - binary_accuracy: 0.8782 - val_loss: 3.4289 - val_binary_accuracy: 0.7875
+Epoch 16/17
+ - 1s - loss: 7.8559 - binary_accuracy: 0.8782 - val_loss: 3.4283 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 7.8555 - binary_accuracy: 0.8782 - val_loss: 3.4279 - val_binary_accuracy: 0.7875
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 3.5261 - binary_accuracy: 0.6167 - val_loss: 2.3712 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 3.3958 - binary_accuracy: 0.6692 - val_loss: 0.5745 - val_binary_accuracy: 0.6833
+Epoch 3/17
+ - 1s - loss: 2.3004 - binary_accuracy: 0.6558 - val_loss: 2.0926 - val_binary_accuracy: 0.2125
+Epoch 4/17
+ - 1s - loss: 2.3527 - binary_accuracy: 0.5853 - val_loss: 0.7935 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 1.8672 - binary_accuracy: 0.6353 - val_loss: 1.1886 - val_binary_accuracy: 0.2125
+Epoch 6/17
+ - 1s - loss: 1.5127 - binary_accuracy: 0.6641 - val_loss: 0.9000 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 1.5342 - binary_accuracy: 0.6756 - val_loss: 1.5938 - val_binary_accuracy: 0.2250
+Epoch 8/17
+ - 1s - loss: 1.4556 - binary_accuracy: 0.6333 - val_loss: 0.8536 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 1.4500 - binary_accuracy: 0.6801 - val_loss: 0.8248 - val_binary_accuracy: 0.4208
+Epoch 10/17
+ - 1s - loss: 1.4408 - binary_accuracy: 0.6449 - val_loss: 0.7543 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 1.4673 - binary_accuracy: 0.6718 - val_loss: 0.7419 - val_binary_accuracy: 0.4375
+Epoch 12/17
+ - 1s - loss: 1.8739 - binary_accuracy: 0.6372 - val_loss: 1.2944 - val_binary_accuracy: 0.2125
+Epoch 13/17
+ - 1s - loss: 1.9828 - binary_accuracy: 0.6372 - val_loss: 0.7738 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 1.7702 - binary_accuracy: 0.6301 - val_loss: 0.5834 - val_binary_accuracy: 0.7125
+Epoch 15/17
+ - 1s - loss: 1.4913 - binary_accuracy: 0.6622 - val_loss: 2.8767 - val_binary_accuracy: 0.2125
+Epoch 16/17
+ - 1s - loss: 2.4498 - binary_accuracy: 0.5622 - val_loss: 1.0237 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 1.9228 - binary_accuracy: 0.6673 - val_loss: 0.9222 - val_binary_accuracy: 0.2708
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 5.0776 - binary_accuracy: 0.5263 - val_loss: 1.3836 - val_binary_accuracy: 0.4417
+Epoch 2/17
+ - 1s - loss: 3.1245 - binary_accuracy: 0.5141 - val_loss: 0.5645 - val_binary_accuracy: 0.7458
+Epoch 3/17
+ - 1s - loss: 2.9079 - binary_accuracy: 0.5551 - val_loss: 1.6059 - val_binary_accuracy: 0.2708
+Epoch 4/17
+ - 1s - loss: 3.1045 - binary_accuracy: 0.4744 - val_loss: 1.8786 - val_binary_accuracy: 0.3000
+Epoch 5/17
+ - 1s - loss: 3.3028 - binary_accuracy: 0.5571 - val_loss: 3.5976 - val_binary_accuracy: 0.2167
+Epoch 6/17
+ - 1s - loss: 3.7207 - binary_accuracy: 0.4744 - val_loss: 1.6720 - val_binary_accuracy: 0.2250
+Epoch 7/17
+ - 1s - loss: 2.6844 - binary_accuracy: 0.5346 - val_loss: 0.6444 - val_binary_accuracy: 0.7000
+Epoch 8/17
+ - 1s - loss: 3.1894 - binary_accuracy: 0.5712 - val_loss: 1.0973 - val_binary_accuracy: 0.4083
+Epoch 9/17
+ - 1s - loss: 3.5730 - binary_accuracy: 0.5474 - val_loss: 0.7153 - val_binary_accuracy: 0.5875
+Epoch 10/17
+ - 1s - loss: 3.8459 - binary_accuracy: 0.5263 - val_loss: 0.8781 - val_binary_accuracy: 0.5958
+Epoch 11/17
+ - 1s - loss: 3.1667 - binary_accuracy: 0.5801 - val_loss: 0.9793 - val_binary_accuracy: 0.5958
+Epoch 12/17
+ - 1s - loss: 2.4069 - binary_accuracy: 0.5724 - val_loss: 0.8941 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 2.9834 - binary_accuracy: 0.5590 - val_loss: 0.6728 - val_binary_accuracy: 0.7625
+Epoch 14/17
+ - 1s - loss: 2.6951 - binary_accuracy: 0.5494 - val_loss: 0.5901 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 2.7606 - binary_accuracy: 0.5109 - val_loss: 1.7977 - val_binary_accuracy: 0.2125
+Epoch 16/17
+ - 1s - loss: 3.0623 - binary_accuracy: 0.4872 - val_loss: 2.6453 - val_binary_accuracy: 0.2125
+Epoch 17/17
+ - 1s - loss: 4.0822 - binary_accuracy: 0.5429 - val_loss: 3.7949 - val_binary_accuracy: 0.2125
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 4.1419 - binary_accuracy: 0.4814 - val_loss: 0.8835 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 3.8833 - binary_accuracy: 0.5115 - val_loss: 1.5812 - val_binary_accuracy: 0.7167
+Epoch 3/17
+ - 1s - loss: 3.5175 - binary_accuracy: 0.6109 - val_loss: 0.9561 - val_binary_accuracy: 0.4917
+Epoch 4/17
+ - 1s - loss: 2.4801 - binary_accuracy: 0.5923 - val_loss: 3.1272 - val_binary_accuracy: 0.2125
+Epoch 5/17
+ - 1s - loss: 2.4689 - binary_accuracy: 0.5109 - val_loss: 0.8170 - val_binary_accuracy: 0.5000
+Epoch 6/17
+ - 1s - loss: 2.1638 - binary_accuracy: 0.5833 - val_loss: 1.6624 - val_binary_accuracy: 0.5750
+Epoch 7/17
+ - 1s - loss: 3.7005 - binary_accuracy: 0.4923 - val_loss: 1.6345 - val_binary_accuracy: 0.3625
+Epoch 8/17
+ - 1s - loss: 3.4060 - binary_accuracy: 0.5244 - val_loss: 0.8345 - val_binary_accuracy: 0.6167
+Epoch 9/17
+ - 1s - loss: 3.2900 - binary_accuracy: 0.5750 - val_loss: 1.1468 - val_binary_accuracy: 0.5208
+Epoch 10/17
+ - 1s - loss: 2.4688 - binary_accuracy: 0.5673 - val_loss: 0.8329 - val_binary_accuracy: 0.7250
+Epoch 11/17
+ - 1s - loss: 2.2752 - binary_accuracy: 0.5429 - val_loss: 1.2365 - val_binary_accuracy: 0.7750
+Epoch 12/17
+ - 1s - loss: 2.7304 - binary_accuracy: 0.5500 - val_loss: 1.6919 - val_binary_accuracy: 0.2917
+Epoch 13/17
+ - 1s - loss: 2.7056 - binary_accuracy: 0.5500 - val_loss: 1.9279 - val_binary_accuracy: 0.2458
+Epoch 14/17
+ - 1s - loss: 2.3051 - binary_accuracy: 0.5301 - val_loss: 0.6751 - val_binary_accuracy: 0.7167
+Epoch 15/17
+ - 1s - loss: 2.4782 - binary_accuracy: 0.5583 - val_loss: 0.8711 - val_binary_accuracy: 0.4833
+Epoch 16/17
+ - 1s - loss: 1.9645 - binary_accuracy: 0.5692 - val_loss: 2.0090 - val_binary_accuracy: 0.2167
+Epoch 17/17
+ - 1s - loss: 2.7662 - binary_accuracy: 0.4981 - val_loss: 0.6903 - val_binary_accuracy: 0.7583
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 5.1420 - binary_accuracy: 0.4962 - val_loss: 3.5339 - val_binary_accuracy: 0.2125
+Epoch 2/17
+ - 1s - loss: 3.1243 - binary_accuracy: 0.4808 - val_loss: 1.0862 - val_binary_accuracy: 0.3917
+Epoch 3/17
+ - 1s - loss: 2.1808 - binary_accuracy: 0.5590 - val_loss: 1.6030 - val_binary_accuracy: 0.2125
+Epoch 4/17
+ - 1s - loss: 2.3243 - binary_accuracy: 0.4744 - val_loss: 0.5389 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 2.0895 - binary_accuracy: 0.5167 - val_loss: 0.7756 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 1.8521 - binary_accuracy: 0.5833 - val_loss: 0.6044 - val_binary_accuracy: 0.7042
+Epoch 7/17
+ - 1s - loss: 1.7519 - binary_accuracy: 0.5224 - val_loss: 1.0734 - val_binary_accuracy: 0.2125
+Epoch 8/17
+ - 1s - loss: 2.0618 - binary_accuracy: 0.4808 - val_loss: 0.7812 - val_binary_accuracy: 0.5500
+Epoch 9/17
+ - 1s - loss: 2.2995 - binary_accuracy: 0.5250 - val_loss: 0.9060 - val_binary_accuracy: 0.5542
+Epoch 10/17
+ - 1s - loss: 2.0312 - binary_accuracy: 0.5429 - val_loss: 0.8891 - val_binary_accuracy: 0.4958
+Epoch 11/17
+ - 1s - loss: 1.7417 - binary_accuracy: 0.5179 - val_loss: 0.8597 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 1.9402 - binary_accuracy: 0.5353 - val_loss: 0.5869 - val_binary_accuracy: 0.7792
+Epoch 13/17
+ - 1s - loss: 1.7477 - binary_accuracy: 0.5628 - val_loss: 1.7098 - val_binary_accuracy: 0.2125
+Epoch 14/17
+ - 1s - loss: 1.9532 - binary_accuracy: 0.5436 - val_loss: 1.3210 - val_binary_accuracy: 0.2125
+Epoch 15/17
+ - 1s - loss: 1.8398 - binary_accuracy: 0.4814 - val_loss: 0.7330 - val_binary_accuracy: 0.2125
+Epoch 16/17
+ - 1s - loss: 1.8199 - binary_accuracy: 0.4545 - val_loss: 0.7153 - val_binary_accuracy: 0.2125
+Epoch 17/17
+ - 1s - loss: 1.9223 - binary_accuracy: 0.4622 - val_loss: 0.5496 - val_binary_accuracy: 0.7875
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 13.0510 - binary_accuracy: 0.1756 - val_loss: 12.5732 - val_binary_accuracy: 0.2125
+Epoch 2/17
+ - 1s - loss: 14.0236 - binary_accuracy: 0.1218 - val_loss: 12.5811 - val_binary_accuracy: 0.2125
+Epoch 3/17
+ - 1s - loss: 14.0278 - binary_accuracy: 0.1218 - val_loss: 12.5819 - val_binary_accuracy: 0.2125
+Epoch 4/17
+ - 1s - loss: 14.0275 - binary_accuracy: 0.1218 - val_loss: 12.5806 - val_binary_accuracy: 0.2125
+Epoch 5/17
+ - 1s - loss: 14.0258 - binary_accuracy: 0.1218 - val_loss: 12.5786 - val_binary_accuracy: 0.2125
+Epoch 6/17
+ - 1s - loss: 14.0239 - binary_accuracy: 0.1218 - val_loss: 12.5767 - val_binary_accuracy: 0.2125
+Epoch 7/17
+ - 1s - loss: 14.0220 - binary_accuracy: 0.1218 - val_loss: 12.5750 - val_binary_accuracy: 0.2125
+Epoch 8/17
+ - 1s - loss: 14.0203 - binary_accuracy: 0.1218 - val_loss: 12.5733 - val_binary_accuracy: 0.2125
+Epoch 9/17
+ - 1s - loss: 14.0188 - binary_accuracy: 0.1218 - val_loss: 12.5719 - val_binary_accuracy: 0.2125
+Epoch 10/17
+ - 1s - loss: 14.0173 - binary_accuracy: 0.1218 - val_loss: 12.5705 - val_binary_accuracy: 0.2125
+Epoch 11/17
+ - 1s - loss: 14.0160 - binary_accuracy: 0.1218 - val_loss: 12.5693 - val_binary_accuracy: 0.2125
+Epoch 12/17
+ - 1s - loss: 14.0149 - binary_accuracy: 0.1218 - val_loss: 12.5682 - val_binary_accuracy: 0.2125
+Epoch 13/17
+ - 1s - loss: 14.0138 - binary_accuracy: 0.1218 - val_loss: 12.5672 - val_binary_accuracy: 0.2125
+Epoch 14/17
+ - 1s - loss: 14.0128 - binary_accuracy: 0.1218 - val_loss: 12.5662 - val_binary_accuracy: 0.2125
+Epoch 15/17
+ - 1s - loss: 14.0119 - binary_accuracy: 0.1218 - val_loss: 12.5654 - val_binary_accuracy: 0.2125
+Epoch 16/17
+ - 1s - loss: 14.0111 - binary_accuracy: 0.1218 - val_loss: 12.5646 - val_binary_accuracy: 0.2125
+Epoch 17/17
+ - 1s - loss: 14.0103 - binary_accuracy: 0.1218 - val_loss: 12.5638 - val_binary_accuracy: 0.2125
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 4.9533 - binary_accuracy: 0.3513 - val_loss: 2.5744 - val_binary_accuracy: 0.2125
+Epoch 2/17
+ - 1s - loss: 3.1108 - binary_accuracy: 0.3583 - val_loss: 1.6530 - val_binary_accuracy: 0.2125
+Epoch 3/17
+ - 1s - loss: 2.7503 - binary_accuracy: 0.3263 - val_loss: 1.3135 - val_binary_accuracy: 0.2125
+Epoch 4/17
+ - 1s - loss: 3.1332 - binary_accuracy: 0.3583 - val_loss: 4.8433 - val_binary_accuracy: 0.2125
+Epoch 5/17
+ - 1s - loss: 3.6049 - binary_accuracy: 0.3122 - val_loss: 1.0006 - val_binary_accuracy: 0.2125
+Epoch 6/17
+ - 1s - loss: 2.8423 - binary_accuracy: 0.3615 - val_loss: 2.8951 - val_binary_accuracy: 0.2125
+Epoch 7/17
+ - 1s - loss: 3.5633 - binary_accuracy: 0.3205 - val_loss: 1.2749 - val_binary_accuracy: 0.2125
+Epoch 8/17
+ - 1s - loss: 3.3690 - binary_accuracy: 0.3654 - val_loss: 5.6501 - val_binary_accuracy: 0.2125
+Epoch 9/17
+ - 1s - loss: 4.6998 - binary_accuracy: 0.3474 - val_loss: 4.1043 - val_binary_accuracy: 0.2125
+Epoch 10/17
+ - 1s - loss: 3.2763 - binary_accuracy: 0.2987 - val_loss: 0.5315 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 3.2159 - binary_accuracy: 0.3564 - val_loss: 0.5294 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 3.1386 - binary_accuracy: 0.3385 - val_loss: 1.8389 - val_binary_accuracy: 0.2125
+Epoch 13/17
+ - 1s - loss: 3.1951 - binary_accuracy: 0.2744 - val_loss: 1.7546 - val_binary_accuracy: 0.2125
+Epoch 14/17
+ - 1s - loss: 3.0675 - binary_accuracy: 0.3064 - val_loss: 3.6220 - val_binary_accuracy: 0.2125
+Epoch 15/17
+ - 1s - loss: 3.6137 - binary_accuracy: 0.2962 - val_loss: 0.7910 - val_binary_accuracy: 0.2125
+Epoch 16/17
+ - 1s - loss: 3.0722 - binary_accuracy: 0.3282 - val_loss: 1.9326 - val_binary_accuracy: 0.2125
+Epoch 17/17
+ - 1s - loss: 2.7110 - binary_accuracy: 0.3192 - val_loss: 1.0362 - val_binary_accuracy: 0.2125
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 3s - loss: 12.7469 - binary_accuracy: 0.1891 - val_loss: 12.5684 - val_binary_accuracy: 0.2125
+Epoch 2/17
+ - 1s - loss: 14.0183 - binary_accuracy: 0.1218 - val_loss: 12.5755 - val_binary_accuracy: 0.2125
+Epoch 3/17
+ - 1s - loss: 14.0223 - binary_accuracy: 0.1218 - val_loss: 12.5767 - val_binary_accuracy: 0.2125
+Epoch 4/17
+ - 1s - loss: 14.0225 - binary_accuracy: 0.1218 - val_loss: 12.5760 - val_binary_accuracy: 0.2125
+Epoch 5/17
+ - 1s - loss: 14.0216 - binary_accuracy: 0.1218 - val_loss: 12.5749 - val_binary_accuracy: 0.2125
+Epoch 6/17
+ - 1s - loss: 14.0205 - binary_accuracy: 0.1218 - val_loss: 12.5739 - val_binary_accuracy: 0.2125
+Epoch 7/17
+ - 1s - loss: 14.0195 - binary_accuracy: 0.1218 - val_loss: 12.5729 - val_binary_accuracy: 0.2125
+Epoch 8/17
+ - 1s - loss: 14.0186 - binary_accuracy: 0.1218 - val_loss: 12.5721 - val_binary_accuracy: 0.2125
+Epoch 9/17
+ - 1s - loss: 14.0178 - binary_accuracy: 0.1218 - val_loss: 12.5713 - val_binary_accuracy: 0.2125
+Epoch 10/17
+ - 1s - loss: 14.0171 - binary_accuracy: 0.1218 - val_loss: 12.5707 - val_binary_accuracy: 0.2125
+Epoch 11/17
+ - 1s - loss: 14.0165 - binary_accuracy: 0.1218 - val_loss: 12.5701 - val_binary_accuracy: 0.2125
+Epoch 12/17
+ - 1s - loss: 14.0159 - binary_accuracy: 0.1218 - val_loss: 12.5696 - val_binary_accuracy: 0.2125
+Epoch 13/17
+ - 1s - loss: 14.0154 - binary_accuracy: 0.1218 - val_loss: 12.5691 - val_binary_accuracy: 0.2125
+Epoch 14/17
+ - 1s - loss: 14.0149 - binary_accuracy: 0.1218 - val_loss: 12.5686 - val_binary_accuracy: 0.2125
+Epoch 15/17
+ - 1s - loss: 14.0145 - binary_accuracy: 0.1218 - val_loss: 12.5682 - val_binary_accuracy: 0.2125
+Epoch 16/17
+ - 1s - loss: 14.0141 - binary_accuracy: 0.1218 - val_loss: 12.5679 - val_binary_accuracy: 0.2125
+Epoch 17/17
+ - 1s - loss: 14.0138 - binary_accuracy: 0.1218 - val_loss: 12.5675 - val_binary_accuracy: 0.2125
+/glade/u/home/joshuadr/tensor_test/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+runtime  252.85541987419128  seconds
