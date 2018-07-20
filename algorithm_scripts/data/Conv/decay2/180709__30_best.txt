@@ -1,2 +1,0 @@
-beta1 values tried: 0.198 0.1776 0.1143 0.1306
-beta2 values tried: 0.9184 0.9633 0.9592 0.898
