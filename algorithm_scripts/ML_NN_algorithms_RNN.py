@@ -2,7 +2,7 @@
 """
 from contextlib import redirect_stdout
 import matplotlib
-import cborn as sns
+import seaborn as sns
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.figure import Figure
