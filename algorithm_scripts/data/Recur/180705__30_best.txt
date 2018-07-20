@@ -1,2 +1,0 @@
-epochs tried: 231 156 209 174
-learningRates tried: 0.001 0.245 0.113 0.072
