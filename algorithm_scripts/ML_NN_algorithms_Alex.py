@@ -34,6 +34,7 @@ alexnet; with loaded weights from alexnet website
 find time and space complexity - ask alessandro
 """
 from contextlib import redirect_stdout
+import cborn as sns
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
