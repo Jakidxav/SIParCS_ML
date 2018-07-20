@@ -1,0 +1,6 @@
+epochs tried: 150 200 250
+learningRates tried: 0.001 0.01 0.05 0.1 0.5
+best CNN AUROC for dev set: 0.5779645191409897
+best CNN search iteration for dev set: 6
+best parameters for CNN: 200 0.01
+
