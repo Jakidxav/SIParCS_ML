@@ -42,7 +42,7 @@ dropout = 0.5
 momentum = 0.99
 
 learningRate = .123
-epochs = 176
+epochs = 500
 decay = 1e-4
 batch = 128
 
