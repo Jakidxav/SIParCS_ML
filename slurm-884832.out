@@ -1,0 +1,64 @@
+Resetting modules to system default
+2018-07-20 09:40:20.661969: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 0 with properties: 
+name: Tesla K20Xm major: 3 minor: 5 memoryClockRate(GHz): 0.732
+pciBusID: 0000:20:00.0
+totalMemory: 5.57GiB freeMemory: 5.35GiB
+2018-07-20 09:40:20.805033: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1356] Found device 1 with properties: 
+name: Tesla K20Xm major: 3 minor: 5 memoryClockRate(GHz): 0.732
+pciBusID: 0000:8b:00.0
+totalMemory: 5.57GiB freeMemory: 5.48GiB
+2018-07-20 09:40:20.805164: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1435] Adding visible gpu devices: 0, 1
+2018-07-20 09:40:21.438038: I tensorflow/core/common_runtime/gpu/gpu_device.cc:923] Device interconnect StreamExecutor with strength 1 edge matrix:
+2018-07-20 09:40:21.438152: I tensorflow/core/common_runtime/gpu/gpu_device.cc:929]      0 1 
+2018-07-20 09:40:21.438182: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 0:   N N 
+2018-07-20 09:40:21.438205: I tensorflow/core/common_runtime/gpu/gpu_device.cc:942] 1:   N N 
+2018-07-20 09:40:21.438584: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:0 with 5140 MB memory) -> physical GPU (device: 0, name: Tesla K20Xm, pci bus id: 0000:20:00.0, compute capability: 3.5)
+2018-07-20 09:40:21.484436: I tensorflow/core/common_runtime/gpu/gpu_device.cc:1053] Created TensorFlow device (/job:localhost/replica:0/task:0/device:GPU:1 with 5273 MB memory) -> physical GPU (device: 1, name: Tesla K20Xm, pci bus id: 0000:8b:00.0, compute capability: 3.5)
+you are in main.
+recurrent neural network
+Train on 1560 samples, validate on 240 samples
+Epoch 1/17
+ - 4s - loss: 3.7619 - binary_accuracy: 0.8699 - val_loss: 3.4427 - val_binary_accuracy: 0.7875
+Epoch 2/17
+ - 1s - loss: 3.9472 - binary_accuracy: 0.8782 - val_loss: 3.4483 - val_binary_accuracy: 0.7875
+Epoch 3/17
+ - 1s - loss: 3.9491 - binary_accuracy: 0.8782 - val_loss: 3.4469 - val_binary_accuracy: 0.7875
+Epoch 4/17
+ - 1s - loss: 3.9467 - binary_accuracy: 0.8782 - val_loss: 3.4438 - val_binary_accuracy: 0.7875
+Epoch 5/17
+ - 1s - loss: 3.9435 - binary_accuracy: 0.8782 - val_loss: 3.4407 - val_binary_accuracy: 0.7875
+Epoch 6/17
+ - 1s - loss: 3.9407 - binary_accuracy: 0.8782 - val_loss: 3.4381 - val_binary_accuracy: 0.7875
+Epoch 7/17
+ - 1s - loss: 3.9383 - binary_accuracy: 0.8782 - val_loss: 3.4360 - val_binary_accuracy: 0.7875
+Epoch 8/17
+ - 1s - loss: 3.9363 - binary_accuracy: 0.8782 - val_loss: 3.4342 - val_binary_accuracy: 0.7875
+Epoch 9/17
+ - 1s - loss: 3.9346 - binary_accuracy: 0.8782 - val_loss: 3.4327 - val_binary_accuracy: 0.7875
+Epoch 10/17
+ - 1s - loss: 3.9333 - binary_accuracy: 0.8782 - val_loss: 3.4315 - val_binary_accuracy: 0.7875
+Epoch 11/17
+ - 1s - loss: 3.9322 - binary_accuracy: 0.8782 - val_loss: 3.4305 - val_binary_accuracy: 0.7875
+Epoch 12/17
+ - 1s - loss: 3.9312 - binary_accuracy: 0.8782 - val_loss: 3.4297 - val_binary_accuracy: 0.7875
+Epoch 13/17
+ - 1s - loss: 3.9305 - binary_accuracy: 0.8782 - val_loss: 3.4290 - val_binary_accuracy: 0.7875
+Epoch 14/17
+ - 1s - loss: 3.9298 - binary_accuracy: 0.8782 - val_loss: 3.4284 - val_binary_accuracy: 0.7875
+Epoch 15/17
+ - 1s - loss: 3.9292 - binary_accuracy: 0.8782 - val_loss: 3.4279 - val_binary_accuracy: 0.7875
+Epoch 16/17
+ - 1s - loss: 3.9288 - binary_accuracy: 0.8782 - val_loss: 3.4274 - val_binary_accuracy: 0.7875
+Epoch 17/17
+ - 1s - loss: 3.9284 - binary_accuracy: 0.8782 - val_loss: 3.4271 - val_binary_accuracy: 0.7875
+/glade/u/home/joshuadr/tensor_test/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
+Traceback (most recent call last):
+  File "ML_NN_algorithms_RNN.py", line 372, in <module>
+    recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, 17, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
+  File "ML_NN_algorithms_RNN.py", line 281, in rnn
+    makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred)
+  File "ML_NN_algorithms_RNN.py", line 152, in makePlots
+    ax = sns.heatmap(cm_train, annot=True, fmt='d', cbar=False)
+NameError: name 'sns' is not defined
