@@ -1,0 +1,5 @@
+dropout values tried: 0.26 0.69 0.35 0.0 0.5
+best CNN AUROC for dev set: 0.5374520178441746
+best CNN search iteration for dev set: 2
+best parameters for CNN: 0.35
+
