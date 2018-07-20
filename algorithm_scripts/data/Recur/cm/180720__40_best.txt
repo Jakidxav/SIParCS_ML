@@ -1,0 +1,6 @@
+epochs tried: 213 178 250 198 233 176 158 233 156 229 219 211 182 207 247 209
+learningRates tried: 0.49 0.123 0.225 0.357 0.347 0.123 0.001 0.011 0.184 0.49 0.154 0.032 0.205 0.052 0.266 0.388
+best RNN AUROC for dev set: 0.7439568419960576
+best RNN search iteration for dev set: 15
+best parameters for RNN: 209 0.388
+
