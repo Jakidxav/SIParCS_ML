@@ -380,7 +380,7 @@ if __name__ == "__main__":
 
             if modelAUROC > bestRnnAUROC:
                 bestRnnAUROC = modelAUROC
-                bestRnnParams = [w]
+                bestRnnParams = [w, lr]
                 bestRnnSearchNum = i
             i += 1
 
