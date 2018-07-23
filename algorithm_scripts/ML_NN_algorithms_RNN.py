@@ -41,7 +41,7 @@ trials = 5
 dropout = 0.5
 momentum = 0.99
 
-learningRate = .123
+learningRate = [0.01, 0.05, 0.1]
 epochs = 250
 decay = 1e-4
 batch = 128
@@ -363,25 +363,26 @@ if __name__ == "__main__":
     start = time.time()
     i = 0
     for w in posWeight:
+        for lr in learningRate:
 
-        outputSearch = outputFile + str(i) + "_"
-        #denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,219,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
-        model = None
-        modelAUROC = 0
-        bestTry = 0
-        for t in range(trials):
-            recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, 0.123, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
-            if rnnAUROC > modelAUROC:
-                model = recurrNN
-                modelAUROC = rnnAUROC
-                bestTry = t
-        model.save(outputSearch + str(bestTry)+'.h5')
+            outputSearch = outputFile + str(i) + "_"
+            #denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,219,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
+            model = None
+            modelAUROC = 0
+            bestTry = 0
+            for t in range(trials):
+                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, lr, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
+                if rnnAUROC > modelAUROC:
+                    model = recurrNN
+                    modelAUROC = rnnAUROC
+                    bestTry = t
+            model.save(outputSearch + str(bestTry)+'.h5')
 
-        if modelAUROC > bestRnnAUROC:
-            bestRnnAUROC = modelAUROC
-            bestRnnParams = [w]
-            bestRnnSearchNum = i
-        i += 1
+            if modelAUROC > bestRnnAUROC:
+                bestRnnAUROC = modelAUROC
+                bestRnnParams = [w, lr]
+                bestRnnSearchNum = i
+            i += 1
 
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
