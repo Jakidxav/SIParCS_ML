@@ -371,39 +371,39 @@ if __name__ == "__main__":
 
                 recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, opt,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
 
-                model.save(outputSearch + str(bestTry)+'.h5')
+                model.save(outputSearch +'.h5')
 
                 train_pred_filename = outputSearch+'train_pred_.txt'
                 with open(train_pred_filename, 'wb') as f:
-                    pickle.dump(mtrain_pred, f)
+                    pickle.dump(train_pred, f)
 
                 dev_pred_filename = outputSearch+'dev_pred_.txt'
                 with open(dev_pred_filename, 'wb') as g:
-                    pickle.dump(mdev_pred, g)
+                    pickle.dump(dev_pred, g)
 
                 train_thresh_filename = outputSearch+'train_thresh_.txt'
                 with open(train_thresh_filename, 'wb') as h:
-                    pickle.dump(mtrain_thresh, h)
+                    pickle.dump(train_thresh, h)
 
                 dev_thresh_filename = outputSearch+'dev_thresh_.txt'
                 with open(dev_thresh_filename, 'wb') as k:
-                    pickle.dump(mdev_thresh, k)
+                    pickle.dump(dev_thresh, k)
 
                 tpr_train_filename = outputSearch+'tpr_train_.txt'
                 with open(tpr_train_filename, 'wb') as h:
-                    pickle.dump(mtpr_train, h)
+                    pickle.dump(tpr_train, h)
 
                 fpr_train_filename = outputSearch+'fpr_train_.txt'
                 with open(fpr_train_filename, 'wb') as h:
-                    pickle.dump(mfpr_train, h)
+                    pickle.dump(fpr_train, h)
 
                 tpr_dev_filename = outputSearch+'tpr_dev_.txt'
                 with open(tpr_dev_filename, 'wb') as h:
-                    pickle.dump(mtpr_dev, h)
+                    pickle.dump(tpr_dev, h)
 
                 fpr_dev_filename = outputSearch+'fpr_dev_.txt'
                 with open(fpr_dev_filename, 'wb') as h:
-                    pickle.dump(mfpr_dev, h)
+                    pickle.dump(fpr_dev, h)
 
             if modelAUROC > bestRnnAUROC:
                 bestRnnAUROC = modelAUROC
