@@ -34,15 +34,15 @@ outputDir = "./data/Recur/weights/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
-posWeight = [3,4,8]
+posWeight = [3,4]
 trials = 5
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
 momentum = 0.99
 
-learningRate = [0.01, 0.05, 0.1]
-epochs = 250
+learningRate = [0.001, 0.01, 0.02]
+epochs = 300
 decay = 1e-4
 batch = 128
 
