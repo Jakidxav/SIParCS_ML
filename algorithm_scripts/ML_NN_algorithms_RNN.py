@@ -357,6 +357,7 @@ if __name__ == "__main__":
     #will also have to change the param lists depending on which params are being optimized
     bestRnnAUROC = 0
     bestRnnSearchNum = 0
+    bestTrial = 0
 
 
     #train all networks. call each NN method with corresponding parameters. manually change to tune or can set up an automation?
@@ -407,14 +408,16 @@ if __name__ == "__main__":
 
             if rnnAUROC > bestRnnAUROC:
                 bestRnnAUROC = rnnAUROC
-                bestRnnParams = [w, lr]
+                bestRnnParams = [w, opt]
                 bestRnnSearchNum = i
+                bestTrial = t
 
             i += 1
 
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
     bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")
+    bfile.write("best RNN search iteration for dev set: " + str(bestTrial) + "\n")
 
 
     print("runtime ",time.time() - start, " seconds")
