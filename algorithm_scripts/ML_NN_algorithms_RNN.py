@@ -405,8 +405,8 @@ if __name__ == "__main__":
                 with open(fpr_dev_filename, 'wb') as h:
                     pickle.dump(fpr_dev, h)
 
-            if modelAUROC > bestRnnAUROC:
-                bestRnnAUROC = modelAUROC
+            if rnnAUROC > bestRnnAUROC:
+                bestRnnAUROC = rnnAUROC
                 bestRnnParams = [w, lr]
                 bestRnnSearchNum = i
 
