@@ -34,14 +34,14 @@ outputDir = "./data/Recur/weights/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
-posWeight = [3,4]
+posWeight = [1,3,4,6]
 trials = 5
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
 momentum = 0.99
 
-learningRate = [0.001, 0.01, 0.02]
+learningRate = 0.01
 epochs = 300
 decay = 1e-4
 batch = 128
@@ -56,7 +56,7 @@ kernel = [5, 5,1]
 pool = [2,2]
 
 #parameters for Adam optimizaiton
-boolAdam = True #change to false if SGD is desired
+boolAdam = [True, False] #change to false if SGD is desired
 
 beta_1= 0.9
 beta_2= 0.999
@@ -281,9 +281,10 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
     #rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev)
     makePlots(recur_hist, outputFile, "LSTM Neural Net", fpr_train, tpr_train, fpr_dev, tpr_dev, train_pred, dev_pred)
 
-    recurModel.save(outputFile+ '.h5')
+    #recurModel.save(outputFile+ '.h5')
 
-    return recurModel, skm.auc(fpr_dev,tpr_dev)
+    return recurModel, skm.auc(fpr_dev,tpr_dev), train_pred, dev_pred, thresholds_train, thresholds_dev, tpr_train, fpr_train, tpr_dev, fpr_dev
+
 
 
 #main stuff
@@ -363,25 +364,52 @@ if __name__ == "__main__":
     start = time.time()
     i = 0
     for w in posWeight:
-        for lr in learningRate:
+        for opt in boolAdam:
 
-            outputSearch = outputFile + str(i) + "_"
-            #denseNN, dnnAUROC = dnn([16,16], dropout, learningRate, momentum, decay, boolNest, boolAdam, beta_1, beta_2, epsilon, amsgrad,219,train_data2, train_label,dev_data2, dev_label, outputSearch, i, batch) #these are all negins values right now.
-            model = None
-            modelAUROC = 0
-            bestTry = 0
             for t in range(trials):
-                recurrNN, rnnAUROC = rnn([20,60],kernel, pool, strideC, strideP, dropout, lr, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
-                if rnnAUROC > modelAUROC:
-                    model = recurrNN
-                    modelAUROC = rnnAUROC
-                    bestTry = t
-            model.save(outputSearch + str(bestTry)+'.h5')
+                outputSearch = outputFile + str(i) + "." +  str(t) +"_"
+
+                recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, opt,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
+
+                model.save(outputSearch + str(bestTry)+'.h5')
+
+                train_pred_filename = outputSearch+'train_pred_.txt'
+                with open(train_pred_filename, 'wb') as f:
+                    pickle.dump(mtrain_pred, f)
+
+                dev_pred_filename = outputSearch+'dev_pred_.txt'
+                with open(dev_pred_filename, 'wb') as g:
+                    pickle.dump(mdev_pred, g)
+
+                train_thresh_filename = outputSearch+'train_thresh_.txt'
+                with open(train_thresh_filename, 'wb') as h:
+                    pickle.dump(mtrain_thresh, h)
+
+                dev_thresh_filename = outputSearch+'dev_thresh_.txt'
+                with open(dev_thresh_filename, 'wb') as k:
+                    pickle.dump(mdev_thresh, k)
+
+                tpr_train_filename = outputSearch+'tpr_train_.txt'
+                with open(tpr_train_filename, 'wb') as h:
+                    pickle.dump(mtpr_train, h)
+
+                fpr_train_filename = outputSearch+'fpr_train_.txt'
+                with open(fpr_train_filename, 'wb') as h:
+                    pickle.dump(mfpr_train, h)
+
+                tpr_dev_filename = outputSearch+'tpr_dev_.txt'
+                with open(tpr_dev_filename, 'wb') as h:
+                    pickle.dump(mtpr_dev, h)
+
+                fpr_dev_filename = outputSearch+'fpr_dev_.txt'
+                with open(fpr_dev_filename, 'wb') as h:
+                    pickle.dump(mfpr_dev, h)
 
             if modelAUROC > bestRnnAUROC:
                 bestRnnAUROC = modelAUROC
                 bestRnnParams = [w, lr]
                 bestRnnSearchNum = i
+
             i += 1
 
 
