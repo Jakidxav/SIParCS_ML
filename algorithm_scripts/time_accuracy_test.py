@@ -37,7 +37,7 @@ outputDir = "./data/Recur/time_accuracy/"
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
 posWeight = 3
-trials = 5
+trials = 1
 #hyperparameters and paramters
 #SGD parameters
 dropout = 0.5
