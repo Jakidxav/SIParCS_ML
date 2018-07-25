@@ -1,0 +1,6 @@
+Resetting modules to system default
+2018-07-25 10:34:52.518352: E tensorflow/stream_executor/cuda/cuda_driver.cc:406] failed call to cuInit: CUDA_ERROR_UNKNOWN
+2018-07-25 10:34:52.518463: I tensorflow/stream_executor/cuda/cuda_diagnostics.cc:145] kernel driver does not appear to be running on this host (pronghorn11): /proc/driver/nvidia/version does not exist
+/glade/u/home/joshuadr/tensor_test/lib/python3.6/site-packages/h5py/__init__.py:36: FutureWarning: Conversion of the second argument of issubdtype from `float` to `np.floating` is deprecated. In future, it will be treated as `np.float64 == np.dtype(float).type`.
+  from ._conv import register_converters as _register_converters
+Using TensorFlow backend.
