@@ -372,7 +372,7 @@ if __name__ == "__main__":
 
                 recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, opt,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, w)
 
-                model.save(outputSearch +'.h5')
+                recurrNN.save(outputSearch +'.h5')
 
                 train_pred_filename = outputSearch+'train_pred_.txt'
                 with open(train_pred_filename, 'wb') as f:
