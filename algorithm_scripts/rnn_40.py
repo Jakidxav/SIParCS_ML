@@ -29,7 +29,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Recur/weights/"
+outputDir = "./data/Recur/final/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -40,7 +40,7 @@ trials = 5
 dropout = 0.5
 momentum = 0.99
 
-learningRate = [0.0001, 0.0005, 0.001, 0.002, 0.005, 0.01, 0.02]
+learningRate = 0.002
 epochs = 300
 decay = 1e-4
 batch = 128
@@ -363,12 +363,12 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
-    for lr in learningRate:
+    for b in batch:
 
         for t in range(trials):
             outputSearch = outputFile + str(i) + "." +  str(t) +"_"
 
-            recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, lr, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, posWeight)
+            recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, b, posWeight)
 
             recurrNN.save(outputSearch +'.h5')
 
@@ -406,7 +406,7 @@ if __name__ == "__main__":
 
         if rnnAUROC > bestRnnAUROC:
             bestRnnAUROC = rnnAUROC
-            bestRnnParams = [lr]
+            bestRnnParams = [b]
             bestRnnSearchNum = i
             bestTrial = t
 
