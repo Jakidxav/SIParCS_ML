@@ -234,7 +234,7 @@ def rnn(neuronLayer, kernel, pool, strideC, strideP, drop, learnRate, momentum, 
         rnn([],)
     '''
     print("recurrent neural network")
-    outputFile = outputDL + "rnn"
+    outputFile = outputDL + "rnn_cpu"
 
     #create and fill file with parameters and network info
     file = open(outputFile + '.txt', "w+")
