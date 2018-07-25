@@ -43,7 +43,7 @@ momentum = 0.99
 learningRate = 0.005
 epochs = 300
 decay = 1e-4
-batch = 128
+batch = [110, 45, 127, 101, 127, 78, 163, 218, 89, 189, 164, 255]
 
 
 boolNest = True
