@@ -1,6 +1,6 @@
 #!/bin/bash -l
 #
-#SBATCH -C caldera
+#BATCH -C caldera
 #SBATCH -A SCSG0002
 #SBATCH -J rnn30
 #
@@ -18,3 +18,4 @@ module load cuda/9.0
 cd /glade/work/joshuadr/SIParCS_ML/algorithm_scripts/
 
 python3 ML_NN_algorithms_RNN.py
+

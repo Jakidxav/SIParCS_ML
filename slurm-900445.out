@@ -1,0 +1,5 @@
+Resetting modules to system default
+  File "rnn_20.py", line 2
+    m contextlib import redirect_stdout
+               ^
+SyntaxError: invalid syntax
