@@ -112,7 +112,7 @@ test_data50_2 = test_data50.reshape(-1,120,340,1)
 
 '''
  ###exampe ###
-rnn30 = load_model("./data/Recur/lrE2/180716__30_0_rnn.h5")
+rnn30 = load_model("./best_models/180716__30_0_rnn.h5")
 
 rnn30_test_pred = rnn30.predict(test_data2).ravel()
 rnn30_fpr_test, rnn30_tpr_test, rnn30_thresholds_test = skm.roc_curve(test_label,rnn30_test_pred)
@@ -127,8 +127,9 @@ makePlots(outputDir + originalfilename, "RNN 30", rnn30_fpr_test, rnn30_tpr_test
 '''
 
 ''' RNN tests!'''
+'''
 #rnn 20 lead
-rnn20 = load_model("./data/Recur/lrE2/180716__20_0_rnn.h5")
+rnn20 = load_model("./best_models/.h5")
 
 rnn20_test_pred = rnn20.predict(test_data20_2).ravel()
 rnn20_fpr_test, rnn20_tpr_test, rnn20_thresholds_test = skm.roc_curve(test_label,rnn20_test_pred)
@@ -147,7 +148,7 @@ with redirect_stdout(rnn20_file):
     rnn20.summary()
 
 #rnn 30 lead
-rnn30 = load_model("./data/Recur/lrE2/180716__30_0_rnn.h5")
+rnn30 = load_model("./best_models/.h5")
 
 rnn30_test_pred = rnn30.predict(test_data30_2).ravel()
 rnn30_fpr_test, rnn30_tpr_test, rnn30_thresholds_test = skm.roc_curve(test_label,rnn30_test_pred)
@@ -166,7 +167,7 @@ with redirect_stdout(rnn30_file):
     rnn30.summary()
 
 #rnn 40 lead
-rnn40 = load_model("./data/Recur/lrE2/180716__40_0_rnn.h5")
+rnn40 = load_model("./best_models/.h5")
 
 rnn40_test_pred = rnn40.predict(test_data40_2).ravel()
 rnn40_fpr_test, rnn40_tpr_test, rnn40_thresholds_test = skm.roc_curve(test_label,rnn40_test_pred)
@@ -185,7 +186,7 @@ with redirect_stdout(rnn40_file):
     rnn40.summary()
 
 #rnn 50 lead
-rnn50 = load_model("./data/Recur/lrE2/180716__50_0_rnn.h5")
+rnn50 = load_model("./best_models/.h5")
 
 rnn50_test_pred = rnn50.predict(test_data50_2).ravel()
 rnn50_fpr_test, rnn50_tpr_test, rnn50_thresholds_test = skm.roc_curve(test_label,rnn50_test_pred)
@@ -202,11 +203,12 @@ rnn50_file.write("%s: %.2f%%" % ("AUROC score", rnn50_auroc))
 rnn50_file.write("\n\n")
 with redirect_stdout(rnn50_file):
     rnn50.summary()
+'''
 
 ''' CNN tests!'''
 
 #cnn 20 lead
-cnn20 = load_model("./data/Recur/lrE2/180716__20_0_cnn.h5")
+cnn20 = load_model("./best_models/180726__20_0_cnn.h5.h5")
 
 cnn20_test_pred = cnn20.predict(test_data20_2).ravel()
 cnn20_fpr_test, cnn20_tpr_test, cnn20_thresholds_test = skm.roc_curve(test_label,cnn20_test_pred)
@@ -225,7 +227,7 @@ with redirect_stdout(cnn20_file):
     cnn20.summary()
 
 #cnn 30 lead
-cnn30 = load_model("./data/Recur/lrE2/180716__30_0_cnn.h5")
+cnn30 = load_model("./best_models/180725__30_0.4_cnn.h5.h5")
 
 cnn30_test_pred = cnn30.predict(test_data30_2).ravel()
 cnn30_fpr_test, cnn30_tpr_test, cnn30_thresholds_test = skm.roc_curve(test_label,cnn30_test_pred)
@@ -244,7 +246,7 @@ with redirect_stdout(cnn30_file):
     cnn30.summary()
 
 #cnn 40 lead
-cnn40 = load_model("./data/Recur/lrE2/180716__40_0_cnn.h5")
+cnn40 = load_model("./best_models/180725__40_0.0_cnn.h5.h5")
 
 cnn40_test_pred = cnn40.predict(test_data40_2).ravel()
 cnn40_fpr_test, cnn40_tpr_test, cnn40_thresholds_test = skm.roc_curve(test_label,cnn40_test_pred)
@@ -263,7 +265,7 @@ with redirect_stdout(cnn40_file):
     cnn40.summary()
 
 #cnn 50 lead
-cnn50 = load_model("./data/Recur/lrE2/180716__50_0_cnn.h5")
+cnn50 = load_model("./best_models/180725__50_4.2_cnn.h5.h5")
 
 cnn50_test_pred = cnn50.predict(test_data50_2).ravel()
 cnn50_fpr_test, cnn50_tpr_test, cnn50_thresholds_test = skm.roc_curve(test_label,cnn50_test_pred)
