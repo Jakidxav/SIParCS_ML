@@ -404,7 +404,6 @@ if __name__ == "__main__":
 
         if rnnAUROC > bestRnnAUROC:
             bestRnnAUROC = rnnAUROC
-            bestRnnParams = [b]
             bestRnnSearchNum = i
             bestTrial = t
 
