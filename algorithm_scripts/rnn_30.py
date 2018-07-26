@@ -402,13 +402,13 @@ if __name__ == "__main__":
         with open(fpr_dev_filename, 'wb') as h:
             pickle.dump(fpr_dev, h)
 
-    if rnnAUROC > bestRnnAUROC:
-        bestRnnAUROC = rnnAUROC
-        bestRnnParams = [b]
-        bestRnnSearchNum = i
-        bestTrial = t
+        if rnnAUROC > bestRnnAUROC:
+            bestRnnAUROC = rnnAUROC
+            bestRnnParams = [b]
+            bestRnnSearchNum = i
+            bestTrial = t
 
-    i += 1
+        i += 1
 
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
