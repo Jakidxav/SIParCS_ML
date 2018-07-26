@@ -80,19 +80,35 @@ def makePlots(output, modelName, fpr_test, tpr_test,  test_pred):
 
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./data/testset/"
-X_val_filename = '/glade/work/joshuadr/IPython/30_lead/X_val/X_val.txt'
+X_val_filename20 = '/glade/work/joshuadr/IPython/20_lead/X_val/X_val.txt'
+X_val_filename30 = '/glade/work/joshuadr/IPython/30_lead/X_val/X_val.txt'
+X_val_filename40 = '/glade/work/joshuadr/IPython/40_lead/X_val/X_val.txt'
+X_val_filename50 = '/glade/work/joshuadr/IPython/50_lead/X_val/X_val.txt'
 
 Y_val_filename = '/glade/work/joshuadr/IPython/30_lead/Y_val/station1/Y_val.txt'
 
 
-with open(X_val_filename, 'rb') as h:
-    test_data = pickle.load(h)
+with open(X_val_filename20, 'rb') as h:
+    test_data20 = pickle.load(h)
+
+with open(X_val_filename30, 'rb') as h:
+    test_data30 = pickle.load(h)
+
+with open(X_val_filename40, 'rb') as h:
+    test_data40 = pickle.load(h)
+
+with open(X_val_filename50, 'rb') as h:
+    test_data50 = pickle.load(h)
+
 
 with open(Y_val_filename, 'rb') as k:
     test_label = pickle.load(k)
 
 #reshape all data files.
-test_data2 = test_data.reshape(-1,120,340,1)
+test_data20_2 = test_data20.reshape(-1,120,340,1)
+test_data30_2 = test_data30.reshape(-1,120,340,1)
+test_data40_2 = test_data40.reshape(-1,120,340,1)
+test_data50_2 = test_data50.reshape(-1,120,340,1)
 
 '''
  ###exampe ###
@@ -114,11 +130,11 @@ makePlots(outputDir + originalfilename, "RNN 30", rnn30_fpr_test, rnn30_tpr_test
 #rnn 20 lead
 rnn20 = load_model("./data/Recur/lrE2/180716__20_0_rnn.h5")
 
-rnn20_test_pred = rnn20.predict(test_data2).ravel()
+rnn20_test_pred = rnn20.predict(test_data20_2).ravel()
 rnn20_fpr_test, rnn20_tpr_test, rnn20_thresholds_test = skm.roc_curve(test_label,rnn20_test_pred)
 rnn20_auroc = skm.auc(rnn20_fpr_test,rnn20_tpr_test)
 
-rnn20_score = rnn20.evaluate(test_data2, test_label, verbose=1)
+rnn20_score = rnn20.evaluate(test_data20_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__20_0_rnn", "RNN 20", rnn20_fpr_test, rnn20_tpr_test, rnn20_test_pred)
 
@@ -133,11 +149,11 @@ with redirect_stdout(rnn20_file):
 #rnn 30 lead
 rnn30 = load_model("./data/Recur/lrE2/180716__30_0_rnn.h5")
 
-rnn30_test_pred = rnn30.predict(test_data2).ravel()
+rnn30_test_pred = rnn30.predict(test_data30_2).ravel()
 rnn30_fpr_test, rnn30_tpr_test, rnn30_thresholds_test = skm.roc_curve(test_label,rnn30_test_pred)
 rnn30_auroc = skm.auc(rnn30_fpr_test,rnn30_tpr_test)
 
-rnn30_score = rnn30.evaluate(test_data2, test_label, verbose=1)
+rnn30_score = rnn30.evaluate(test_data30_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__30_0_rnn", "RNN 30", rnn30_fpr_test, rnn30_tpr_test, rnn30_test_pred)
 
@@ -152,11 +168,11 @@ with redirect_stdout(rnn30_file):
 #rnn 40 lead
 rnn40 = load_model("./data/Recur/lrE2/180716__40_0_rnn.h5")
 
-rnn40_test_pred = rnn40.predict(test_data2).ravel()
+rnn40_test_pred = rnn40.predict(test_data40_2).ravel()
 rnn40_fpr_test, rnn40_tpr_test, rnn40_thresholds_test = skm.roc_curve(test_label,rnn40_test_pred)
 rnn40_auroc = skm.auc(rnn40_fpr_test,rnn40_tpr_test)
 
-rnn40_score = rnn40.evaluate(test_data2, test_label, verbose=1)
+rnn40_score = rnn40.evaluate(test_data40_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__40_0_rnn", "RNN 40", rnn40_fpr_test, rnn40_tpr_test, rnn40_test_pred)
 
@@ -171,11 +187,11 @@ with redirect_stdout(rnn40_file):
 #rnn 50 lead
 rnn50 = load_model("./data/Recur/lrE2/180716__50_0_rnn.h5")
 
-rnn50_test_pred = rnn50.predict(test_data2).ravel()
+rnn50_test_pred = rnn50.predict(test_data50_2).ravel()
 rnn50_fpr_test, rnn50_tpr_test, rnn50_thresholds_test = skm.roc_curve(test_label,rnn50_test_pred)
 rnn50_auroc = skm.auc(rnn50_fpr_test,rnn50_tpr_test)
 
-rnn50_score = rnn50.evaluate(test_data2, test_label, verbose=1)
+rnn50_score = rnn50.evaluate(test_data50_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__50_0_rnn", "RNN 50", rnn50_fpr_test, rnn50_tpr_test, rnn50_test_pred)
 
@@ -192,11 +208,11 @@ with redirect_stdout(rnn50_file):
 #cnn 20 lead
 cnn20 = load_model("./data/Recur/lrE2/180716__20_0_cnn.h5")
 
-cnn20_test_pred = cnn20.predict(test_data2).ravel()
+cnn20_test_pred = cnn20.predict(test_data20_2).ravel()
 cnn20_fpr_test, cnn20_tpr_test, cnn20_thresholds_test = skm.roc_curve(test_label,cnn20_test_pred)
 cnn20_auroc = skm.auc(cnn20_fpr_test,cnn20_tpr_test)
 
-cnn20_score = cnn20.evaluate(test_data2, test_label, verbose=1)
+cnn20_score = cnn20.evaluate(test_data20_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__20_0_cnn", "RNN 20", cnn20_fpr_test, cnn20_tpr_test, cnn20_test_pred)
 
@@ -211,11 +227,11 @@ with redirect_stdout(cnn20_file):
 #cnn 30 lead
 cnn30 = load_model("./data/Recur/lrE2/180716__30_0_cnn.h5")
 
-cnn30_test_pred = cnn30.predict(test_data2).ravel()
+cnn30_test_pred = cnn30.predict(test_data30_2).ravel()
 cnn30_fpr_test, cnn30_tpr_test, cnn30_thresholds_test = skm.roc_curve(test_label,cnn30_test_pred)
 cnn30_auroc = skm.auc(cnn30_fpr_test,cnn30_tpr_test)
 
-cnn30_score = cnn30.evaluate(test_data2, test_label, verbose=1)
+cnn30_score = cnn30.evaluate(test_data30_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__30_0_cnn", "RNN 30", cnn30_fpr_test, cnn30_tpr_test, cnn30_test_pred)
 
@@ -230,11 +246,11 @@ with redirect_stdout(cnn30_file):
 #cnn 40 lead
 cnn40 = load_model("./data/Recur/lrE2/180716__40_0_cnn.h5")
 
-cnn40_test_pred = cnn40.predict(test_data2).ravel()
+cnn40_test_pred = cnn40.predict(test_data40_2).ravel()
 cnn40_fpr_test, cnn40_tpr_test, cnn40_thresholds_test = skm.roc_curve(test_label,cnn40_test_pred)
 cnn40_auroc = skm.auc(cnn40_fpr_test,cnn40_tpr_test)
 
-cnn40_score = cnn40.evaluate(test_data2, test_label, verbose=1)
+cnn40_score = cnn40.evaluate(test_data40_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__40_0_cnn", "RNN 40", cnn40_fpr_test, cnn40_tpr_test, cnn40_test_pred)
 
@@ -249,11 +265,11 @@ with redirect_stdout(cnn40_file):
 #cnn 50 lead
 cnn50 = load_model("./data/Recur/lrE2/180716__50_0_cnn.h5")
 
-cnn50_test_pred = cnn50.predict(test_data2).ravel()
+cnn50_test_pred = cnn50.predict(test_data50_2).ravel()
 cnn50_fpr_test, cnn50_tpr_test, cnn50_thresholds_test = skm.roc_curve(test_label,cnn50_test_pred)
 cnn50_auroc = skm.auc(cnn50_fpr_test,cnn50_tpr_test)
 
-cnn50_score = cnn50.evaluate(test_data2, test_label, verbose=1)
+cnn50_score = cnn50.evaluate(test_data50_2, test_label, verbose=1)
 
 makePlots(outputDir + "180716__50_0_cnn", "RNN 50", cnn50_fpr_test, cnn50_tpr_test, cnn50_test_pred)
 
