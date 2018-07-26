@@ -29,7 +29,7 @@ matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
 #path for data output. each file should contain all used params after training and metrics
-outputDir = "./data/Recur/final/"
+outputDir = "./data/Recur/finishedModels/"
 
 #example for generating list of random numbers for grid search
 # list = random.sample(range(min, max), numberToGenerate)
@@ -43,7 +43,7 @@ momentum = 0.99
 learningRate = 0.002
 epochs = 300
 decay = 1e-4
-batch = [110, 45, 127, 101, 127, 78, 163, 218, 89, 189, 164, 255]
+batch = 189
 
 
 boolNest = True
@@ -363,54 +363,52 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
-    for b in batch:
+    while i < 20:
+        outputSearch = outputFile + str(i) +  "_"
 
-        for t in range(trials):
-            outputSearch = outputFile + str(i) + "." +  str(t) +"_"
+        recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, posWeight)
 
-            recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, b, posWeight)
+        recurrNN.save(outputSearch +'.h5')
 
-            recurrNN.save(outputSearch +'.h5')
+        train_pred_filename = outputSearch+'train_pred_.txt'
+        with open(train_pred_filename, 'wb') as f:
+            pickle.dump(train_pred, f)
 
-            train_pred_filename = outputSearch+'train_pred_.txt'
-            with open(train_pred_filename, 'wb') as f:
-                pickle.dump(train_pred, f)
+        dev_pred_filename = outputSearch+'dev_pred_.txt'
+        with open(dev_pred_filename, 'wb') as g:
+            pickle.dump(dev_pred, g)
 
-            dev_pred_filename = outputSearch+'dev_pred_.txt'
-            with open(dev_pred_filename, 'wb') as g:
-                pickle.dump(dev_pred, g)
+        train_thresh_filename = outputSearch+'train_thresh_.txt'
+        with open(train_thresh_filename, 'wb') as h:
+            pickle.dump(train_thresh, h)
 
-            train_thresh_filename = outputSearch+'train_thresh_.txt'
-            with open(train_thresh_filename, 'wb') as h:
-                pickle.dump(train_thresh, h)
+        dev_thresh_filename = outputSearch+'dev_thresh_.txt'
+        with open(dev_thresh_filename, 'wb') as k:
+            pickle.dump(dev_thresh, k)
 
-            dev_thresh_filename = outputSearch+'dev_thresh_.txt'
-            with open(dev_thresh_filename, 'wb') as k:
-                pickle.dump(dev_thresh, k)
+        tpr_train_filename = outputSearch+'tpr_train_.txt'
+        with open(tpr_train_filename, 'wb') as h:
+            pickle.dump(tpr_train, h)
 
-            tpr_train_filename = outputSearch+'tpr_train_.txt'
-            with open(tpr_train_filename, 'wb') as h:
-                pickle.dump(tpr_train, h)
+        fpr_train_filename = outputSearch+'fpr_train_.txt'
+        with open(fpr_train_filename, 'wb') as h:
+            pickle.dump(fpr_train, h)
 
-            fpr_train_filename = outputSearch+'fpr_train_.txt'
-            with open(fpr_train_filename, 'wb') as h:
-                pickle.dump(fpr_train, h)
+        tpr_dev_filename = outputSearch+'tpr_dev_.txt'
+        with open(tpr_dev_filename, 'wb') as h:
+            pickle.dump(tpr_dev, h)
 
-            tpr_dev_filename = outputSearch+'tpr_dev_.txt'
-            with open(tpr_dev_filename, 'wb') as h:
-                pickle.dump(tpr_dev, h)
+        fpr_dev_filename = outputSearch+'fpr_dev_.txt'
+        with open(fpr_dev_filename, 'wb') as h:
+            pickle.dump(fpr_dev, h)
 
-            fpr_dev_filename = outputSearch+'fpr_dev_.txt'
-            with open(fpr_dev_filename, 'wb') as h:
-                pickle.dump(fpr_dev, h)
+    if rnnAUROC > bestRnnAUROC:
+        bestRnnAUROC = rnnAUROC
+        bestRnnParams = [b]
+        bestRnnSearchNum = i
+        bestTrial = t
 
-        if rnnAUROC > bestRnnAUROC:
-            bestRnnAUROC = rnnAUROC
-            bestRnnParams = [b]
-            bestRnnSearchNum = i
-            bestTrial = t
-
-        i += 1
+    i += 1
 
 
     bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
