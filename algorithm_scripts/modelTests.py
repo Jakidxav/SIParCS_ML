@@ -127,7 +127,7 @@ makePlots(outputDir + originalfilename, "RNN 30", rnn30_fpr_test, rnn30_tpr_test
 '''
 
 ''' RNN tests!'''
-'''
+
 #rnn 20 lead
 rnn20 = load_model("./best_models/180725__20_8.4_rnn.h5")
 
@@ -207,7 +207,7 @@ rnn50_file.write("%s: %.2f%%" % ("AUROC score", rnn50_auroc))
 rnn50_file.write("\n\n")
 with redirect_stdout(rnn50_file):
     rnn50.summary()
-'''
+
 
 ''' CNN tests!'''
 
