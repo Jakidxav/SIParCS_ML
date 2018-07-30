@@ -2,7 +2,7 @@
 #
 #BATCH -C caldera
 #SBATCH -A SCSG0002
-#SBATCH -J rnn30
+#SBATCH -J cnnFinal
 #
 #SBATCH -n 2
 #SBATCH --gres=gpu:2
@@ -17,5 +17,5 @@ module load cuda/9.0
 
 cd /glade/work/joshuadr/SIParCS_ML/algorithm_scripts/
 
-python3 ML_NN_algorithms_RNN.py
+python3 modelTests.py
 

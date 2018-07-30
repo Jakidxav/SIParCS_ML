@@ -1,0 +1,40 @@
+grid search iteration: 12
+neuronLayer 20 60
+iterations 300
+boolLSTM True
+boolAdam False
+boolNest True
+drop 0.5
+kernel 5 5 1
+pool 2 2
+strideC 5 5 1
+strideP 2 2
+momentum 0.99
+decay 0.0001
+learnRate 0.01
+beta1 0.9
+beta2 0.999
+epsilon None
+amsgrad False
+weight for positive prediciton 1
+_________________________________________________________________
+Layer (type)                 Output Shape              Param #   
+=================================================================
+conv2d_13 (Conv2D)           (None, 24, 68, 20)        520       
+_________________________________________________________________
+max_pooling2d_13 (MaxPooling (None, 12, 34, 20)        0         
+_________________________________________________________________
+time_distributed_13 (TimeDis (None, 12, 680)           0         
+_________________________________________________________________
+lstm_13 (LSTM)               (None, 12, 60)            177840    
+_________________________________________________________________
+dropout_13 (Dropout)         (None, 12, 60)            0         
+_________________________________________________________________
+flatten_26 (Flatten)         (None, 720)               0         
+_________________________________________________________________
+dense_13 (Dense)             (None, 1)                 721       
+=================================================================
+Total params: 179,081
+Trainable params: 179,081
+Non-trainable params: 0
+_________________________________________________________________
