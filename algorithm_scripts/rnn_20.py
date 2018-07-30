@@ -63,6 +63,8 @@ beta_2= 0.999
 epsilon=None
 amsgrad=False
 
+lstmLayer = [20, 30, 40, 50, 60]
+
 def rocFile(rfile, fpr_train, tpr_train, fpr_dev, tpr_dev):
     #method for saving ROC values to a file for accessing later if needed in excel
     rfile.write("fpr_train\t tpr_train\t fpr_dev\t tpr_dev\n")
@@ -363,10 +365,10 @@ if __name__ == "__main__":
     #each method will finish adding to the output file name and write all hyperparameters/parameters and metrics info to below file.
     start = time.time()
     i = 0
-    while i < 20:
+    for n in lstmLayer:
         outputSearch = outputFile + str(i) +  "_"
 
-        recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,60],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, posWeight)
+        recurrNN, rnnAUROC, train_pred, dev_pred, train_thresh, dev_thresh, tpr_train, fpr_train, tpr_dev, fpr_dev = rnn([20,n],kernel, pool, strideC, strideP, dropout, learningRate, momentum, 1.0e-4, boolNest,True, boolAdam,beta_1, beta_2, epsilon, amsgrad, epochs, train_data2, train_label, dev_data2, dev_label,outputSearch, i, batch, posWeight)
 
         recurrNN.save(outputSearch +'.h5')
 
