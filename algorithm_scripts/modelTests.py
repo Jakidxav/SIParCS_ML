@@ -79,7 +79,6 @@ def makePlots(output, modelName, fpr_test, tpr_test,  test_pred):
 
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./data/testset/"
-
 X_val_filename20 = '/glade/work/joshuadr/IPython/X/20_lead/X_val/X_val.txt'
 X_val_filename30 = '/glade/work/joshuadr/IPython/X/30_lead/X_val/X_val.txt'
 X_val_filename40 = '/glade/work/joshuadr/IPython/X/40_lead/X_val/X_val.txt'
@@ -260,7 +259,7 @@ with redirect_stdout(rnn50_file):
 ''' CNN tests!'''
 
 #rnn 20 lead
-cnn20 = load_model("./best_models/180725__20_8.4_cnn.h5")
+cnn20 = load_model("./best_models/180726__20_0_cnn.h5")
 
 cnn20_test_pred = cnn20.predict(test_data20_2).ravel()
 cnn20_test_pred_round = np.where(cnn20_test_pred >= 0.5 , 1, 0)
@@ -269,16 +268,16 @@ cnn20_auroc = skm.auc(cnn20_fpr_test,cnn20_tpr_test)
 
 cnn20_score = cnn20.evaluate(test_data20_2, test_label, verbose=1)
 
-makePlots(outputDir + "180716__20_0_cnn", "cnn 20", cnn20_fpr_test, cnn20_tpr_test, cnn20_test_pred)
+makePlots(outputDir + "180726__20_0_cnn", "cnn 20", cnn20_fpr_test, cnn20_tpr_test, cnn20_test_pred)
 
 #1 week prediction look at roc
 week_cnn20_fpr_test, week_cnn20_tpr_test, week_cnn20_thresholds_test = skm.roc_curve(week_test_label,cnn20_test_pred_round)
 week_cnn20_auroc = skm.auc(week_cnn20_fpr_test,week_cnn20_tpr_test)
 
-makePlots(outputDir + "180716__20_0_cnn_week", "cnn 20", week_cnn20_fpr_test, week_cnn20_tpr_test, cnn20_test_pred)
+makePlots(outputDir + "180726__20_0_cnn_week", "cnn 20", week_cnn20_fpr_test, week_cnn20_tpr_test, cnn20_test_pred)
 
 # text file output
-cnn20_file = open(outputDir + "180716__20_0_cnn.txt", "w+")
+cnn20_file = open(outputDir + "180726__20_0_cnn.txt", "w+")
 
 cnn20_file.write("%s: %.2f%%\n" % (cnn20.metrics_names[1], cnn20_score[1]*100))
 cnn20_file.write("%s: %.2f%%" % ("AUROC score", cnn20_auroc))
@@ -288,7 +287,7 @@ with redirect_stdout(cnn20_file):
     cnn20.summary()
 
 #cnn 30 lead
-cnn30 = load_model("./best_models/180725__30_9.1_cnn.h5")
+cnn30 = load_model("./best_models/180725__30_0.4_cnn.h5")
 
 cnn30_test_pred = cnn20.predict(test_data30_2).ravel()
 cnn30_test_pred_round = np.where(cnn30_test_pred >= 0.5 , 1, 0)
@@ -297,16 +296,16 @@ cnn30_auroc = skm.auc(cnn30_fpr_test,cnn30_tpr_test)
 
 cnn30_score = cnn30.evaluate(test_data30_2, test_label, verbose=1)
 
-makePlots(outputDir + "180716__30_0_cnn", "cnn 30", cnn30_fpr_test, cnn30_tpr_test, cnn30_test_pred)
+makePlots(outputDir + "180725__30_0.4_cnn", "cnn 30", cnn30_fpr_test, cnn30_tpr_test, cnn30_test_pred)
 
 #1 week prediction look at roc
 week_cnn30_fpr_test, week_cnn30_tpr_test, week_cnn30_thresholds_test = skm.roc_curve(week_test_label,cnn30_test_pred_round)
 week_cnn30_auroc = skm.auc(week_cnn30_fpr_test,week_cnn30_tpr_test)
 
-makePlots(outputDir + "180716__30_0_cnn_week", "cnn 30", week_cnn30_fpr_test, week_cnn30_tpr_test, cnn30_test_pred)
+makePlots(outputDir + "180725__30_0.4_cnn_week", "cnn 30", week_cnn30_fpr_test, week_cnn30_tpr_test, cnn30_test_pred)
 
 # text file output
-cnn30_file = open(outputDir + "180716__30_0_cnn.txt", "w+")
+cnn30_file = open(outputDir + "180725__30_0.4_cnn.txt", "w+")
 
 cnn30_file.write("%s: %.2f%%\n" % (cnn30.metrics_names[1], cnn30_score[1]*100))
 cnn30_file.write("%s: %.2f%%" % ("AUROC score", cnn30_auroc))
@@ -316,7 +315,7 @@ with redirect_stdout(cnn30_file):
     cnn30.summary()
 
 #cnn 40 lead
-cnn40 = load_model("./best_models/180725__40_9.0_cnn.h5")
+cnn40 = load_model("./best_models/180725__40_0.0_cnn.h5")
 
 cnn40_test_pred = cnn40.predict(test_data40_2).ravel()
 cnn40_test_pred_round = np.where(cnn40_test_pred >= 0.5 , 1, 0)
@@ -325,16 +324,16 @@ cnn40_auroc = skm.auc(cnn40_fpr_test,cnn40_tpr_test)
 
 cnn40_score = cnn40.evaluate(test_data40_2, test_label, verbose=1)
 
-makePlots(outputDir + "180716__40_0_cnn", "cnn 40", cnn40_fpr_test, cnn40_tpr_test, cnn40_test_pred)
+makePlots(outputDir + "180725__40_0.0_cnn", "cnn 40", cnn40_fpr_test, cnn40_tpr_test, cnn40_test_pred)
 
 #1 week prediction look at roc
 week_cnn40_fpr_test, week_cnn40_tpr_test, week_cnn40_thresholds_test = skm.roc_curve(week_test_label,cnn40_test_pred_round)
 week_cnn40_auroc = skm.auc(week_cnn40_fpr_test,week_cnn40_tpr_test)
 
-makePlots(outputDir + "180716__40_0_cnn_week", "cnn 40", week_cnn40_fpr_test, week_cnn40_tpr_test, cnn40_test_pred)
+makePlots(outputDir + "180725__40_0.0_cnn_week", "cnn 40", week_cnn40_fpr_test, week_cnn40_tpr_test, cnn40_test_pred)
 
 # text file output
-cnn40_file = open(outputDir + "180716__40_0_cnn.txt", "w+")
+cnn40_file = open(outputDir + "180725__40_0.0_cnn.txt", "w+")
 
 cnn40_file.write("%s: %.2f%%\n" % (cnn40.metrics_names[1], cnn40_score[1]*100))
 cnn40_file.write("%s: %.2f%%" % ("AUROC score", cnn40_auroc))
@@ -344,7 +343,7 @@ with redirect_stdout(cnn40_file):
     cnn40.summary()
 
 #cnn 50 lead
-cnn50 = load_model("./best_models/180725__50_1.1_cnn.h5")
+cnn50 = load_model("./best_models/180725__50_4.2_cnn.h5")
 
 cnn50_test_pred = cnn50.predict(test_data50_2).ravel()
 cnn50_test_pred_round = np.where(cnn50_test_pred >= 0.5 , 1, 0)
@@ -353,16 +352,16 @@ cnn50_auroc = skm.auc(cnn50_fpr_test,cnn50_tpr_test)
 
 cnn50_score = cnn50.evaluate(test_data50_2, test_label, verbose=1)
 
-makePlots(outputDir + "180716__50_0_cnn", "cnn 50", cnn50_fpr_test, cnn50_tpr_test, cnn50_test_pred)
+makePlots(outputDir + "180725__50_4.2_cnn", "cnn 50", cnn50_fpr_test, cnn50_tpr_test, cnn50_test_pred)
 
 #1 week prediction look at roc
 week_cnn50_fpr_test, week_cnn50_tpr_test, week_cnn50_thresholds_test = skm.roc_curve(week_test_label,cnn50_test_pred_round)
 week_cnn50_auroc = skm.auc(week_cnn50_fpr_test,week_cnn50_tpr_test)
 
-makePlots(outputDir + "180716__50_0_cnn_week", "cnn 50", week_cnn50_fpr_test, week_cnn50_tpr_test, cnn50_test_pred)
+makePlots(outputDir + "180725__50_4.2_cnn_week", "cnn 50", week_cnn50_fpr_test, week_cnn50_tpr_test, cnn50_test_pred)
 
 # text file output
-cnn50_file = open(outputDir + "180716__50_0_cnn.txt", "w+")
+cnn50_file = open(outputDir + "180725__50_4.2_cnn.txt", "w+")
 
 cnn50_file.write("%s: %.2f%%\n" % (cnn50.metrics_names[1], cnn50_score[1]*100))
 cnn50_file.write("%s: %.2f%%" % ("AUROC score", cnn50_auroc))
