@@ -79,14 +79,14 @@ def makePlots(output, modelName, fpr_test, tpr_test,  test_pred):
 
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./data/testset/"
-'''
+
 X_val_filename20 = '/glade/work/joshuadr/IPython/20_lead/X_val/X_val.txt'
 X_val_filename30 = '/glade/work/joshuadr/IPython/30_lead/X_val/X_val.txt'
 X_val_filename40 = '/glade/work/joshuadr/IPython/40_lead/X_val/X_val.txt'
 X_val_filename50 = '/glade/work/joshuadr/IPython/50_lead/X_val/X_val.txt'
 
 Y_val_filename = '/glade/work/joshuadr/IPython/30_lead/Y_val/station1/Y_val.txt'
-'''
+
 
 with open(X_val_filename20, 'rb') as h:
     test_data20 = pickle.load(h)
