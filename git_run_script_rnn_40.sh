@@ -15,6 +15,6 @@ mkdir -p $TMPDIR
 source /glade/u/home/joshuadr/tensor_test/bin/activate
 module load cuda/9.0
 
-cd /glade/work/joshuadr/SIParCS_ML/algorithm_scripts/
+cd /glade/work/joshuadr/SIParCS_ML/keras/algorithm_scripts/
 
 python3 rnn_40.py
