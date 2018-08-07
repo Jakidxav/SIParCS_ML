@@ -29,5 +29,5 @@ can be easily found together.
 
 ## TensorFlow versions
 ### Training options
-Backpropagation.
+Backpropagation.\n
 Evolutionary Algorithm.
