@@ -1,7 +1,7 @@
 # SIParCS_ML
 
 ## Keras versions
-### Use of ML_NN_algorithms.py:
+### ML_NN_algorithms.py:
 
 all parameters can be tuned by changed the corresponding parameter to a list (of either randomly generated or hardcoded values)
   values can either be set globally (default) or individually for each net inside of the method call.
