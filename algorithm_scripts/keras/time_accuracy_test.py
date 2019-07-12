@@ -316,13 +316,13 @@ if __name__ == "__main__":
     #print(outputDL)
     outputFile = outputDir + outputDL
 
-    X_train_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_train/X_train.txt'
-    X_dev_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_dev/X_dev.txt'
-    X_val_filename = '/glade/work/joshuadr/IPython/X/30_lead/X_val/X_val.txt'
+    X_train_filename = '/glade/work/jakidxav/IPython/X/30_lead/X_train/X_train.txt'
+    X_dev_filename = '/glade/work/jakidxav/IPython/X/30_lead/X_dev/X_dev.txt'
+    X_val_filename = '/glade/work/jakidxav/IPython/X/30_lead/X_val/X_val.txt'
 
-    Y_train_filename = '/glade/work/joshuadr/IPython/Y/Y_train/station0/Y_train.txt'
-    Y_dev_filename = '/glade/work/joshuadr/IPython/Y/Y_dev/station0/Y_dev.txt'
-    Y_val_filename = '/glade/work/joshuadr/IPython/Y/Y_val/station0/Y_val.txt'
+    Y_train_filename = '/glade/work/jakidxav/IPython/Y/Y_train/station0/Y_train.txt'
+    Y_dev_filename = '/glade/work/jakidxav/IPython/Y/Y_dev/station0/Y_dev.txt'
+    Y_val_filename = '/glade/work/jakidxav/IPython/Y/Y_val/station0/Y_val.txt'
 
     with open(X_train_filename, 'rb') as f:
         train_data = pickle.load(f)
