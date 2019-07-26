@@ -11,10 +11,10 @@ We show that with both a recurrent and convolutional neural network we can predi
 
 # Repository Organization
 
-test_scripts: Programs to make sure that our data processing programs work.
+test_scripts/: Programs to make sure that our data processing programs work.
 
-data_download_scripts: The data used for this project were the [NOAA OI SST V2 High Resolution Dataset](https://www.esrl.noaa.gov/psd/data/gridded/data.noaa.oisst.v2.highres.html) for sea surface temperature and the [Global Historical Climatology Network](https://www.ncdc.noaa.gov/ghcn-daily-description) - Daily (GHCND) dataset for land temperature data. This directory houses programs that you can use to download the data for yourself.
+data_download_scripts/: The data used for this project were the [NOAA OI SST V2 High Resolution Dataset](https://www.esrl.noaa.gov/psd/data/gridded/data.noaa.oisst.v2.highres.html) for sea surface temperature and the [Global Historical Climatology Network](https://www.ncdc.noaa.gov/ghcn-daily-description) - Daily (GHCND) dataset for land temperature data. This directory houses programs that you can use to download the data for yourself.
 
-data_processing_scripts: This directory contains Jupyter Notebooks that process the SST data to create the training, development, and validation sets as well as generate our labels from the GHCN data.
+data_processing_scripts/: This directory contains Jupyter Notebooks that process the SST data to create the training, development, and validation sets as well as generate our labels from the GHCN data.
 
-training_scripts: Here where we train the neural networks, perform a hyperparameter search, and compute ROC curves and confusion matrices. We demonstrate how we can save a neural network's architecture and then reload it for further training before predicting on the validation set.
+training_scripts/: Here where we train the neural networks, perform a hyperparameter search, and compute ROC curves and confusion matrices. We demonstrate how we can save a neural network's architecture and then reload it for further training before predicting on the validation set.

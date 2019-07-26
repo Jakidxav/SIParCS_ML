@@ -33,50 +33,6 @@ import sys
 matplotlib.rcParams['pdf.fonttype'] = 42
 matplotlib.rcParams['ps.fonttype'] = 42
 
-def makePlots(output, modelName, fpr_test, tpr_test,  test_pred):
-    '''
-    this method creates all relevent metric plots.
-
-    Arguments:
-        model_hist : History object created from a model.fit call
-        output : beginning of file name for each plot image output
-        fpr_train, tpr_train, fpr_dev, tpr_dev : true/false positives for train/dev datasets respectively
-    Returns:
-        nothing. should create plot images
-    '''
-
-    #roc plot
-    plt.plot([0,1], [0,1], 'r--', label = '0.5 line')
-    plt.plot(fpr_test, tpr_test, label='test area = {:.3f}'.format(skm.auc(fpr_test,tpr_test)))
-    #plt.ylim(-1, 1)
-    plt.legend()
-    plt.ylabel("True positive")
-    plt.xlabel("False positives")
-    plt.title(modelName + " ROC")
-    plt.savefig(output + "_roc.pdf", format="pdf")
-    plt.cla()
-
-    #training confusion matrix
-    test_class = np.round(test_pred)
-    for x in test_class:
-        int(x)
-
-    cm_test = skm.confusion_matrix(test_label, test_class)
-
-    xlabel = 'Predicted labels'
-    ylabel = 'True labels'
-    test_title = 'Testset ROC Confusion Matrix'
-
-
-    ax = sns.heatmap(cm_test, annot=True, fmt='d', cbar=False)
-    ax.set_xlabel(xlabel)
-    ax.set_ylabel(ylabel)
-    ax.set_title(test_title)
-    ax.figure.savefig(output + '_test_cm.pdf', format='pdf')
-    plt.cla()
-    ax.clear()
-
-
 #path for data output. each file should contain all used params after training and metrics
 outputDir = "./data/testset/"
 X_val_filename20 = '/glade/work/jakidxav/IPython/X/20_lead/X_val/X_val.txt'
@@ -125,24 +81,8 @@ for x in range(max):
                 week_test_label[x] = 1
             x += 1
 
-'''
- ###exampe ###
-rnn30 = load_model("./best_models/180716__30_0_rnn.h5")
 
-rnn30_test_pred = rnn30.predict(test_data2).ravel()
-rnn30_fpr_test, rnn30_tpr_test, rnn30_thresholds_test = skm.roc_curve(test_label,rnn30_test_pred)
-
-rnn30_file = open(outputDir + originalfilename + '.txt', "w+")
-
-rnn30_score = rnn30.evaluate(test_data2, test_label, verbose=1)
-rnn30_file.write("%s: %.2f%%" % (rnn30.metrics_names[1], score[1]*100))
-
-makePlots(outputDir + originalfilename, "RNN 30", rnn30_fpr_test, rnn30_tpr_test)
-
-'''
-
-''' RNN tests!'''
-
+""" RNN tests! """
 #rnn 20 lead
 rnn20 = load_model("./best_models/180725__20_8.4_rnn.h5")
 
