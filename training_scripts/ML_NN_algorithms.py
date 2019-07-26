@@ -105,23 +105,10 @@ if __name__ == "__main__":
     Y_dev_filename = '/glade/work/jakidxav/IPython/Y/Y_dev/station0/Y_dev.txt'
     Y_val_filename = '/glade/work/jakidxav/IPython/Y/Y_val/station0/Y_val.txt'
 
-    with open(X_train_filename, 'rb') as f:
-        train_data = pickle.load(f)
-
-    with open(X_dev_filename, 'rb') as g:
-        dev_data = pickle.load(g)
-
-    with open(X_val_filename, 'rb') as h:
-        test_data = pickle.load(h)
-
-    with open(Y_train_filename, 'rb') as i:
-        train_label = pickle.load(i)
-
-    with open(Y_dev_filename, 'rb') as j:
-        dev_label = pickle.load(j)
-
-    with open(Y_val_filename, 'rb') as k:
-        test_label = pickle.load(k)
+    #open all data
+    train_data, train_label = load_data(X_train_filename, Y_train_filename)
+    dev_data, dev_label = load_data(X_dev_filename, Y_dev_filename)
+    test_data, test_label = load_data(X_val_filename, Y_val_filename)
 
     #reshape all data files.
     train_data2 = train_data.reshape(-1,120,340, 1)
@@ -132,9 +119,9 @@ if __name__ == "__main__":
     #search parameters are chosen/optimized and others are being tried.
     bestFile = outputFile + "best.txt"
     bfile = open(bestFile, "w+")
-    #bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
-    #bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
-    #bfile.write("learning rates tried: " + " ".join(str(x) for x in learningRate) + "\n")
+    bfile.write("epochs tried: " + " ".join(str(x) for x in epochs) + "\n")
+    bfile.write("dropouts tried: " + " ".join(str(x) for x in dropout) + "\n")
+    bfile.write("learning rates tried: " + " ".join(str(x) for x in learningRate) + "\n")
 
     #best scores for each net and the associated parameters
     #will also have to change the param lists depending on which params are being optimized
@@ -143,7 +130,7 @@ if __name__ == "__main__":
     #bestDnnSearchNum = 0
 
     bestCnnAUROC = 0
-    #bestCnnParams = [epochs[0], learningRate[0]]
+    bestCnnParams = [epochs[0], learningRate[0]]
     bestCnnSearchNum = 0
 
     #bestRnnAUROC = 0
@@ -187,7 +174,7 @@ if __name__ == "__main__":
 
     bfile.write("best CNN AUROC for dev set: " + str(bestCnnAUROC) + "\n")
     bfile.write("best CNN search iteration for dev set: " + str(bestCnnSearchNum) + "\n")
-    #bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n\n")
+    bfile.write("best parameters for CNN: " + " ".join(str(x) for x in bestCnnParams) + "\n\n")
 
     #bfile.write("best RNN AUROC for dev set: " + str(bestRnnAUROC) + "\n")
     #bfile.write("best RNN search iteration for dev set: " + str(bestRnnSearchNum) + "\n")

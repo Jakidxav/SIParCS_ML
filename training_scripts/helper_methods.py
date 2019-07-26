@@ -52,3 +52,19 @@ def writeFile(file,neuronLayer, iterations, boolLSTM, boolAdam, boolNest, drop, 
     file.write("beta2 " + str(b2) + "\n")
     file.write("epsilon " + str(epsilon) + "\n")
     file.write("amsgrad " + str(amsgrad) + "\n")
+
+
+
+"""
+Given two different filenames, load in data and labels for a data set (training, development, or validation).
+"""
+def load_data(data_filename, labels_filename):
+    #open data
+    with open(data_filename, 'rb') as f:
+        data = pickle.load(f)
+    
+    #open labels
+    with open(Y_train_filename, 'rb') as i:
+       labels = pickle.load(i)
+
+    return data, labels
