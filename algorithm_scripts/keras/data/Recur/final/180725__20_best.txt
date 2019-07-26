@@ -1,3 +1,0 @@
-best RNN AUROC for dev set: 0.7954144620811288
-best RNN search iteration for dev set: 8
-best RNN search iteration for dev set: 4

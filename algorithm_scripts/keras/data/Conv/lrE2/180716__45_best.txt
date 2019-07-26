@@ -1,4 +1,0 @@
-best CNN AUROC for dev set: 0.5327316111629837
-best CNN search iteration for dev set: 7
-best parameters for CNN: 0.011 233
-
